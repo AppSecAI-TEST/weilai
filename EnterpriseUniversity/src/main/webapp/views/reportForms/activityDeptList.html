@@ -1,0 +1,174 @@
+<meta charset="UTF-8">
+<div class="container-fluid overflow-auto view-report" id="page" ng-controller="ActivityDeptController">
+			<div class="row">
+				<div class="container-fluid top-func-bar">
+					<div class="row">
+						<div class="col-xs-12">
+							<form role="search" class="">
+								<div class="row">
+									<!-- <div class="col-xs-3">
+										<div class="input-group" ng-class="{'has-error':activityName.length>=20}">
+											<input type="text" placeholder="请输入活动名称关键字" class="form-control " ng-model="activityName" maxlength="20" ng-keydown='autoSearch($event)'>
+											<span class="input-group-btn">
+												<a  class="btn  btn-primary"  ng-click="search()">搜索</a>
+											</span>
+										</div>
+									</div> -->
+									<div class="col-xs-6">
+					                 <label>查询时间：</label> 
+					                  <div style="display:inline-block;margin-left:15px;width:540px;">
+						               <input type="text" class="Wdate form-control width_5" id="startTime" ng-model="beginTime" onFocus="WdatePicker({onpicked:pickedStartTimeFunc,oncleared:clearStartTimeFunc,startDate:'%y-%M-%d',lang:'zh-cn',dateFmt:'yyyy-MM-dd',maxDate:'#F{$dp.$D(\'endTime\')}'})" readonly/> 
+	               		                <label>至</label>
+	               		                <input type="text" class="Wdate form-control width_5" id="endTime" ng-model="endTime" onFocus="WdatePicker({onpicked:pickedEndTimeFunc,oncleared:clearEndTimeFunc,startDate:'%y-%M-%d',lang:'zh-cn',dateFmt:'yyyy-MM-dd',minDate:'#F{$dp.$D(\'startTime\')}'})" readonly/>
+	                	                <a class="btn  btn-default pull-right" ng-click="reSetSearchOption()">重置</a>
+	                	                <a class="btn  btn-primary pull-right" ng-click="searchData()">查询</a>
+					                 </div>
+				                    </div>
+<!-- 				                    <div class="col-xs-6">
+				                    	<a class="btn  btn-primary" ng-click="viewSignUpStatistic(a)" >高级搜索</a>
+				                    </div> -->
+				                    </div>
+				     <div class="row" style="margin-top: 15px;">
+						 <div class="col-xs-1">
+							<select style="line-height: 28px;" class="form-control" ng-model="projectId" ng-change="changeSeclectOption5()" ng-options=" x.projectId as x.projectName for x in method">
+   								<option value="" >活动分类</option>
+							</select>
+						</div>
+						<div class="col-xs-1">
+							<select style="line-height: 28px;" class="form-control" ng-model="activityName" ng-change="changeSeclectOption6()" ng-options=" x.activityId as x.activityName for x in method1">
+   								<option value="" >活动名称</option>
+							</select>
+						</div>
+						<div class="col-xs-1">
+							<select style="line-height: 28px;" class="form-control" ng-model="status" ng-change="changeSeclectOption()" ng-options=" x.value as x.name for x in method2">
+   								<option value="" >活动状态</option>
+							</select>
+						</div>
+						<div class="col-xs-1">
+							<select style="line-height: 28px;" class="form-control" ng-model="isRequired" ng-change="changeSeclectOption()" ng-options=" x.value as x.name for x in method3">
+   								<option value="" >活动性质</option>
+							</select>
+						</div>
+					
+							<div class="col-xs-1">
+							<select style="line-height: 28px;" class="form-control" ng-model="orgname" ng-change="changeSeclectOption1()" ng-options=" x.code as x.name for x in method4">
+   								<option value="" >所属组织</option>
+							</select>
+						</div>
+						<div class="col-xs-1">
+							
+							<select style="line-height: 28px;" class="form-control" ng-model="oneDeptName" ng-change="changeSeclectOption2()" ng-options=" x.code as x.firstName for x in method5">
+   								<option value="" >一级部门</option>
+							</select>
+						</div>
+						<div class="col-xs-1">
+							<select style="line-height: 28px;" class="form-control" ng-model="twoDeptName" ng-change="changeSeclectOption3()" ng-options=" x.code as x.secondName for x in method6">
+   								<option value="" >二级部门</option>
+							</select>
+						</div>
+						<div class="col-xs-1">
+							<select style="line-height: 28px;" class="form-control" ng-model="threeDeptName" ng-change="changeSeclectOption()" ng-options=" x.code as x.thirdName for x in method7">
+   								<option value="" >三级部门</option>
+							</select>
+						</div>
+						</div>
+							</form>
+						</div>
+					</div>
+				</div>
+<!-- 				page.data = {{page.data}} -->
+				<div class="container-fluid">
+						<table class="table table-striped table-bordered table-hover table-condensed">
+							<thead>
+								<tr>
+<!-- 									<th width="50px">选择</th> -->
+									<th class="min-width1">序号</th>
+									<th class="min-width1">组织</th>
+									<th class="min-width1">一级部门</th>
+									<th class="min-width1">二级部门</th>
+									<th class="min-width1">三级部门</th>
+									<th class="min-width1">活动编号</th>
+									<th class="min-width1">活动名称</th>
+									<th class="min-width1">项目名称</th>
+									<th class="min-width1">创建时间</th>
+									<th class="min-width1">选修/必修</th>
+									<th class="min-width1">活动开始时间</th>
+									<th class="min-width1">活动结束时间</th>
+									<th class="min-width1">状态</th>
+<!-- 									<th class="min-width1">管理授权</th> -->
+<!-- 									<th class="min-width1">是否需要报名</th> -->
+									<th class="min-width1">参加人数</th>
+									<th class="min-width1">未学习人数</th>
+									<th class="min-width1">学习中人数</th>
+									<th class="min-width1">完成人数</th>
+									<th class="min-width1">总时长</th>
+									<th class="min-width1">活动完成率</th>
+									<th class="min-width1">考试平均分</th>
+									<th class="min-width1">考试平均通过率</th>
+									<th class="min-width1">选修开放人数</th>
+									<th class="min-width1">选修报名人数</th>
+									<th class="min-width1">选修报名率</th>
+									<th class="min-width1">获得积分</th>
+									<th class="min-width1">管理授权</th>
+								</tr>
+							</thead>
+							<tbody>
+							    <tr ng-repeat="a in page.data" ng-class="{'current-focus-tr': a.checked}" ng-click="highLightCurrRow1(a)" style="cursor:pointer;">
+								<!-- <tr ng-repeat="a in page.data" ng-class="{'current-focus-tr':a.activityId == currHighLightRow.activityId}" ng-click="highLightCurrRow(a)" style="cursor:pointer;"> -->
+<!-- 								   	<td><input type="checkbox" ng-checked="a.checked"></td> -->
+									<td ng-bind="$index+1"></td>
+								   	<td ng-bind="a.orgname"></td>
+								   	<td ng-bind="a.oneDeptName"></td>
+									<td ng-bind="a.twoDeptName"></td>
+									<td ng-bind="a.threeDeptName"></td>
+									<td ng-bind="a.activityNumber"></td>
+									<td ng-bind="a.activityName"></td>
+									<td ng-bind="a.activityType"></td>
+									<td ng-bind="a.createTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+									<td ng-bind="a.needApply=='Y'?'选修':'必修'"></td>
+									<!-- <td ng-bind="a.isRequired='N'?'必修':'选修'"></td> -->
+									<td ng-bind="a.activityStartTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+									<td ng-bind="a.activityEndTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+<!-- 									<td ng-bind="a.status"></td> -->
+									<td><span ng-if="a.status=='1'" >进行中</span><span ng-if="a.status=='2'" >未开始</span>
+									<span ng-if="a.status=='3'" >已过期</span></td>
+<!-- 									<td ng-bind="a.adminsName"></td> -->
+<!-- 									<td ng-bind="a.needApply=='N'?'否':'是'"></td> -->
+									<td ng-bind="a.openNum"></td>
+									<td ng-bind="a.notLearnNumber"></td>
+									<td ng-bind="a.isLearningNumber"></td>
+									<td ng-bind="a.to"></td>
+									<td ng-bind="a.totalTime"></td>
+									<td ng-bind="a.completedRate"></td>
+									<td ng-bind="a.averageScore"></td>
+									<td ng-bind="a.averagePassRate"></td>
+									<td ng-bind="a.openNumber"></td>
+									<td ng-bind="a.numberOfParticipants "></td>
+									<td ng-bind="a.numberOfParticipantsRate "></td>
+									<td ng-bind="a.integral"></td>
+									<td ng-bind="a.adminsName"></td>
+								</tr>
+							</tbody>
+						</table>
+						<div class="container-fluid" style="margin-top:20px;" ng-if="page.data.length>0">
+						<div class="row">
+						   <!--  <span class="batch-remove-selectAll" ng-click="chooseCurrPageAllItem()">
+					          <input type="checkbox"  ng-checked="selectAll">全选
+				            </span> -->
+				            <a class="btn btn-primary" ng-click="downloadActivityStatisticsExcel()">导&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;出 </a>
+							<!-- <a class="btn btn-primary btn-con-trol" href="/enterpriseuniversity/services/activityStatistics/downloadActivityStatisticsExcel?pageNum={{page.pageNum}}&pageSize={{page.pageSize}}&activityName={{activityName}}&beginTimeq={{beginTime}}&endTimeq={{endTime}}">导&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;出</a> -->
+						</div>
+					</div>
+					<div>
+						<div class="container-fluid" pagination conf="paginationConf"></div>
+					</div>
+				</div>
+			</div>
+<!-- 	 <div class="form-group"  ng-include="'/enterpriseuniversity/views/modalTemplate/SearchActivityDeptList.html'"></div> -->
+</div>
+<script>
+//监听窗口大小变化，自适应高度
+	$(document).ready(function () {
+		resizeView();
+	});
+</script>

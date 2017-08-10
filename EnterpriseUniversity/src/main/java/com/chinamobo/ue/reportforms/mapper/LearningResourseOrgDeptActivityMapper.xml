@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.reportforms.dao.LearningResourseOrgDeptActivityMapper">
+	  <resultMap id="BaseResultMap" type="com.chinamobo.ue.reportforms.dto.LearningResourseOrgDeptActivityDto">
+	  <!-- 活动 -->
+	  	<result column="activity_id" property="activityId" jdbcType="INTEGER" />
+		<result column="activity_number" property="activityNumber" jdbcType="VARCHAR" />
+		<result column="activity_name" property="activityName" jdbcType="VARCHAR" />
+		<result column="activity_type" property="activityType" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="need_apply" property="needApply" jdbcType="VARCHAR" />
+		<result column="application_start_time" property="applicationStartTime" jdbcType="TIMESTAMP" />
+		<result column="activity_start_time" property="activityStartTime" jdbcType="TIMESTAMP" />
+		<result column="activity_end_time" property="activityEndTime" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+		<result column="admins" property="admins" jdbcType="VARCHAR" />
+		<result column="admin_names" property="adminNames" jdbcType="VARCHAR" />
+		<result column="activity_total_eb" property="activityTotalEb" jdbcType="VARCHAR" />
+		<result column="activity_eb" property="activityEb" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	 <!-- 条件 分页 查询 -->
+	<select id="findPageList" resultMap="BaseResultMap" parameterType="map">
+	    <include refid="sql_view"></include> 
+		where 1=1
+		<include refid="condition"></include>
+		<if test="endNum!='-1'.toString() and startNum!=null and endNum!=null">
+		  limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+		</if>
+		
+	</select>
+	<!-- 条件查询记录数 -->
+	<select id="findCount" resultType="java.lang.Integer" >
+		SELECT count(*) FROM tom_activity as a 
+		 where 1=1
+		<include refid="condition"></include> 
+	</select>
+	<!-- 条件 查询 -->
+	<select id="findList" resultMap="BaseResultMap" parameterType="map">
+		<include refid="sql_view"></include>
+        where 1=1
+        <include refid="condition"></include>
+        <if test="endNum!='-1'.toString() and startNum!=null and endNum!=null">
+          limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+        </if>
+	</select>
+	
+	<select id="findActivityType" resultMap="BaseResultMap">
+		SELECT project_name as activity_type FROM tom_project_classify
+	</select>
+	
+	<!-- 页面 共用条件 -->
+	<sql id="condition">
+		<if test="beginTimeq != null" >
+      			and a.activity_start_time <![CDATA[>]]> #{beginTimeq,jdbcType=TIMESTAMP}
+   		</if>
+   		<if test="endTimeq != null" >
+      			and a.activity_start_time <![CDATA[<]]> #{endTimeq,jdbcType=TIMESTAMP}
+   		</if>
+   		<if test="examTotalTime != null" >
+                and a.activity_end_time <![CDATA[<]]> #{examTotalTime,jdbcType=TIMESTAMP}
+        </if>
+		<if test="activityType != null">
+			and a.parent_project_classify_name = #{activityType,jdbcType=VARCHAR}
+		</if>
+		<if test="activityName != null">
+			and a.activity_name LIKE "%" #{activityName,jdbcType=VARCHAR} "%"
+		</if>
+		<if test="needApply != null">
+			and a.need_apply = #{needApply,jdbcType=VARCHAR}
+		</if>
+		<if test="activityState !=null">
+			<if test="activityState=='0'.toString()">
+				AND now() <![CDATA[>]]> a.activity_start_time AND now() <![CDATA[<]]> a.activity_end_time
+			</if>
+			<if test="activityState=='1'.toString()">
+				AND now() <![CDATA[>]]> a.activity_end_time
+			</if>
+		</if>
+	
+	
+	</sql>
+	<sql id="sql_view">
+	        SELECT
+			a.activity_id,a.activity_number,a.activity_name,
+			a.parent_project_classify_name as activity_type,
+			a.create_time,
+			a.need_apply,a.application_start_time,a.activity_start_time,a.activity_end_time,
+			a.update_time,a.admins,a.admin_names,
+			(<include refid="activityTotalEb"></include>) as activity_total_eb,
+			(<include refid="activityEb"></include>) as activity_eb
+			FROM tom_activity as a
+	
+	</sql>
+	<sql id="activityTotalEb">
+	   SELECT (IFNULL(sum(b.E_CURRENCY),0)+IFNULL(sum(d.PASS_EB),0))
+		FROM tom_activity_property as aa
+		LEFT JOIN tom_courses as b ON aa.COURSE_ID=b.COURSE_ID
+		LEFT JOIN tom_exam as c ON aa.EXAM_ID=c.EXAM_ID
+		LEFT JOIN tom_exam_paper as d ON c.EXAM_PAPER_ID=d.EXAM_PAPER_ID 
+		WHERE aa.ACTIVITY_ID=a.activity_id
+	</sql>
+	<sql id="activityEb">
+         SELECT (IFNULL(SUM(b.E_CURRENCY),0)+IFNULL(sum(g.PASS_EB),0)) 
+        FROM tom_activity_property as aa
+        LEFT JOIN tom_courses as b ON aa.COURSE_ID=b.COURSE_ID
+        LEFT JOIN tom_exam as c ON aa.EXAM_ID=c.EXAM_ID
+        LEFT JOIN tom_activity_emps_relation as d ON d.ACTIVITY_ID=aa.ACTIVITY_ID
+        LEFT JOIN tom_emp ON tom_emp.`CODE`=d.`CODE`
+        LEFT JOIN tom_course_learning_record as e ON e.COURSE_ID=aa.COURSE_ID AND e.`CODE`=d.`CODE`
+        LEFT JOIN tom_offline_sign as f ON f.COURSE_ID=aa.COURSE_ID AND f.`code`=d.`CODE`
+        LEFT JOIN tom_exam_paper as g ON c.EXAM_PAPER_ID=g.EXAM_PAPER_ID
+        LEFT JOIN tom_exam_score as h ON c.EXAM_ID=h.EXAM_ID AND h.`CODE`=d.`CODE`
+        WHERE  aa.ACTIVITY_ID=a.ACTIVITY_ID 
+        AND (IFNULL(aa.COURSE_ID,-1)=IFNULL(e.COURSE_ID,-1) or IFNULL(aa.COURSE_ID,-1)=IFNULL(f.COURSE_ID,-1)) 
+        AND (IFNULL(aa.EXAM_ID,-1)=IFNULL(h.EXAM_ID,-1) AND IFNULL(h.TOTAL_POINTS,0)>=IFNULL(g.PASS_MARK,0)) 
+        
+        <if test="orgName != null and orgName!='' ">
+            and tom_emp.orgcode = #{orgName,jdbcType=VARCHAR}
+        </if>
+        <if test="jobName != null and jobName!='' ">
+            and tom_emp.jobcode = #{jobName,jdbcType=VARCHAR}
+        </if>
+        <if test="oneDeptName != null and oneDeptName!='' ">
+            and tom_emp.onedeptcode = #{oneDeptName,jdbcType=VARCHAR}
+        </if>
+        <if test="twoDeptName != null and twoDeptName!='' ">
+            and tom_emp.TWO_DEPT_CODE = #{twoDeptName,jdbcType=VARCHAR}
+        </if>
+        <if test="threeDeptName != null and threeDeptName!='' ">
+            and tom_emp.THREE_DEPT_CODE = #{threeDeptName,jdbcType=VARCHAR}
+        </if>
+        <if test="code != null and code!='' ">
+            and tom_emp.`CODE` LIKE "%" #{code,jdbcType=VARCHAR} "%"
+        </if>
+         <if test="name != null and name!='' ">
+            and tom_emp.NAME LIKE "%" #{name,jdbcType=VARCHAR} "%"
+        </if>
+	</sql>
+</mapper>	

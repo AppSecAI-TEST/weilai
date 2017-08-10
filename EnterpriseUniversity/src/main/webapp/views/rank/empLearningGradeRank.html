@@ -1,0 +1,63 @@
+<meta charset="UTF-8" >
+<script type="text/javascript" src="/enterpriseuniversity/js/plugins/chart/echarts-all.js"></script>
+<div class="container-fluid overflow-auto" id="page" ng-controller="EmpLearningGradeRankController">
+	<div class="row">
+		<div class="container-fluid top-func-bar">
+			<div class="row">
+				<div class="col-xs-12">
+               		<label class="func-label pull-left">统计区间：</label> 
+                  	<div class="col-xs-10" style="display:inline-block;">
+               			<!-- onpicked:pickedStartTimeFunc,oncleared:clearStartTimeFunc, -->
+		                <input type="text" class="Wdate form-control width_5" id="startTime" onchange="" ng-model="beginTimeq" onFocus="WdatePicker({startDate:'%y-%M-%d',lang:'zh-cn',dateFmt:'yyyy-MM-dd',maxDate:'#F{$dp.$D(\'endTime\')}'})" readonly/> 
+   		                <label>至</label>
+   		                <!-- onpicked:pickedEndTimeFunc,oncleared:clearEndTimeFunc, -->
+   		                <input type="text" class="Wdate form-control width_5" id="endTime" onchange="" ng-model="endTimeq" onFocus="WdatePicker({startDate:'%y-%M-%d',lang:'zh-cn',dateFmt:'yyyy-MM-dd',minDate:'#F{$dp.$D(\'startTime\')}'})" readonly/>
+               			<a class="btn  btn-default" ng-click="reSetSearchOption()">重置</a>
+               			<a class="btn  btn-primary" ng-click="searchData()">查询</a>
+               			<a class="btn  btn-primary" ng-click="moreQueryOptionSearch()">高级搜索</a>
+               		</div>
+               	</div>
+			</div>
+			<div class="row" style="margin-top: 15px;" ng-show="showMoreQueryOption" >
+				<div class="col-xs-12"> 
+					<label class="func-label pull-left">高级查询：</label> 
+					<div class="col-xs-10" style="display:inline-block;">
+						<div class="width_15">
+							<select style="line-height: 28px;" class="form-control" ng-model="orgName" ng-change="changeSeclectedOrgcode()" ng-options=" x.code as x.name for x in orgs">
+								<option value="" >所属组织</option>
+							</select>
+						</div>
+						<div class="width_15">
+							<select style="line-height: 28px;" class="form-control" ng-model="oneDeptName" ng-change="changeSeclectedOnedeptcode()" ng-options=" x.code as x.firstName for x in firstDepts">
+								<option value="" >一级部门</option>
+							</select>
+						</div>
+						<div class="width_15">
+							<select style="line-height: 28px;" class="form-control" ng-model="twoDeptName" ng-change="changeSeclectedDeptname()" ng-options=" x.code as x.secondName for x in secondDepts">
+								<option value="" >二级部门</option>
+							</select>
+						</div>
+						<div class="width_15">
+							<select style="line-height: 28px;" class="form-control" ng-model="threeDeptName" ng-change="changeSeclectedThirdName()" ng-options=" x.code as x.thirdName for x in thirdDepts">
+								<option value="" >三级部门</option>
+							</select>
+						</div>
+					</div>
+				</div> 
+			</div>
+		</div>
+		<div class="container-fluid">
+			<!-- 此处生成图表 -->
+			<bar-rank-chart id="learningTimeRankChart" deffer="deferred"></bar-rank-chart> 
+			<div class="container-fluid" pagination conf="paginationConf"></div>
+			<a class="btn btn-primary" ng-click="downloadLearningCoursescoreRankingExcel()">导&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;出 </a>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	//监听窗口大小变化，自适应高度
+	$(document).ready(function () {
+		resizeView();
+	});
+</script>

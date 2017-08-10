@@ -1,0 +1,131 @@
+<meta charset="utf-8">
+<div class="container-fluid overflow-auto" id="page" ng-controller="EmpLearningActionController">
+			<div class="row">
+				<div class="container-fluid top-func-bar">
+					<div class="row">
+						<div class="col-xs-12">
+							<form role="search" class="">
+								<div class="row">
+									<div class="col-xs-6">
+					                 <label>统计区间：</label> 
+					                  <div style="display:inline-block;margin-left:15px;width:540px;">
+						               <input type="text" class="Wdate form-control width_5" id="startTime" onchange="" ng-model="beginTime" onFocus="WdatePicker({onpicked:pickedStartTimeFunc,oncleared:clearStartTimeFunc,startDate:'%y-%M-%d',lang:'zh-cn',dateFmt:'yyyy-MM-dd',maxDate:'#F{$dp.$D(\'endTime\')}'})" readonly/> 
+	               		                <label>至</label>
+	               		                <input type="text" class="Wdate form-control width_5" id="endTime" onchange="" ng-model="endTime" onFocus="WdatePicker({onpicked:pickedEndTimeFunc,oncleared:clearEndTimeFunc,startDate:'%y-%M-%d',lang:'zh-cn',dateFmt:'yyyy-MM-dd',minDate:'#F{$dp.$D(\'startTime\')}'})" readonly/>
+	                	                <a class="btn  btn-default pull-right" ng-click="reSetSearchOption()">重置</a>
+	                	                <a class="btn  btn-primary pull-right" ng-click="searchData()">查询</a>
+					                 </div>
+				                    </div>
+				                    <div class="col-xs-1">
+				                    	<a class="btn  btn-primary pull-right"  type="checkbox"  name="arayacak"  ng-checked="a.arayacak=='Y'"  ng-click="viewSignUpStatistic(a)" >高级搜索</a>
+				                   </div>
+								</div>
+								<div class="row" style="margin-top: 15px;" ng-show="a.arayacak=='Y'">
+								 <div class="col-xs-2">
+					                <select style="line-height: 28px;" class="form-control" ng-model="orgname" ng-change="changeSeclectOption1()" ng-options=" x.code as x.name for x in method1">
+   						            	<option value="" >所属组织</option>
+					                </select>
+				                  </div>
+								  <div class="col-xs-2">
+					                <select style="line-height: 28px;" class="form-control" ng-model="onedeptname" ng-change="changeSeclectOption2()" ng-options=" x.code as x.firstName for x in method2">
+   						            	<option value="" >一级部门</option>
+					                </select>
+				                  </div>
+				                  <div class="col-xs-2">
+					                <select style="line-height: 28px;" class="form-control" ng-model="twoCode" ng-change="changeSeclectOption3()" ng-options=" x.code as x.secondName for x in method3">
+   						            	<option value="" >二级部门</option>
+					                </select>
+				                  </div>
+				                  <div class="col-xs-2">
+					                <select style="line-height: 28px;" class="form-control" ng-model="threeCode" ng-change="changeSeclectOption4()" ng-options=" x.code as x.thirdName for x in method4">
+   						            	<option value="" >三级部门</option>
+					                </select>
+				                  </div>
+								</div>
+								<div class="row" style="margin-top: 15px;" ng-show="a.arayacak=='Y'">
+								   <div class="col-xs-3">
+										<div class="input-group" ng-class="{'has-error':name.length>=20}">
+											<input type="text" placeholder="请输入姓名关键字" class="form-control " ng-model="name" maxlength="20" ng-keydown='autoSearch($event)'>
+											<span class="input-group-btn">
+												<a  class="btn  btn-primary"  ng-click="search()">搜索</a>
+											</span>
+										</div>
+									</div>
+									<div class="col-xs-3">
+										<div class="input-group" ng-class="{'has-error':code.length>=20}">
+											<input type="text" placeholder="请输入用户名关键字" class="form-control " ng-model="code" maxlength="20" ng-keydown='autoSearch($event)'>
+											<span class="input-group-btn">
+												<a  class="btn  btn-primary"  ng-click="search()">搜索</a>
+											</span>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<!-- page.data = {{page.data}} -->
+				<div class="container-fluid">
+					<table class="table table-striped table-bordered table-hover table-condensed">
+						<thead>
+							<tr>
+							    <!-- <th width="40px">选择</th> -->
+							    <th class="min-width1">序号</th>
+								<th class="min-width1">用户名</th>
+								<th class="min-width1">姓名</th>
+								<th class="min-width1">所属组织</th>
+								<th class="min-width1">一级部门</th>
+								<th class="min-width1">二级部门</th>
+								<th class="min-width1">三级部门</th>
+								<th class="min-width1">管理角色分配</th>
+								<th class="min-width1">邮箱</th>
+								<th class="min-width1">学习时长</th>
+								<th class="min-width1">获得积分</th>
+								<th class="min-width1">PC登陆次数</th>
+								<th class="min-width1">微信端登陆次数</th>
+								<th class="min-width1">登录时长</th>
+							</tr>
+						</thead>
+						<tbody>
+						    <!-- <tr ng-repeat="a in page.data" ng-class="{'current-focus-tr':a.checked}" ng-click="chooseItem(a)" style="cursor:pointer;"> -->
+							<tr ng-repeat="a in page.data" ng-class="{'current-focus-tr': a.checked}" ng-click="highLightCurrRow(a)" style="cursor:pointer;">
+							   	<!-- <td><input type="checkbox" ng-checked="a.checked"></td> -->
+							   	<td ng-bind="$index+1"></td>
+							   	<td ng-bind="a.code"></td>
+								<td ng-bind="a.name"></td>
+								<td ng-bind="a.orgname"></td>
+								<td ng-bind="a.onedeptname"></td>
+								<td ng-bind="a.twoName"></td>
+								<td ng-bind="a.threeName"></td>
+								<td ng-bind="a.isAdmin"></td>
+								<td ng-bind="a.secretEmail"></td>
+								<td ng-bind="a.learningTime"></td>
+								<td ng-bind="a.eNumber"></td>
+								<td ng-bind="a.sumSignInTimes"></td>
+								<td ng-bind="a.sumSignInTimesH5"></td>
+								<td ng-bind="a.loadTime"></td>
+							</tr>
+						</tbody>
+					</table>
+						<div class="container-fluid" style="margin-top:20px;" ng-if="page.data.length>0">
+						<!-- <div class="row">
+						    <span class="batch-remove-selectAll" ng-click="chooseCurrPageAllItem()">
+					          <input type="checkbox"  ng-checked="selectAll">全选
+				            </span>
+				            <a class="btn btn-primary" ng-click="downloadempLearningActionExcel()">导&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;出 </a>
+						</div> -->
+						<div class="row">
+							<a class="btn btn-primary btn-con-trol" ng-click =  "downloadEmpLearningActionExcel()">导&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;出</a>
+						</div>
+					   </div>
+					<div class="container-fluid" pagination conf="paginationConf"></div>
+				</div>
+			</div>
+	 
+</div>
+<script>
+//监听窗口大小变化，自适应高度
+$(document).ready(function () {
+	resizeView();
+});
+</script>

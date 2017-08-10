@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.course.dao.TomOfflineSignMapper" >
+  <resultMap id="BaseResultMap" type="com.chinamobo.ue.course.entity.TomOfflineSign" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="course_id" property="courseId" jdbcType="INTEGER" />
+    <result column="classes_id" property="classesId" jdbcType="INTEGER" />
+    <result column="sign_time" property="signTime" jdbcType="TIMESTAMP" />
+    <result column="code" property="code" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, course_id, classes_id, sign_time, code
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tom_offline_sign
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tom_offline_sign
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.chinamobo.ue.course.entity.TomOfflineSign" >
+    insert into tom_offline_sign (course_id, classes_id, 
+      sign_time, code)
+    values ( #{courseId,jdbcType=INTEGER}, #{classesId,jdbcType=INTEGER}, 
+      #{signTime,jdbcType=TIMESTAMP}, #{code,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.chinamobo.ue.course.entity.TomOfflineSign" >
+    insert into tom_offline_sign
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="courseId != null" >
+        course_id,
+      </if>
+      <if test="classesId != null" >
+        classes_id,
+      </if>
+      <if test="signTime != null" >
+        sign_time,
+      </if>
+      <if test="code != null" >
+        code,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="courseId != null" >
+        #{courseId,jdbcType=INTEGER},
+      </if>
+      <if test="classesId != null" >
+        #{classesId,jdbcType=INTEGER},
+      </if>
+      <if test="signTime != null" >
+        #{signTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="code != null" >
+        #{code,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.chinamobo.ue.course.entity.TomOfflineSign" >
+    update tom_offline_sign
+    <set >
+      <if test="courseId != null" >
+        course_id = #{courseId,jdbcType=INTEGER},
+      </if>
+      <if test="classesId != null" >
+        classes_id = #{classesId,jdbcType=INTEGER},
+      </if>
+      <if test="signTime != null" >
+        sign_time = #{signTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="code != null" >
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.chinamobo.ue.course.entity.TomOfflineSign" >
+    update tom_offline_sign
+    set course_id = #{courseId,jdbcType=INTEGER},
+      classes_id = #{classesId,jdbcType=INTEGER},
+      sign_time = #{signTime,jdbcType=TIMESTAMP},
+      code = #{code,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectSignRecord" resultMap="BaseResultMap" parameterType="map">
+  	select * from tom_offline_sign where 1=1
+  	<if test="courseId !=null">
+  		and course_id = #{courseId,jdbcType=INTEGER}
+  	</if>
+  	<if test="code !=null">
+  		and code = #{code,jdbcType=VARCHAR}
+  	</if>
+  	<if test="courseClasses !=null">
+  		and classes_id = #{courseClasses,jdbcType=INTEGER}
+  	</if>
+  	<if test="createDate !=null">
+  		and #{createDate,jdbcType=INTEGER} > sign_time  
+  	</if>
+  </select>
+	<!-- 查询该学员是否签到 -->
+	<select id="signCount" resultType="java.lang.Integer" parameterType="map">
+		SELECT
+		COUNT(*)
+		FROM tom_offline_sign a
+		WHERE 1=1
+		<if test="code !=null">
+  			and code = #{code,jdbcType=VARCHAR}
+  		</if>
+  		<if test="courseId !=null">
+  			and course_id = #{courseId,jdbcType=INTEGER}
+  		</if>
+	</select>
+</mapper>

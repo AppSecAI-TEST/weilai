@@ -1,0 +1,91 @@
+<meta charset="UTF-8" >
+<div ng-controller="CourseApplyListController">
+	<div class="modal fade" ng-class="{'in':openApplyModalDialog,'display-block':openApplyModalDialog}"
+	     tabindex="-1" role="dialog"
+	     ng-if="openApplyModalDialog">
+	    <div class="modal-dialog" ng-style="setStyle_02()">
+	        <div class="modal-content">
+	            <div class="modal-header">
+	                <a class="close del-icon" ng-click="doCloseApply()">&times;</a>
+	                <h4 class="modal-title">报名详情</h4>
+	            </div>
+	            <div class="modal-body">
+	                <div class="container-fluid">
+	                    <table class="table table-striped table-bordered table-hover table-condensed">
+							<thead>
+								<tr>
+									<th>序号</th>
+									<th>工号</th>
+									<th>姓名</th>
+									<th>报名班次</th>
+									<th>报名时间</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="c in page.data" ng-class="{'current-focus-tr':c.code == currHighLightRow.code&&c.createTime==currHighLightRow.createTime}" ng-click="highLightCurrRow(c)" style="cursor:pointer;">
+									<td ng-bind="$index+1"></td>
+									<td ng-bind="c.code"></td>
+									<td ng-bind="c.name"></td>
+									<td ng-bind="c.classesName"></td>
+									<td ng-bind="c.applyTime| date:'yyyy-MM-dd HH:mm:ss'"></td>
+								</tr>
+							</tbody>
+						</table>
+	                    <!-- 分页 -->
+	                    <div class="container-fluid" pagination conf="paginationConf"></div>
+	                </div>
+	            </div>
+	            <input type="hidden" id="courseId" value="{{courseId}}">
+	            <!--导入报名-->
+			        <div style="position:relative;" class="form-group" ng-controller="ApplyUploadController" uploader="excelUploader" filters="queueLimit, customFilter">
+			            <div class="container-fluid">
+			            <div class="col-xs-8 row">
+			                <a class="fileInputBtn btn btn-primary btn-control">导入</a>
+			                <input type="file" class="fileInput btn btn-control"  id="fileInput" nv-file-select  uploader="excelUploader">
+			                <a href="/enterpriseuniversity/services/file/download?filePath=file/ItemBankTemplate/applyTemplate.xlsx&fileName=applyTemplate.xlsx">模板下载</a>
+			                <div class="inputIntro"></div>
+			            </div>
+			            <div style="min-height:0;" class="col-xs-offset-2 col-xs-8">
+			                <table style="margin-top: 10px;" ng-show="excelUploader.queue.length>0"class="table table-bordered text-center">
+			                    <tr>
+			                        <td class="col-xs-2">文件名称</td>
+			                        <td class="col-xs-2">大小</td>
+			                        <td class="col-xs-2">进度</td>
+			                        <td class="col-xs-2">状态</td>
+			                        <td class="col-xs-2">操作</td>
+			                    </tr>
+			                    <tr ng-repeat="item in excelUploader.queue">
+			                        <td class="overflow-breakall"><strong><a ng-click="preview()">{{ item.file.name }}</a></strong></td>
+			                        <td ng-show="excelUploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>
+			                        <td ng-show="excelUploader.isHTML5">
+			                            <div class="progress" style="margin-bottom: 0;">
+			                                <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+			                            </div>
+			                        </td>
+			                        <td class="text-center">
+			                        	<span ng-show="item.isUploading"><i class="glyphicon loading"></i></span>
+			                            <span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
+			                            <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
+			                        </td>
+			                        <td nowrap>
+			                            <a class="btn btn-success btn-xs" ng-click="uploadItem(item)" ng-disabled="item.isReady || item.isUploading || item.isSuccess">
+			                                <span class="glyphicon glyphicon-upload"></span> 上传
+			                            </a>
+			                            <a class="btn btn-danger btn-xs" ng-click="removeItem(item)">
+			                                <span class="glyphicon glyphicon-trash"></span> 删除
+			                            </a>
+			                        </td>
+			                    </tr>
+			                </table>
+			            </div>
+			            </div>
+			        </div>
+	            <div class="modal-footer">
+	                <button type="button" class="btn btn-default" ng-click="doCloseApply()">关闭</button>
+	            </div>
+	        </div>
+	    </div>
+	    <!-- <div class="modal-backdrop fade in"></div> -->
+	</div>
+	<div class="modal-backdrop fade" ng-class="{'in':openApplyModalDialog,'display-block':openApplyModalDialog,'display-none':!openApplyModalDialog}"></div>
+</div>

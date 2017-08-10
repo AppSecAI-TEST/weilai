@@ -1,0 +1,52 @@
+<div ng-controller="viewEmpScoreController">
+	<!-- 模态框（Modal） -->
+	<div class="modal fade" ng-class="{'in':openModalDialog,'display-block':openModalDialog}"  role="dialog" ng-if="openModalDialog">
+		<div class="modal-dialog" ng-style="setStyle_02()">
+			<div class="modal-content">
+				<div class="modal-header">
+					<a class="close del-icon" ng-click="doClose()">&times;</a>
+					<h4 class="modal-title" ng-bind="'《'+code+'》'+'统计'"></h4>
+				</div>
+				<div class="modal-body">
+					<table class="table table-striped table-bordered table-hover table-condensed">
+						<thead>
+							<tr>
+			 					<th class="col-xs-1">积分获得时间</th>
+			 					<th class="col-xs-2">积分数</th>
+			 					<th class="col-xs-2">积分类型</th>
+			 				</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="b in page.data" ng-class="{'current-focus-tr':b.code == currHighLightRow.code}" ng-click="highLightCurrRow(b)" style="cursor:pointer;">
+<!-- 			 					<td ng-bind="$index+1"></td> -->
+			 					<td ng-bind="b.getTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+			 					<td ng-bind="b.exchangeNumber"></td>
+			 					<td><span ng-show="b.road==1" ng-bind="'系统签到'" ></span><span ng-show="b.road==2" ng-bind="'在线课程积分'"></span>
+			 					<span ng-show="b.road==3" ng-bind="'在线考试积分'"></span><span ng-show="b.road==4" ng-bind="'提交问卷'"></span>
+			 					<span ng-show="b.road==5" ng-bind="'课程评分'"></span><span ng-show="b.road==6" ng-bind="'讲师评分'"></span>
+			 					<span ng-show="b.road==7" ng-bind="'讨论圈发起的话题'"></span><span ng-show="b.road==8" ng-bind="'评论点赞'"></span>
+			 					<span ng-show="b.road==9" ng-bind="'考试未通过'"></span><span ng-show="b.road==10" ng-bind="'登录积分'"></span>
+			 					<span ng-show="b.road==11" ng-bind="'线下课程签到积分'"></span><span ng-show="b.road==13" ng-bind="'在线公开课积分'"></span>
+			 					<span ng-show="b.road==14" ng-bind="'在线独立考试积分'"></span><span ng-show="b.road==15" ng-bind="'评论积分'"></span>
+			 					<span ng-show="b.road==16" ng-bind="'学习状态积分'"></span><span ng-show="b.road==17" ng-bind="'兑换商品'"></span>
+			 					</td>
+			 				</tr>
+						</tbody>
+					</table>
+					<div class="container-fluid" style="margin-top:20px;" ng-show="page.data.length>0">
+						<div class="row">
+							<a class="btn btn-primary" ng-click="downloadViewEmpModelTemplateScoreDetaileExcel()">导&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;出 </a>
+						</div>
+					</div>
+					<div>
+                		<div class="container-fluid" pagination conf="paginationConf"></div>
+              		</div>
+				</div>
+				<div class="modal-footer">
+                    <a class="btn btn-default" ng-click="doClose()">关闭</a>
+                </div>
+			</div>
+		</div>
+	</div>
+	<div class="modal-backdrop fade" ng-class="{'in':openModalDialog,'display-block':openModalDialog,'display-none':!openModalDialog}"></div>
+</div>

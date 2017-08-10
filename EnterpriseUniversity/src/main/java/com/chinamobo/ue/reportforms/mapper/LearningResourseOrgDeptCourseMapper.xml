@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.chinamobo.ue.reportforms.dao.LearningResourseOrgDeptCourseMapper">
+	<resultMap id="BaseResultMap"
+		type="com.chinamobo.ue.reportforms.dto.LearningResourseOrgDeptCourseDto">
+		<!-- 线上课程 -->
+		<result column="course_id" property="courseId" jdbcType="INTEGER" />
+		<result column="course_number" property="courseNumber"
+			jdbcType="VARCHAR" />
+		<result column="course_name" property="courseName" jdbcType="VARCHAR" />
+		<result column="e_currency" property="ecurrency" jdbcType="INTEGER" />
+		<result column="open_course" property="openCourse" jdbcType="VARCHAR" />
+		<result column="course_online" property="courseOnline"
+			jdbcType="VARCHAR" />
+		<result column="section_classify_code" property="sectionClassifyCode"
+			jdbcType="VARCHAR" />
+		<result column="section_classify_name" property="sectionClassifyName"
+			jdbcType="VARCHAR" />
+		<result column="section_count" property="sectionCount"
+			jdbcType="INTEGER" />
+		<result column="viewers" property="viewers" jdbcType="INTEGER" />
+		<result column="course_total_number" property="courseTotalNumber"
+			jdbcType="INTEGER" />
+		<result column="course_learning_number" property="courseLearningNumber"
+			jdbcType="INTEGER" />
+		<result column="course_complete_learning_number" property="courseCompleteLearningNumber"
+			jdbcType="INTEGER" />
+		<result column="course_times" property="courseTimes" jdbcType="DOUBLE" />
+		<result column="course_average_learning_times" property="courseAverageLearningTimes"
+			jdbcType="DOUBLE" />
+		<result column="learning_section_count" property="learningSectionCount"
+			jdbcType="INTEGER" />
+
+		<!-- 线下课程 -->
+		<result column="course_sign_up_number" property="courseSignUpNumber"
+			jdbcType="INTEGER" />
+		<result column="course_distribution_number" property="courseDistributionNumber"
+			jdbcType="INTEGER" />
+		<result column="course_classes_number" property="courseClassesNumber"
+			jdbcType="INTEGER" />
+		<result column="course_sign_number" property="courseSignNumber"
+			jdbcType="INTEGER" />
+		<result column="course_sign_people_number" property="courseSignPeopleNumber"
+			jdbcType="INTEGER" />
+		<result column="thumb_up_count" property="courseThumbUpCount"
+			jdbcType="INTEGER" />
+		<result column="course_favorite_number" property="courseFavoriteNumber"
+			jdbcType="INTEGER" />
+		<result column="comment_count" property="courseCommentCount"
+			jdbcType="INTEGER" />
+
+
+		<!-- 课程评论内容 -->
+		<result column="course_comment_content" property="courseCommentContent"
+			jdbcType="VARCHAR" />
+		<result column="comment_create_time" property="commentCreateTime"
+			jdbcType="TIMESTAMP" />
+		<result column="emp_code" property="empCode" jdbcType="VARCHAR" />
+		<result column="emp_name" property="empName" jdbcType="VARCHAR" />
+		<result column="emp_deptname" property="empDeptname" jdbcType="VARCHAR" />
+		<result column="emp_postname" property="empPostname" jdbcType="VARCHAR" />
+		<result column="emp_secret_email" property="empSecretEmail"
+			jdbcType="VARCHAR" />
+		<result column="emp_mobile" property="empMobile" jdbcType="VARCHAR" />
+		
+		<!-- 点赞时间 -->
+		<result column="thumb_up_create_time" property="thumbUpCreateTime"
+            jdbcType="TIMESTAMP" />
+	</resultMap>
+	<!-- 条件 分页 查询 -->
+	<select id="findPageList" resultMap="BaseResultMap"
+		parameterType="map">
+		<include refid="sql_view"></include>
+		where 1=1 and aa.status='Y' 
+		<include refid="condition"></include>
+		ORDER BY aa.create_time DESC
+		<if test="endNum!='-1'.toString() and startNum!=null and endNum!=null">
+			limit
+			#{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+		</if>
+	</select>
+	<!-- 条件查询记录数 -->
+	<select id="findCount" resultType="java.lang.Integer"
+		parameterType="map">
+		SELECT COUNT(*) FROM tom_courses as aa
+		where 1=1 and aa.status='Y' 
+		<include refid="condition"></include>
+	</select>
+	<!-- 条件 查询 -->
+	<select id="findList" resultMap="BaseResultMap" parameterType="map">
+		<include refid="sql_view"></include>
+		where 1=1 and aa.status='Y' 
+		<include refid="condition"></include>
+		ORDER BY aa.create_time DESC
+		<if test="endNum!='-1'.toString() and startNum!=null and endNum!=null">
+			limit
+			#{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+		</if>
+	</select>
+
+	<!-- 课程评论内容 -->
+	<select id="findCommentListByCourseId" resultMap="BaseResultMap"
+		parameterType="map">
+		SELECT a.course_comment_content,a.create_time as comment_create_time,
+		b.code as emp_code,b.name as emp_name,b.deptname as
+		emp_deptname,b.postname as emp_postname,
+		b.secret_email as
+		emp_secret_email,b.mobile as emp_mobile
+		FROM tom_course_comment as a
+		LEFT JOIN tom_emp as b ON a.code=b.code
+		where
+		a.course_id=#{courseId,jdbcType=INTEGER}
+		<if test="endNum!='-1'.toString() and startNum!=null and endNum!=null">
+			limit
+			#{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+		</if>
+	</select>
+
+    <!-- 课程评论记录数 -->
+	<select id="findCommentListCount" resultType="java.lang.Integer"
+		parameterType="map">
+		SELECT count(*)
+		FROM tom_course_comment as a
+		where
+		a.course_id=#{courseId,jdbcType=INTEGER}
+	</select>
+
+	<select id="findSectionClassify" resultMap="BaseResultMap">
+		SELECT GROUP_CONCAT(CLASSIFY_CODE)
+		as section_classify_code,CLASSIFY_NAME as section_classify_name
+		FROM tom_course_section_classify
+		GROUP BY REPLACE(CLASSIFY_NAME,'中欧','')
+	</select>
+
+    <!-- 查询课程点赞的员工信息 -->
+    <select id="findThumbUpListByCourseId" resultMap="BaseResultMap" parameterType="map">
+        select tom_emp.CODE as emp_code,tom_emp.NAME as emp_name,a.create_time AS thumb_up_create_time
+        from tom_course_thumb_up AS a
+       LEFT JOIN tom_emp ON tom_emp.CODE=a.CODE
+       where a.status='Y' and a.course_id=#{courseId,jdbcType=VARCHAR}
+       <include refid="empDeptCondition"></include>
+       <if test="beginTimeq != null">
+            and a.create_time <![CDATA[>]]>
+            #{beginTimeq,jdbcType=TIMESTAMP}
+        </if>
+        <if test="endTimeq != null">
+            and a.create_time <![CDATA[<]]>
+            #{endTimeq,jdbcType=TIMESTAMP}
+        </if>
+        <if test="examTotalTime != null">
+            and a.create_time <![CDATA[<]]>
+            #{examTotalTime,jdbcType=TIMESTAMP}
+        </if>
+    </select>
+	<!-- 页面 共用条件 -->
+	<sql id="condition">
+		<if test="courseName != null">
+			and aa.course_name LIKE "%" #{courseName,jdbcType=VARCHAR}
+			"%"
+		</if>
+		<if test="courseOnline != null">
+			and aa.course_online = #{courseOnline,jdbcType=VARCHAR}
+		</if>
+		<if test="openCourse != null and openCourse!='' ">
+			and aa.open_course = #{openCourse,jdbcType=VARCHAR}
+		</if>
+		<if test="sectionClassifyName != null and sectionClassifyName!=''">
+			<foreach collection="sectionClassifyName" item="item" index="index" >
+			 <if test="index==0">
+			     and
+                find_in_set(#{item},aa.SECTION_TYPES)
+			 </if>
+			 <if test="index!=0">
+			     or find_in_set(#{item},aa.SECTION_TYPES)
+			 </if>
+			</foreach>
+		</if>
+
+
+	</sql>
+
+
+	<sql id="sql_view">
+		select
+		aa.course_id,aa.course_number,aa.course_name,aa.e_currency,aa.open_course,aa.course_online,
+		(select group_concat(DISTINCT CLASSIFY_NAME) from
+		tom_course_section_classify where
+		find_in_set(CLASSIFY_CODE,aa.SECTION_TYPES))as section_classify_name,
+		(<include refid="sectionCount"></include>) as section_count,
+		aa.viewers,
+		<include refid="courseTotalNumber"></include>
+		as course_total_number,
+		(
+		<include refid="courseLearningNumber"></include>
+		) as course_learning_number,
+		(
+		<include refid="courseCompleteLearningNumber"></include>
+		) as course_complete_learning_number,
+		aa.create_time,
+		<include refid="courseThumbUpCount"></include>,
+		<include refid="courseCommentCount"></include>,
+		(
+		<include refid="courseFavoriteNumber"></include>
+		) as course_favorite_number,
+		(
+		<include refid="courseSignUpNumber"></include>
+		) as course_sign_up_number,
+		(
+		<include refid="courseDistributionNumber"></include>
+		) as course_distribution_number,
+		(
+		<include refid="courseClassesNumber"></include>
+		) as course_classes_number,
+		(
+		<include refid="courseSignNumber"></include>
+		) as course_sign_number,
+		(
+		<include refid="courseTimes"></include>
+		) as course_times,
+		(
+		<include refid="courseSignPeopleNumber"></include>
+		) as course_sign_people_number
+		from tom_courses as aa 
+	</sql>
+	<!-- 章节数量 -->
+	<sql id="sectionCount">
+		SELECT count(DISTINCT section_sort) FROM tom_course_section WHERE  COURSE_ID=aa.course_id
+	</sql>
+	<!-- 资源开放人数 -->
+	<sql id="courseTotalNumber">
+		IF(aa.open_course='Y',
+		(
+		<include refid="openCourse1"></include>
+		),
+		(
+		<include refid="openCourse2"></include>
+		))
+	</sql>
+	<!-- 资源开放人数之公开课 -->
+	<sql id="openCourse1">
+		SELECT COUNT(*) FROM tom_emp
+		WHERE POSTSTAT='Y'
+		<include refid="empDeptCondition"></include>
+	</sql>
+	<!-- 资源开放人数之非公开课 -->
+	<sql id="openCourse2">
+		<if
+			test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+			SELECT COUNT(*) FROM tom_course_emp_relation AS a
+			LEFT JOIN tom_emp ON tom_emp.CODE=a.CODE
+			WHERE a.COURSE_ID=aa.course_id
+			<include refid="empDeptCondition"></include>
+		</if>
+		<if
+			test="orgName == null  and jobName == null  and oneDeptName == null  
+          and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+			SELECT COUNT(*) FROM tom_course_emp_relation AS a
+			WHERE a.COURSE_ID=aa.course_id
+		</if>
+		<if test="beginTimeq != null">
+			and a.create_time <![CDATA[>]]>
+			#{beginTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="endTimeq != null">
+			and a.create_time <![CDATA[<]]>
+			#{endTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="examTotalTime != null">
+			and a.create_time <![CDATA[<]]>
+			#{examTotalTime,jdbcType=TIMESTAMP}
+		</if>
+	</sql>
+	<!-- 资源学习人数 -->
+	<sql id="courseLearningNumber">
+		<if
+			test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+			SELECT count(DISTINCT b.`CODE`) FROM tom_course_section as a
+			LEFT JOIN tom_section_learning_record as b ON
+			a.SECTION_ID=b.COURSE_SECTION_ID
+			LEFT JOIN tom_emp ON tom_emp.CODE=b.CODE
+			WHERE a.COURSE_ID=aa.course_id  AND b.`CODE` is not NULL
+			<include refid="empDeptCondition"></include>
+		</if>
+		<if
+			test="orgName == null  and jobName == null  and oneDeptName == null  
+          and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+			SELECT count(DISTINCT b.`CODE`) FROM tom_course_section as a
+			LEFT JOIN tom_section_learning_record as b ON
+			a.SECTION_ID=b.COURSE_SECTION_ID
+			WHERE a.COURSE_ID=aa.course_id  AND b.`CODE` is not NULL
+		</if>
+		<if test="beginTimeq != null">
+			and b.create_time <![CDATA[>]]>
+			#{beginTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="endTimeq != null">
+			and b.create_time <![CDATA[<]]>
+			#{endTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="examTotalTime != null">
+			and b.create_time <![CDATA[<]]>
+			#{examTotalTime,jdbcType=TIMESTAMP}
+		</if>
+
+	</sql>
+	<!-- 资源完成学习人数 -->
+	<sql id="courseCompleteLearningNumber">
+		<if
+			test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+			SELECT count(DISTINCT a.`CODE`) FROM tom_course_learning_record AS a
+			LEFT JOIN tom_emp ON tom_emp.CODE=a.CODE
+			WHERE a.COURSE_ID=aa.course_id
+			<include refid="empDeptCondition"></include>
+		</if>
+		<if
+			test="orgName == null  and jobName == null  and oneDeptName == null  
+          and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+			SELECT count(DISTINCT a.`CODE`) FROM tom_course_learning_record AS a
+			WHERE a.COURSE_ID=aa.course_id
+		</if>
+		<if test="beginTimeq != null">
+			and a.learning_date <![CDATA[>]]>
+			#{beginTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="endTimeq != null">
+			and a.learning_date <![CDATA[<]]>
+			#{endTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="examTotalTime != null">
+			and a.learning_date <![CDATA[<]]>
+			#{examTotalTime,jdbcType=TIMESTAMP}
+		</if>
+
+	</sql>
+	<!-- 收藏数 -->
+	<sql id="courseFavoriteNumber">
+		<if
+			test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+			SELECT COUNT(*) FROM tom_favorite_course AS a
+			LEFT JOIN tom_emp ON tom_emp.CODE=a.CODE
+			WHERE a.COURSE_ID=aa.course_id AND a.`STATUS`='Y'
+			<include refid="empDeptCondition"></include>
+		</if>
+		<if
+			test="orgName == null  and jobName == null  and oneDeptName == null  
+          and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+			SELECT COUNT(*) FROM tom_favorite_course AS a
+			WHERE a.COURSE_ID=aa.course_id AND a.`STATUS`='Y'
+		</if>
+		<if test="beginTimeq != null">
+			and a.create_time <![CDATA[>]]>
+			#{beginTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="endTimeq != null">
+			and a.create_time <![CDATA[<]]>
+			#{endTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="examTotalTime != null">
+			and a.create_time <![CDATA[<]]>
+			#{examTotalTime,jdbcType=TIMESTAMP}
+		</if>
+
+	</sql>
+	<!--资源报名人数 -->
+	<sql id="courseSignUpNumber">
+		<if
+			test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+			SELECT COUNT(DISTINCT a.`CODE`) FROM tom_course_apply AS a
+			LEFT JOIN tom_emp ON tom_emp.CODE=a.CODE
+			WHERE a.STATUS='Y' AND a.COURSE_ID=aa.course_id
+			<include refid="empDeptCondition"></include>
+		</if>
+		<if
+			test="orgName == null  and jobName == null  and oneDeptName == null  
+          and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+			SELECT COUNT(DISTINCT a.`CODE`) FROM tom_course_apply AS a
+			WHERE a.STATUS='Y' AND a.COURSE_ID=aa.course_id
+		</if>
+		<if test="beginTimeq != null">
+			and a.apply_time <![CDATA[>]]>
+			#{beginTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="endTimeq != null">
+			and a.apply_time <![CDATA[<]]>
+			#{endTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="examTotalTime != null">
+			and a.apply_time <![CDATA[<]]>
+			#{examTotalTime,jdbcType=TIMESTAMP}
+		</if>
+
+	</sql>
+	<!-- 资源分配人数 -->
+	<sql id="courseDistributionNumber">
+		<if
+			test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+			SELECT COUNT(*) FROM tom_course_emp_relation AS a
+			LEFT JOIN tom_emp ON tom_emp.CODE=a.CODE
+			WHERE a.COURSE_ID=aa.course_id
+			<include refid="empDeptCondition"></include>
+		</if>
+		<if
+			test="orgName == null  and jobName == null  and oneDeptName == null  
+          and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+			SELECT COUNT(*) FROM tom_course_emp_relation AS a
+			WHERE a.COURSE_ID=aa.course_id
+		</if>
+		<if test="beginTimeq != null">
+			and a.create_time <![CDATA[>]]>
+			#{beginTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="endTimeq != null">
+			and a.create_time <![CDATA[<]]>
+			#{endTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="examTotalTime != null">
+			and a.create_time <![CDATA[<]]>
+			#{examTotalTime,jdbcType=TIMESTAMP}
+		</if>
+
+	</sql>
+	<!--班次数量 -->
+	<sql id="courseClassesNumber">
+		SELECT COUNT(*) FROM tom_course_classes WHERE
+		course_id=aa.course_id
+	</sql>
+	<!-- 签到数量 -->
+	<sql id="courseSignNumber">
+		<if
+			test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+			SELECT COUNT(*) FROM tom_offline_sign AS a
+			LEFT JOIN tom_emp ON tom_emp.CODE=a.CODE
+			WHERE a.course_id=aa.course_id
+			<include refid="empDeptCondition"></include>
+		</if>
+		<if
+			test="orgName == null  and jobName == null  and oneDeptName == null  
+          and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+			SELECT COUNT(*) FROM tom_offline_sign AS a WHERE
+			a.course_id=aa.course_id
+		</if>
+		<if test="beginTimeq != null">
+			and a.sign_time <![CDATA[>]]>
+			#{beginTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="endTimeq != null">
+			and a.sign_time <![CDATA[<]]>
+			#{endTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="examTotalTime != null">
+			and a.sign_time <![CDATA[<]]>
+			#{examTotalTime,jdbcType=TIMESTAMP}
+		</if>
+
+	</sql>
+	<!-- 资源总学习总时长 -->
+	<sql id="courseTimes">
+		<if
+            test="orgName != null  or jobName != null  or oneDeptName != null  
+	       or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+			select sum(a.TIME) from tom_learntime_log AS a
+			LEFT JOIN tom_emp ON tom_emp.CODE=a.CODE
+			where a.COURSE_ID=aa.course_id 
+			<include refid="empDeptCondition"></include>
+		</if>
+		<if
+            test="orgName == null  and jobName == null  and oneDeptName == null  
+          and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+            select sum(a.TIME) from tom_learntime_log AS a where
+            a.course_id=aa.course_id
+        </if>
+        <if test="beginTimeq != null">
+            and a.CREATE_TIME <![CDATA[>]]>
+            #{beginTimeq,jdbcType=TIMESTAMP}
+        </if>
+        <if test="endTimeq != null">
+            and a.create_time <![CDATA[<]]>
+            #{endTimeq,jdbcType=TIMESTAMP}
+        </if>
+        <if test="examTotalTime != null">
+            and a.create_time <![CDATA[<]]>
+            #{examTotalTime,jdbcType=TIMESTAMP}
+        </if>
+	</sql>
+	<!-- 资源平均学习时长 -->
+	<sql id="courseAverageLearningTimes">
+		<if
+			test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+			SELECT avg(a.TIME) from tom_learntime_log AS a
+			LEFT JOIN tom_emp ON
+			tom_emp.CODE=a.CODE
+			where a.course_id=aa.course_id 
+			<include refid="empDeptCondition"></include>
+		</if>
+		<if
+			test="orgName == null  and jobName == null  and oneDeptName == null  
+          and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+			SELECT avg(a.TIME) from tom_learntime_log AS a where
+			a.course_id=aa.course_id
+		</if>
+		<if test="beginTimeq != null">
+			and a.CREATE_TIME <![CDATA[>]]>
+			#{beginTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="endTimeq != null">
+			and a.create_time <![CDATA[<]]>
+			#{endTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="examTotalTime != null">
+			and a.create_time <![CDATA[<]]>
+			#{examTotalTime,jdbcType=TIMESTAMP}
+		</if>
+	</sql>
+	<!-- 资源下学员共学完的章节数 -->
+	<select id="findLearningSectionCount" resultType="java.lang.Integer" parameterType="map">
+	<if
+            test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+            select sum(abc.acv) from (SELECT count(DISTINCT a.section_sort) as acv from
+            tom_course_section as a
+            LEFT JOIN tom_section_learning_record AS b ON
+            a.section_id=b.course_section_id
+            LEFT JOIN tom_emp ON
+            tom_emp.CODE=b.CODE
+            WHERE a.course_id=#{courseId,jdbcType=VARCHAR}  and 
+            b.learning_states='Y' 
+             <include refid="empDeptCondition"></include>
+           
+            
+           
+        </if>
+        <if
+            test="orgName == null  and jobName == null  and oneDeptName == null  
+          and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+            select sum(abc.acv) from (SELECT count(DISTINCT a.section_sort) as acv from
+            tom_course_section as a
+            LEFT JOIN tom_section_learning_record AS b ON
+            a.section_id=b.course_section_id
+            WHERE a.course_id= #{courseId,jdbcType=VARCHAR}  and 
+            b.learning_states='Y'
+        </if>
+        <if test="beginTimeq != null">
+            and b.create_time <![CDATA[>]]>
+            #{beginTimeq,jdbcType=TIMESTAMP}
+        </if>
+        <if test="endTimeq != null">
+            and b.create_time <![CDATA[<]]>
+            #{endTimeq,jdbcType=TIMESTAMP}
+        </if>
+        <if test="examTotalTime != null">
+            and b.create_time <![CDATA[<]]>
+            #{examTotalTime,jdbcType=TIMESTAMP}
+        </if>
+         group by b.`CODE`)as abc
+	</select>
+
+	<!-- 点赞人数 -->
+	<sql id="courseThumbUpCount">
+	   <if
+            test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null
+       or beginTimeq != null or endTimeq != null or examTotalTime != null">
+       (select count(DISTINCT a.CODE) from tom_course_thumb_up AS a
+       LEFT JOIN tom_emp ON tom_emp.CODE=a.CODE
+       where a.status='Y' and a.course_id=aa.course_id
+       <include refid="empDeptCondition"></include>
+       <if test="beginTimeq != null">
+            and a.create_time <![CDATA[>]]>
+            #{beginTimeq,jdbcType=TIMESTAMP}
+        </if>
+        <if test="endTimeq != null">
+            and a.create_time <![CDATA[<]]>
+            #{endTimeq,jdbcType=TIMESTAMP}
+        </if>
+        <if test="examTotalTime != null">
+            and a.create_time <![CDATA[<]]>
+            #{examTotalTime,jdbcType=TIMESTAMP}
+        </if>
+       ) AS thumb_up_count
+       </if>
+       <if
+            test="orgName == null  and jobName == null  and oneDeptName == null  
+            and twoDeptName == null  and threeDeptName == null and code == null and name == null
+            and beginTimeq == null and endTimeq == null and examTotalTime == null">
+         aa.thumb_up_count
+        </if>
+	</sql>
+	<!-- 评论人数 -->
+	<sql id="courseCommentCount">
+	    <if
+            test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null
+       or beginTimeq != null or endTimeq != null or examTotalTime != null">
+       (SELECT COUNT(DISTINCT a.CODE) from tom_course_comment AS a
+       LEFT JOIN tom_emp ON tom_emp.CODE=a.CODE
+       WHERE a.status='Y' and a.course_id=aa.course_id
+        <include refid="empDeptCondition"></include>
+       <if test="beginTimeq != null">
+            and a.create_time <![CDATA[>]]>
+            #{beginTimeq,jdbcType=TIMESTAMP}
+        </if>
+        <if test="endTimeq != null">
+            and a.create_time <![CDATA[<]]>
+            #{endTimeq,jdbcType=TIMESTAMP}
+        </if>
+        <if test="examTotalTime != null">
+            and a.create_time <![CDATA[<]]>
+            #{examTotalTime,jdbcType=TIMESTAMP}
+        </if>
+       ) AS comment_count
+       </if>
+       <if
+            test="orgName == null  and jobName == null  and oneDeptName == null  
+            and twoDeptName == null  and threeDeptName == null and code == null and name == null
+            and beginTimeq == null and endTimeq == null and examTotalTime == null">
+         aa.comment_count
+        </if>
+	</sql>
+	<!-- 签到人数 -->
+	<sql id="courseSignPeopleNumber">
+		<if
+			test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+			SELECT COUNT(DISTINCT a.`CODE`) FROM tom_offline_sign as a
+			LEFT JOIN
+			tom_emp ON tom_emp.CODE=a.CODE
+			WHERE a.course_id=aa.course_id
+			<include refid="empDeptCondition"></include>
+		</if>
+		<if
+			test="orgName == null  and jobName == null  and oneDeptName == null  
+            and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+			SELECT COUNT(DISTINCT a.`CODE`) FROM tom_offline_sign as a WHERE
+			a.course_id=aa.course_id
+		</if>
+		<if test="beginTimeq != null">
+			and a.sign_time <![CDATA[>]]>
+			#{beginTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="endTimeq != null">
+			and a.sign_time <![CDATA[<]]>
+			#{endTimeq,jdbcType=TIMESTAMP}
+		</if>
+		<if test="examTotalTime != null">
+			and a.sign_time <![CDATA[<]]>
+			#{examTotalTime,jdbcType=TIMESTAMP}
+		</if>
+	</sql>
+
+	<!-- 员工部门条件 -->
+	<sql id="empDeptCondition">
+		<if test="orgName != null and orgName!='' ">
+			and tom_emp.orgcode = #{orgName,jdbcType=VARCHAR}
+		</if>
+		<if test="jobName != null and jobName!='' ">
+			and tom_emp.jobcode = #{jobName,jdbcType=VARCHAR}
+		</if>
+		<if test="oneDeptName != null and oneDeptName!='' ">
+			and tom_emp.onedeptcode = #{oneDeptName,jdbcType=VARCHAR}
+		</if>
+		<if test="twoDeptName != null and twoDeptName!='' ">
+			and tom_emp.TWO_DEPT_CODE =
+			#{twoDeptName,jdbcType=VARCHAR}
+		</if>
+		<if test="threeDeptName != null and threeDeptName!='' ">
+			and tom_emp.THREE_DEPT_CODE =
+			#{threeDeptName,jdbcType=VARCHAR}
+		</if>
+		<if test="code != null and code!='' ">
+			and tom_emp.code = #{code,jdbcType=VARCHAR}
+		</if>
+		<if test="name != null and name!='' ">
+			and tom_emp.name = #{name,jdbcType=VARCHAR}
+		</if>
+	</sql>
+</mapper>

@@ -1,0 +1,978 @@
+<meta charset="UTF-8" >
+<link href="/enterpriseuniversity/css/summernote.min.css" rel="stylesheet">
+<div id="page" class="container-fluid overflow-auto">
+    <form name="courseForm" novalidate  ng-controller="EditOfflineCourseController" class="form-horizontal" role="form">
+        <div class="form-group">
+            <label for="courseName" class="col-xs-2 control-label">课程名称(中文)：</label>
+            <div class="col-xs-5 width_6">
+                <input type="text" class="form-control width_1" name="courseName" 
+                ng-maxlength="100" 
+                ng-model="course.courseName" 
+                ng-pattern ="/^((?!\/).)*$/"
+                required 
+                placeholder="请输入课程名称(中文)"><span> (最多100个字符)</span>
+            </div>
+            <div class="error" ng-show="courseForm.courseName.$dirty&&courseForm.courseName.$invalid||courseForm.$submitted&&courseForm.courseName.$invalid" >
+                <span ng-show="courseForm.courseName.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+                <span ng-show="!courseForm.courseName.$error.maxlength && courseForm.courseName.$error.pattern" class="glyphicon glyphicon-exclamation-sign">不能输入非法"/"</span>
+                <span ng-show="courseForm.courseName.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多100个字符</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="courseName" class="col-xs-2 control-label">课程名称(英文)：</label>
+            <div class="col-xs-5 width_6">
+                <input type="text" class="form-control width_1" name="courseNameEn" 
+                ng-maxlength="100" 
+                ng-model="course.courseNameEn" 
+                ng-pattern ="/^((?!\/).)*$/"
+                required 
+                placeholder="请输入课程名称(英文)"><span> (最多100个字符)</span>
+            </div>
+            <div class="error" ng-show="courseForm.courseNameEn.$dirty&&courseForm.courseNameEn.$invalid
+            								||courseForm.$submitted&&courseForm.courseNameEn.$invalid" >
+                <span ng-show="courseForm.courseNameEn.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+                <span ng-show="!courseForm.courseNameEn.$error.maxlength && courseForm.courseNameEn.$error.pattern" class="glyphicon glyphicon-exclamation-sign">不能输入非法"/"</span>
+                <span ng-show="courseForm.courseNameEn.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多100个字符</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="courseName" class="col-xs-2 control-label">课程简介(中文)：</label>
+            <div class="col-xs-5 width_6">
+                <textarea class="form-control width_1" name="courseIntroduction" rows="4"
+	                ng-model="course.courseIntroduction"
+	                ng-maxlength="1000" 
+	                required 
+	                placeholder="请输入课程简介(中文)" ></textarea><span> (最多1000个字符)</span>
+            </div>
+            <div class="error" ng-show="courseForm.courseIntroduction.$dirty&&courseForm.courseIntroduction.$invalid||courseForm.$submitted&&courseForm.courseIntroduction.$invalid" >
+                <span ng-show="courseForm.courseIntroduction.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+                <span ng-show="courseForm.courseIntroduction.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多1000个字符</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="courseName" class="col-xs-2 control-label">课程简介(英文)：</label>
+            <div class="col-xs-5 width_6">
+                <textarea class="form-control width_1" name="courseIntroductionEn" rows="4"
+	                ng-model="course.courseIntroductionEn"
+	                ng-maxlength="1000" 
+	                required 
+	                placeholder="请输入课程简介(英文)" ></textarea><span> (最多1000个字符)</span>
+            </div>
+            <div class="error" ng-show="courseForm.courseIntroductionEn.$dirty&&courseForm.courseIntroductionEn.$invalid||courseForm.$submitted&&courseForm.courseIntroductionEn.$invalid" >
+                <span ng-show="courseForm.courseIntroductionEn.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+                <span ng-show="courseForm.courseIntroductionEn.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多1000个字符</span>
+            </div>
+        </div>
+          <div class="form-group">
+            <label  class="col-xs-2 control-label">需要报名：</label>
+            <div class="col-xs-5 width_6">
+                <label class="radio-inline">
+                    <input type="radio" class="" name="needApply" ng-model="course.needApply" value="Y" ng-checked="{{course.needApply=='Y'}}" >是
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" class="" name="needApply"  ng-model="course.needApply"  value="N" ng-checked="{{course.needApply=='N'}}" >否
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label  class="col-xs-2 control-label">重复签到：</label>
+            <div class="col-xs-5 width_6">
+                <label class="radio-inline">
+                    <input type="radio" class="" name="reapeatSign" ng-model="course.reapeatSign" value="Y" ng-checked="{{course.reapeatSign=='Y'}}" >是
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" class="" name="reapeatSign"  ng-model="course.reapeatSign"  value="N" ng-checked="{{course.reapeatSign=='N'}}" >否
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="courseName" class="col-xs-2 control-label">课程积分：</label>
+            <div class="col-xs-5 width_6">
+                <input type="text" class="form-control width_3" name="eCurrency" 
+                	ng-model="course.eCurrency"
+                	ng-pattern ="/^(\+?[1-9]\d{0,3}|\+?10000|0)$/" 
+                	required
+                    placeholder="课程奖励积分数量">
+            </div>
+            <div class="error" ng-show="courseForm.eCurrency.$dirty&&courseForm.eCurrency.$invalid||courseForm.$submitted&&courseForm.eCurrency.$invalid" >
+                <span ng-show="courseForm.eCurrency.$error.required" class="glyphicon glyphicon-exclamation-sign">请填写课程积分数</span>
+                <span ng-show="courseForm.eCurrency.$error.pattern" class="glyphicon glyphicon-exclamation-sign">请输入0-10000的数字</span>
+            </div>
+        </div>
+         <!-- 线上线下课程单选按钮 -->
+        <!-- <div class="form-group">
+            <label  class="col-xs-2 control-label">线下/线上课程：</label>
+            <div class="col-xs-5 width_6">
+                <label class="radio-inline">
+                    <input type="radio" class="" name="courseOnline" ng-model="course.courseOnline" value="Y" ng-checked="{{course.courseOnline=='Y'}}" ng-click="beCourseOnline(course)">线上课程
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" class="" name="courseOnline"  ng-model="course.courseOnline"  value="N" ng-checked="{{course.courseOnline=='N'}}" ng-click="beCourseOnline(course)">线下课程
+                </label>
+            </div>
+        </div> -->
+        
+        <!-- 项目名称分类 -->
+        <div class="form-group">
+            <label  class="col-xs-2 control-label">项目名称分类：</label>
+            <div class="col-xs-5 width_6">
+            	<div class="input-group width_2">
+                    <input type="text" placeholder="请选择项目名称分类" class="form-control width_1" 
+                    	name="parentClassifyName" 
+                    	readonly 
+                    	ng-model="course.parentProjectClassifyName" required>
+                    <span class="input-group-btn">
+                        <a href="javascript:void(0)" class="btn btn-primary btn-control"  ng-click="doOpenRadioProjectClassifyModal()">选择项目名称分类</a>
+                    </span>
+                </div>
+            </div>
+            <div ng-include="'/enterpriseuniversity/views/modalTemplate/radioProjectClassifyModalTemplate.html'"></div>
+         <div class="error" ng-show="courseForm.parentClassifyName.$dirty&&courseForm.parentClassifyName.$invalid||courseForm.$submitted&&courseForm.parentClassifyName.$invalid" >
+                <span ng-show="courseForm.parentClassifyName.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+            </div>
+        </div>
+        <!-- /线上线下课程单选按钮 -->
+        <!--上传课程章节-->
+        <div class="form-group" ng-controller="CourseSectionFileUploadController" uploader="uploader" filters="queueLimit , customFilter">
+            <label class="col-xs-2 control-label" for="courseSection">上传课程：</label>
+            <div class="col-xs-5 width_6">
+            	<!-- ng-class="{'is-hover': courseSectionUploadInputIsHover}" -->
+                <a class="fileInputBtn btn btn-primary btn-control" >上传文件</a>
+                <input type="file" class="fileInput btn btn-control" multiple id="courseSectionInput" nv-file-select uploader="uploader">
+               <!--  <a style="margin-left:15px;" class="btn btn-primary btn-control" ng-click="addEurCourseSection()">添加中欧章节</a> -->
+            </div>
+            <!-- <input type="hidden" name="requireSectionItem" ng-model="course.sectionList.length" required-sections>
+            <input type="hidden" name="existIsUploadingItem" ng-model="uploader.queue.length" section-length>
+            <div class="error" ng-show="courseForm.$submitted&&courseForm.requireSectionItem.$invalid ||courseForm.$submitted&&courseForm.existIsUploadingItem.$invalid" >
+                <span ng-show="courseForm.requireSectionItem.$error.requiredSections" class="glyphicon glyphicon-exclamation-sign">请上传课程章节</span>
+                <span ng-show="courseForm.existIsUploadingItem.$error.sectionLength&&!courseForm.requireSectionItem.$error.requiredSections" class="glyphicon glyphicon-exclamation-sign">存在未上传完毕的课程章节</span>
+            </div> -->
+            <div style="height: 25px; padding-bottom: 0px;" class="col-xs-offset-2 inputIntro">(可上传H.264编码的MP4、Microsoft Power Point 2003/2007/2010/2013或者pdf格式的文件 )</div>
+            <div class="col-xs-offset-2 col-xs-10 blocks-container" ng-show="uploader.queue.length > 0 || currCourseSectionQueue.length > 0">
+           		<!--  之前上传文件列表 -->
+            	<div class="col-xs-6" ng-repeat="item in currCourseSectionQueue">
+          			<!-- <div class="block-item" ng-if="!item.formData.cid"> -->
+          			<div class="block-item">
+	           			<div class="form-group">
+				            <label class="col-xs-4 control-label">章节序号:</label>
+				            <div class="col-xs-8 ">
+				                <input type="number" class="form-control" name="sectionSort{{item.formData.key}}"  
+				                	ng-model="item.formData.sectionSort"  
+				                	ng-pattern ="/^(\+?[1-9]\d{0,3}|\+?10000|0)$/" 
+				                	required  placeholder="请输入章节序号">
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionSort{{item.formData.key}}.$dirty&&courseForm.sectionSort{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionSort{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionSort{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				                <span ng-show="courseForm.sectionSort{{item.formData.key}}.$error.pattern" class="glyphicon glyphicon-exclamation-sign">请输入0-10000的数字</span>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">章节名称(中文):</label>
+				            <div class="col-xs-8 ">
+				                <input type="text" class="form-control"  name="sectionName{{item.formData.key}}"
+				                	ng-model="item.formData.sectionName" 
+				                	ng-pattern ="/^((?!\/).)*$/"
+				                	ng-maxlength ="100"
+				                	required placeholder="请输入章节名称(中文)"/>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionName{{item.formData.key}}.$dirty&&courseForm.sectionName{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionName{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionName{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				                <span ng-show="!courseForm.sectionName{{item.formData.key}}.$error.maxlength && courseForm.sectionName{{item.formData.key}}.$error.pattern" class="glyphicon glyphicon-exclamation-sign">不能输入非法"/"</span>
+				                <span ng-show="courseForm.sectionName{{item.formData.key}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多100个字符</span>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">章节名称(英文):</label>
+				            <div class="col-xs-8 ">
+				                <input type="text" class="form-control" name="sectionNameEn{{item.formData.key}}"
+				                	ng-model="item.formData.sectionNameEn" 
+				                	ng-pattern ="/^((?!\/).)*$/"
+				                	ng-maxlength ="100"
+				                	required placeholder="请输入章节名称(英文)"/>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionNameEn{{item.formData.key}}.$dirty&&courseForm.sectionNameEn{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionNameEn{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionNameEn{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				                <span ng-show="!courseForm.sectionNameEn{{item.formData.key}}.$error.maxlength && courseForm.sectionNameEn{{item.formData.key}}.$error.pattern" class="glyphicon glyphicon-exclamation-sign">不能输入非法"/"</span>
+				                <span ng-show="courseForm.sectionNameEn{{item.formData.key}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多100个字符</span>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">章节类型:</label>
+				            <div class="col-xs-8 ">
+				            <!-- x.sectionTypeId as x.sectionTypeName for x in comTypesAndLangs -->
+			               		<select style="line-height: 28px;" class="form-control" ng-model="item.sectionTypeAndLang" ng-change="toggleTypeAndLang(item)" ng-options="x.sectionTypeName for x in comTypesAndLangs">
+                           			<option value="" >--章节类型--</option>
+                   				</select>
+                   				<input type="hidden" name="sectionType{{item.formData.key}}" ng-model="item.formData.sectionType" required>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.$submitted&&courseForm.sectionType{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionType{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				            </div>
+	       				</div>
+          				<!-- <div class="form-group">
+				            <label class="col-xs-4 control-label">供应商：</label>
+				            <div class="col-xs-8 ">
+			               		<select style="line-height: 28px;" class="form-control" ng-model="item.formData.corpid" ng-options="x.corpid as x.corpName for x in comCorps">
+                       		   		<option value="" >--供应商--</option>
+                       			</select>
+				            </div>
+	       				</div> -->
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">操作：</label>
+				            <div class="col-xs-8 ">
+	                            <a class="btn btn-danger" ng-click="removeCurrItem(item)">
+	                                <span class="glyphicon glyphicon-trash"></span> 删除
+	                            </a>
+				            </div>
+	       				</div>
+          			</div>
+          			<!-- 中欧章节 -->
+          			<!-- <div class="block-item" ng-if="item.formData.cid">
+	           			<div class="form-group">
+				            <label class="col-xs-4 control-label">章节序号:</label>
+				            <div class="col-xs-8 ">
+				                <input type="number" class="form-control" name="sectionSort{{item.formData.key}}"  
+				                	ng-model="item.formData.sectionSort"  
+				                	ng-pattern ="/^(\+?[1-9]\d{0,3}|\+?10000|0)$/" 
+				                	required  placeholder="请输入章节序号">
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionSort{{item.formData.key}}.$dirty&&courseForm.sectionSort{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionSort{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionSort{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				                <span ng-show="courseForm.sectionSort{{item.formData.key}}.$error.pattern" class="glyphicon glyphicon-exclamation-sign">请输入0-10000的数字</span>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">章节名称(中文):</label>
+				            <div class="col-xs-8 ">
+				                <input type="text" class="form-control"  name="sectionName{{item.formData.key}}"
+				                	ng-model="item.formData.sectionName" 
+				                	ng-pattern ="/^((?!\/).)*$/"
+				                	ng-maxlength ="50"
+				                	required placeholder="请输入章节名称(中文)"/>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionName{{item.formData.key}}.$dirty&&courseForm.sectionName{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionName{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionName{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				               	<span ng-show="!courseForm.sectionName{{item.formData.key}}.$error.maxlength && courseForm.sectionName{{item.formData.key}}.$error.pattern" class="glyphicon glyphicon-exclamation-sign">不能输入非法"/"</span>
+				                <span ng-show="courseForm.sectionName{{item.formData.key}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多50个字符</span>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">章节名称(英文):</label>
+				            <div class="col-xs-8 ">
+				                <input type="text" class="form-control" name="sectionNameEn{{item.formData.key}}"
+				                	ng-model="item.formData.sectionNameEn" 
+				                	ng-maxlength ="50"
+				                	ng-pattern ="/^((?!\/).)*$/"
+				                	required placeholder="请输入章节名称(英文)"/>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionNameEn{{item.formData.key}}.$dirty&&courseForm.sectionNameEn{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionNameEn{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionNameEn{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				                <span ng-show="!courseForm.sectionNameEn{{item.formData.key}}.$error.maxlength && courseForm.sectionNameEn{{item.formData.key}}.$error.pattern" class="glyphicon glyphicon-exclamation-sign">不能输入非法"/"</span>
+				                <span ng-show="courseForm.sectionNameEn{{item.formData.key}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多50个字符</span>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">章节类型:</label>
+				            <div class="col-xs-8 ">
+				            x.sectionTypeId as x.sectionTypeName for x in comTypesAndLangs
+			               		<select style="line-height: 28px;" class="form-control" ng-model="item.sectionTypeAndLang" ng-change="toggleTypeAndLang(item)" ng-options="x.sectionTypeName for x in eurTypesAndLangs">
+                           			<option value="" >--章节类型--</option>
+                   				</select>
+                   				<input type="hidden" name="sectionType{{item.formData.key}}" ng-model="item.formData.sectionType" required>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.$submitted&&courseForm.sectionType{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionType{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				            </div>
+	       				</div>
+          				<div class="form-group">
+				            <label class="col-xs-4 control-label">供应商：</label>
+				            <div class="col-xs-8 ">
+			               		<select style="line-height: 28px;" class="form-control" ng-model="item.formData.corpid" ng-options="x.corpid as x.corpName for x in eurCorps"></select>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">CID:</label>
+				            <div class="col-xs-8 ">
+				                <input type="text" class="form-control" name="sectionCid{{item.formData.key}}"
+				                	ng-model="item.formData.cid" 
+				                	ng-maxlength ="50"
+				                	required placeholder="请输入章节CID"/>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionCid{{item.formData.key}}.$dirty&&courseForm.sectionCid{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionCid{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionCid{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				                <span ng-show="courseForm.sectionCid{{item.formData.key}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多50个字符</span>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">TID:</label>
+				            <div class="col-xs-8 ">
+				                <input type="text" class="form-control" name="sectionTid{{item.formData.key}}"
+				                	ng-model="item.formData.tid"  
+				                	ng-maxlength ="50"
+				                	required placeholder="请输入章节TID"/>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionTid{{item.formData.key}}.$dirty&&courseForm.sectionTid{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionTid{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionTid{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				                <span ng-show="courseForm.sectionTid{{item.formData.key}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多50个字符</span>
+				            </div>
+	       				</div> 
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">操作：</label>
+				            <div class="col-xs-8 ">
+	                            <a class="btn btn-danger" ng-click="removeCurrItem(item)">
+	                                <span class="glyphicon glyphicon-trash"></span> 删除
+	                            </a>
+				            </div>
+	       				</div>
+          			</div> -->
+          		</div>
+          		<!--/之前上传文件列表-->
+          		<!--当前上传文件列表-->
+	           	<div class="col-xs-6" ng-repeat="item in uploader.queue">
+          			<div class="block-item">
+	           			<div class="form-group">
+				            <label class="col-xs-4 control-label">章节序号:</label>
+				            <div class="col-xs-8 ">
+				                <input type="number" class="form-control" name="sectionSort{{item.formData.key}}"  
+				                	ng-model="item.formData.sectionSort"  
+				                	ng-pattern ="/^(\+?[1-9]\d{0,3}|\+?10000|0)$/" 
+				                	required  placeholder="请输入章节序号">
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionSort{{item.formData.key}}.$dirty&&courseForm.sectionSort{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionSort{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionSort{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				                <span ng-show="courseForm.sectionSort{{item.formData.key}}.$error.pattern" class="glyphicon glyphicon-exclamation-sign">请输入0-10000的数字</span>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">章节名称(中文):</label>
+				            <div class="col-xs-8 ">
+				                <input type="text" class="form-control"  name="sectionName{{item.formData.key}}"
+				                	ng-model="item.formData.sectionName" 
+				                	ng-pattern ="/^((?!\/).)*$/"
+				                	ng-maxlength ="100"
+				                	required placeholder="请输入章节名称(中文)"/>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionName{{item.formData.key}}.$dirty&&courseForm.sectionName{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionName{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionName{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				                <span ng-show="!courseForm.sectionName{{item.formData.key}}.$error.maxlength && courseForm.sectionName{{item.formData.key}}.$error.pattern" class="glyphicon glyphicon-exclamation-sign">不能输入非法"/"</span>
+				                <span ng-show="courseForm.sectionName{{item.formData.key}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多100个字符</span>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">章节名称(英文):</label>
+				            <div class="col-xs-8 ">
+				                <input type="text" class="form-control" name="sectionNameEn{{item.formData.key}}"
+				                	ng-model="item.formData.sectionNameEn" 
+				                	ng-pattern ="/^((?!\/).)*$/"
+				                	ng-maxlength ="100"
+				                	required placeholder="请输入章节名称(英文)"/>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionNameEn{{item.formData.key}}.$dirty&&courseForm.sectionNameEn{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionNameEn{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionNameEn{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				                <span ng-show="!courseForm.sectionNameEn{{item.formData.key}}.$error.maxlength && courseForm.sectionNameEn{{item.formData.key}}.$error.pattern" class="glyphicon glyphicon-exclamation-sign">不能输入非法"/"</span>
+				                <span ng-show="courseForm.sectionNameEn{{item.formData.key}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多100个字符</span>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">章节类型:</label>
+				            <div class="col-xs-8 ">
+				            <!-- x.sectionTypeId as x.sectionTypeName for x in comTypesAndLangs -->
+			               		<select style="line-height: 28px;" class="form-control" ng-model="item.sectionTypeAndLang" ng-change="toggleTypeAndLang(item)" ng-options="x.sectionTypeName for x in comTypesAndLangs">
+                           			<option value="" >--章节类型--</option>
+                   				</select>
+                   				<input type="hidden" name="sectionType{{item.formData.key}}" ng-model="item.formData.sectionType" required>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.$submitted&&courseForm.sectionType{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionType{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				            </div>
+	       				</div>
+          				<!-- <div class="form-group">
+				            <label class="col-xs-4 control-label">供应商：</label>
+				            <div class="col-xs-8 ">
+			               		<select style="line-height: 28px;" class="form-control" ng-model="item.formData.corpid" ng-options="x.corpid as x.corpName for x in comCorps">
+                       		   		<option value="" >--供应商--</option>
+                       			</select>
+				            </div>
+	       				</div> -->
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">上传进度：</label>
+				            <div class="col-xs-8 ">
+		               			<div class="progress" style="margin-bottom: 0;">
+                              		<div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+                       		 	</div>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+       					 	<label class="col-xs-4 control-label">响应状态：</label>
+				            <div class="col-xs-8 ">
+		               		 	<span ng-show="item.isUploading" ><i class="glyphicon loading"></i></span>
+                            	<span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
+                            	<span ng-show="item.isError"><i class="glyphicon glyphicon-remove error"></i></span>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">操作：</label>
+				            <div class="col-xs-8 ">
+	            				<a class="btn btn-success" ng-click="uploadItem(item)" ng-disabled="item.isReady || item.isUploading || item.isSuccess">
+	                                <span class="glyphicon glyphicon-upload"></span> 上传
+	                            </a>
+	                            <a class="btn btn-danger" ng-click="removeItem(item)">
+	                                <span class="glyphicon glyphicon-trash"></span> 删除
+	                            </a>
+				            </div>
+	       				</div>
+          			</div>
+          		</div>
+          		<!-- 中欧章节 -->
+          		<!-- <div class="col-xs-6" ng-repeat="item in eurCourseSections">
+          			<div class="block-item">
+	           			<div class="form-group">
+				            <label class="col-xs-4 control-label">章节序号:</label>
+				            <div class="col-xs-8 ">
+				                <input type="number" class="form-control" name="sectionSort{{item.formData.key}}"  
+				                	ng-model="item.formData.sectionSort"  
+				                	ng-pattern ="/^(\+?[1-9]\d{0,3}|\+?10000|0)$/" 
+				                	required  placeholder="请输入章节序号">
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionSort{{item.formData.key}}.$dirty&&courseForm.sectionSort{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionSort{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionSort{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				                <span ng-show="courseForm.sectionSort{{item.formData.key}}.$error.pattern" class="glyphicon glyphicon-exclamation-sign">请输入0-10000的数字</span>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">章节名称(中文):</label>
+				            <div class="col-xs-8 ">
+				                <input type="text" class="form-control"  name="sectionName{{item.formData.key}}"
+				                	ng-model="item.formData.sectionName" 
+				                	ng-pattern ="/^((?!\/).)*$/"
+				                	ng-maxlength ="50"
+				                	required placeholder="请输入章节名称(中文)"/>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionName{{item.formData.key}}.$dirty&&courseForm.sectionName{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionName{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionName{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				                <span ng-show="!courseForm.sectionName{{item.formData.key}}.$error.maxlength && courseForm.sectionName{{item.formData.key}}.$error.pattern" class="glyphicon glyphicon-exclamation-sign">不能输入非法"/"</span>
+				                <span ng-show="courseForm.sectionName{{item.formData.key}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多50个字符</span>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">章节名称(英文):</label>
+				            <div class="col-xs-8 ">
+				                <input type="text" class="form-control" name="sectionNameEn{{item.formData.key}}"
+				                	ng-model="item.formData.sectionNameEn" 
+				                	ng-pattern ="/^((?!\/).)*$/"
+				                	ng-maxlength ="50"
+				                	required placeholder="请输入章节名称(英文)"/>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionNameEn{{item.formData.key}}.$dirty&&courseForm.sectionNameEn{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionNameEn{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionNameEn{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				                <span ng-show="!courseForm.sectionNameEn{{item.formData.key}}.$error.maxlength && courseForm.sectionNameEn{{item.formData.key}}.$error.pattern" class="glyphicon glyphicon-exclamation-sign">不能输入非法"/"</span>
+				                <span ng-show="courseForm.sectionNameEn{{item.formData.key}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多50个字符</span>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">章节类型:</label>
+				            <div class="col-xs-8 ">
+				            x.sectionTypeId as x.sectionTypeName for x in comTypesAndLangs
+			               		<select style="line-height: 28px;" class="form-control" ng-model="item.sectionTypeAndLang" ng-change="toggleTypeAndLang(item)" ng-options="x.sectionTypeName for x in eurTypesAndLangs">
+                           			<option value="" >--章节类型--</option>
+                   				</select>
+                   				<input type="hidden" name="sectionType{{item.formData.key}}" ng-model="item.formData.sectionType" required>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.$submitted&&courseForm.sectionType{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionType{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				            </div>
+	       				</div>
+          				<div class="form-group">
+				            <label class="col-xs-4 control-label">供应商：</label>
+				            <div class="col-xs-8 ">
+			               		<select style="line-height: 28px;" class="form-control" ng-model="item.formData.corpid" ng-options="x.corpid as x.corpName for x in eurCorps"></select>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">CID:</label>
+				            <div class="col-xs-8 ">
+				                <input type="text" class="form-control" name="sectionCid{{item.formData.key}}"
+				                	ng-model="item.formData.cid" 
+				                	ng-maxlength ="50"
+				                	required placeholder="请输入章节CID"/>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionCid{{item.formData.key}}.$dirty&&courseForm.sectionCid{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionCid{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionCid{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				                <span ng-show="courseForm.sectionCid{{item.formData.key}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多50个字符</span>
+				            </div>
+	       				</div>
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">TID:</label>
+				            <div class="col-xs-8 ">
+				                <input type="text" class="form-control" name="sectionTid{{item.formData.key}}"
+				                	ng-model="item.formData.tid"  
+				                	ng-maxlength ="50"
+				                	required placeholder="请输入章节TID"/>
+				            </div>
+				            <div class="col-xs-offset-4 error-tips" ng-show="courseForm.sectionTid{{item.formData.key}}.$dirty&&courseForm.sectionTid{{item.formData.key}}.$invalid||courseForm.$submitted&&courseForm.sectionTid{{item.formData.key}}.$invalid" >
+				                <span ng-show="courseForm.sectionTid{{item.formData.key}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+				                <span ng-show="courseForm.sectionTid{{item.formData.key}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多50个字符</span>
+				            </div>
+	       				</div> 
+	       				<div class="form-group">
+				            <label class="col-xs-4 control-label">操作：</label>
+				            <div class="col-xs-8 ">
+	                            <a class="btn btn-danger" ng-click="removeEurCourseSection(item)">
+	                                <span class="glyphicon glyphicon-trash"></span> 删除
+	                            </a>
+				            </div>
+	       				</div>
+          			</div>
+          		</div> -->
+          		<!--/当前上传文件列表-->
+            </div>
+        </div>
+        <!--end 上传课程章节-->
+        <!--上传课程封面-->
+        <div style="position:relative;" class="form-group" ng-controller="CourseImgController" uploader="imgUploader" filters="queueLimit, customFilter">
+            <label class="col-xs-2 control-label">上传课程封面：</label>
+            <div class="col-xs-5 width_6">
+                <a class="fileInputBtn btn btn-primary btn-control">上传图片</a>
+                <input type="file" class="fileInput btn btn-control" id="courseImgFileInput" nv-file-select  uploader="imgUploader">
+                <div class="inputIntro">(1.5:1,&lt;=2M;建议360*240px,&lt;=500kb)</div>
+            </div>
+            <input type="hidden" name="courseImg" ng-model="course.courseImg" required-courseimg>
+            <div class="error" ng-show="courseForm.$submitted&&courseForm.courseImg.$invalid" >
+                <span ng-show="courseForm.courseImg.$error.requiredCourseimg" class="glyphicon glyphicon-exclamation-sign">请上传课程封面图片</span>
+            </div>
+            <div class="preview-container" ng-show="openPreview">
+		      <div class="thumbnail">
+		         <img width="200px" height="90px" ng-src="{{previewImgUrl}}">
+		         <div class="caption">
+		            <p>
+		               <a ng-click="closePreview()" class="btn btn-primary" role="button">关闭</a> 
+		            </p>
+		         </div>
+		      </div>
+   			</div>
+            <!-- 旧的课程封面图片列表 -->
+            <div style="min-height:0;" class="col-xs-offset-2 col-xs-8">
+                <table style="margin-top: 10px;" ng-show="currFileUrlQueue.length>0"class="table table-bordered text-center width_4">
+                    <tr>
+                        <td class="col-xs-2">编号</td>
+                        <td class="col-xs-2">预览</td>
+                        <td class="col-xs-2">操作</td>
+                    </tr>
+                    <tr ng-repeat="fileUrl in currFileUrlQueue">
+                        <td ng-bind="$index+1"></td>
+                        <td><a ng-click="preview()">点击预览</a></td>
+                        <td nowrap>
+                            <a class="btn btn-danger btn-xs" ng-click="removeCurrItem(item)">
+                                <span class="glyphicon glyphicon-trash"></span> 删除
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!-- 旧的课程封面图片列表 -->
+            <!-- 新的课程封面图片列表-->
+            <div style="min-height:0;" class="col-xs-offset-2 col-xs-8 width_10">
+                <table style="margin-top: 10px;" ng-show="imgUploader.queue.length>0"class="table table-bordered text-center">
+                    <tr>
+                        <td class="col-xs-2">课程封面图片名称</td>
+                        <td class="col-xs-2">大小</td>
+                        <td class="col-xs-2">进度</td>
+                        <td class="col-xs-2">状态</td>
+                        <td class="col-xs-2">操作</td>
+                    </tr>
+                    <tr ng-repeat="item in imgUploader.queue">
+                        <td class="overflow-breakall"><strong><a ng-click="preview()">{{ item.file.name }}</a></strong></td>
+                        <td ng-show="imgUploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>
+                        <td ng-show="imgUploader.isHTML5">
+                            <div class="progress" style="margin-bottom: 0;">
+                                <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
+                            <!-- <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span> -->
+                            <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
+                        </td>
+                        <td nowrap>
+                            <a class="btn btn-success btn-xs" ng-click="item.upload()" ng-disabled="item.isReady || item.isUploading || item.isSuccess">
+                                <span class="glyphicon glyphicon-upload"></span> 上传
+                            </a>
+                            <!-- <a class="btn btn-warning btn-xs" ng-click="item.cancel()" ng-disabled="!item.isUploading">
+                                <span class="glyphicon glyphicon-ban-circle"></span> 取消
+                            </a> -->
+                            <a class="btn btn-danger btn-xs" ng-click="removeItem(item)">
+                                <span class="glyphicon glyphicon-trash"></span> 删除
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+                <!-- 新的课程封面图片列表-->
+            </div>
+        </div>
+        <!--end 上传课程封面-->
+        <!-- start 上传英文课程封面 -->
+        <div style="position:relative;" class="form-group" ng-controller="CourseImgEnController" uploader="imgEnUploader" filters="queueLimit, customFilter">
+            <label class="col-xs-2 control-label">上传英文课程封面：</label>
+            <div class="col-xs-5 width_6">
+                <a class="fileInputBtn btn btn-primary btn-control">上传图片</a>
+                <input type="file" class="fileInput btn btn-control" id="courseImgEnFileInput" nv-file-select  uploader="imgEnUploader">
+                <div class="inputIntro">(1.5:1,&lt;=2M;建议360*240px,&lt;=500kb)</div>
+            </div>
+            <input type="hidden" name="courseImgEn" ng-model="course.courseImgEn" required-courseimgen>
+            <div class="error" ng-show="courseForm.$submitted&&courseForm.courseImgEn.$invalid" >
+                <span ng-show="courseForm.courseImgEn.$error.requiredCourseimgen" class="glyphicon glyphicon-exclamation-sign">请上传课程封面图片</span>
+            </div>
+            <div class="preview-container" ng-show="openEnPreview">
+		      <div class="thumbnail">
+		         <img width="200px" height="90px" ng-src="{{previewImgEnUrl}}">
+		         <div class="caption">
+		            <p>
+		               <a ng-click="closeEnPreview()" class="btn btn-primary" role="button">关闭</a> 
+		            </p>
+		         </div>
+		      </div>
+   			</div>
+            <!-- 旧的课程封面图片列表 -->
+            <div style="min-height:0;" class="col-xs-offset-2 col-xs-8">
+                <table style="margin-top: 10px;" ng-show="currEnFileUrlQueue.length>0"class="table table-bordered text-center width_4">
+                    <tr>
+                        <td class="col-xs-2">编号</td>
+                        <td class="col-xs-2">预览</td>
+                        <td class="col-xs-2">操作</td>
+                    </tr>
+                    <tr ng-repeat="fileUrl in currEnFileUrlQueue">
+                        <td ng-bind="$index+1"></td>
+                        <td><a ng-click="previewEn()">点击预览</a></td>
+                        <td nowrap>
+                            <a class="btn btn-danger btn-xs" ng-click="removeCurrItem(item)">
+                                <span class="glyphicon glyphicon-trash"></span> 删除
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!-- 旧的课程封面图片列表 -->
+            <!-- 新的课程封面图片列表-->
+            <div style="min-height:0;" class="col-xs-offset-2 col-xs-8 width_10">
+                <table style="margin-top: 10px;" ng-show="imgEnUploader.queue.length>0"class="table table-bordered text-center">
+                    <tr>
+                        <td class="col-xs-2">课程封面图片名称</td>
+                        <td class="col-xs-2">大小</td>
+                        <td class="col-xs-2">进度</td>
+                        <td class="col-xs-2">状态</td>
+                        <td class="col-xs-2">操作</td>
+                    </tr>
+                    <tr ng-repeat="item in imgEnUploader.queue">
+                        <td class="overflow-breakall"><strong><a ng-click="previewEn()">{{ item.file.name }}</a></strong></td>
+                        <td ng-show="imgEnUploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>
+                        <td ng-show="imgEnUploader.isHTML5">
+                            <div class="progress" style="margin-bottom: 0;">
+                                <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
+                            <!-- <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span> -->
+                            <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
+                        </td>
+                        <td nowrap>
+                            <a class="btn btn-success btn-xs" ng-click="item.upload()" ng-disabled="item.isReady || item.isUploading || item.isSuccess">
+                                <span class="glyphicon glyphicon-upload"></span> 上传
+                            </a>
+                            <!-- <a class="btn btn-warning btn-xs" ng-click="item.cancel()" ng-disabled="!item.isUploading">
+                                <span class="glyphicon glyphicon-ban-circle"></span> 取消
+                            </a> -->
+                            <a class="btn btn-danger btn-xs" ng-click="removeItem(item)">
+                                <span class="glyphicon glyphicon-trash"></span> 删除
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+                <!-- 新的课程封面图片列表-->
+            </div>
+        </div>
+        <!-- end 上传英文课程封面 -->
+        <!--选择课程分类-->
+        <div class="form-group" >
+	        <label class="col-xs-2 control-label">课程分类：</label>
+	    	<div class="col-xs-5 width_6">
+		        <div class="form-control-static">
+		            <a href="javascript:void(0)" class="btn btn-primary  btn-control" ng-click="doOpenCourseClassifyModal()">选择课程分类</a>
+		        </div>
+		        <div class="width_4" ng-include="'/enterpriseuniversity/views/modalTemplate/courseClassifyModalTemplate.html'"></div>
+	        </div>
+	        <input type="hidden" name="classify" ng-model="course.classifyIds.length" require-number>
+	        <div class="error" ng-show="courseForm.classify.$invalid&&courseForm.$submitted">
+                <span ng-show="courseForm.classify.$error.requireNumber" class="glyphicon glyphicon-exclamation-sign">请选择课程分类</span>
+           	</div>
+        </div>
+        <!--end 选择课程分类-->
+         
+        <!--选择评价维度 
+        <div class="form-group"  ng-if="course.gradeStatus=='Y'">
+        	<label class="col-xs-2 control-label">课程评分维度：</label>
+        	<div class="col-xs-5 width_6">
+		        <div class="form-control-static">
+	                <a href="javascript:void(0)" class="btn btn-primary  btn-control" data-toggle="modal" ng-click="doOpenCourseGradeDimensionModal()">选择课程评分维度 </a>
+	                <div class="inputIntro">(最多可选择5种课程评分维度)</div>
+		        </div>
+		        <div class="width_4" ng-include="'/enterpriseuniversity/views/modalTemplate/courseGradeDimensionModalTemplate.html'"></div>
+		    </div>
+		    <input type="hidden" name="courseGradeDimensions" ng-model="course.courseGradeDimensions" require-string>
+		    <div class="error" ng-show="courseForm.courseGradeDimensions.$invalid&&courseForm.$submitted">
+                <span ng-show="courseForm.courseGradeDimensions.$error.requireString" class="glyphicon glyphicon-exclamation-sign">请选择课程评分维度</span>
+           	</div>
+        </div>
+        <div class="form-group"  ng-if="course.gradeStatus=='Y'">
+        	<label class="col-xs-2 control-label">讲师评分维度：</label>
+        	<div class="col-xs-5 width_6">
+	            <div class="form-control-static">
+                	<a href="javascript:void(0)" class="btn btn-primary  btn-control" data-toggle="modal" ng-click="doOpenLectureGradeDimensionModal()">选择讲师评分维度</a>
+                    <div class="inputIntro">(最多可选择5种讲师评分维度)</div>
+	            </div>
+		        <div class="width_4" ng-include="'/enterpriseuniversity/views/modalTemplate/lectureGradeDimensionModalTemplate.html'"></div>
+		    </div>
+		    <input type="hidden" name="lecturerGradeDimensions" ng-model="course.lecturerGradeDimensions" require-string>
+		    <div class="error" ng-show="courseForm.lecturerGradeDimensions.$invalid&&courseForm.$submitted">
+                <span ng-show="courseForm.lecturerGradeDimensions.$error.requireString" class="glyphicon glyphicon-exclamation-sign">请选择讲师评分维度</span>
+           	</div>
+        </div> -->
+        <!--end 选择评价维度-->
+        <!--选择讲师-->
+        <div class="form-group"  >
+        	<label class="col-xs-2 control-label">授课讲师：</label>
+    		<div class="col-xs-5 width_6">
+		        <div class="form-control-static">
+		            <a href="javascript:void(0)" class="btn btn-primary  btn-control" data-toggle="modal" ng-click="doOpenLectureModal()">选择讲师</a>
+		        </div>
+	        	<div class="width_4" ng-include="'/enterpriseuniversity/views/modalTemplate/lectureModalTemplate.html'"></div>
+	        </div>
+	        <input type="hidden" name="lecturers" ng-model="course.lecturers" required-lecturers>
+	        <div class="error" ng-show="courseForm.lecturers.$invalid&&courseForm.$submitted">
+                <span ng-show="courseForm.lecturers.$error.requiredLecturers" class="glyphicon glyphicon-exclamation-sign">请选择讲师</span>
+           	</div>
+        </div>
+        <!--end 选择讲师-->
+        <!-- start选择管理员-->
+        <div class="form-group">
+            <label class="col-xs-2 control-label">课程授权：</label>
+            <div class="col-xs-5 width_6">
+		        <div class="form-control-static">
+		            <a href="javascript:void(0)" class="btn btn-primary  btn-control" data-toggle="modal" ng-click="doOpenAdminModal()">选择管理员</a>
+		        </div>
+		        <div class="width_4" ng-include="'/enterpriseuniversity/views/modalTemplate/adminModalTemplate.html'"></div>
+    		</div>
+    		<input type="hidden" name="admins" ng-model="course.admins" required-admin>
+    		<div class="error" ng-show="courseForm.admins.$invalid&&courseForm.$submitted">
+                <span ng-show="courseForm.admins.$error.requiredAdmin" class="glyphicon glyphicon-exclamation-sign">请选择管理员</span>
+           	</div>
+        </div>
+        <!-- end 选择管理员 -->
+        <!--start 选择公开范围-->
+        <div class="form-group">
+        	<label class="col-xs-2 control-label">选择可见范围：</label>
+		    <div class="col-xs-5 width_6">
+		        <div class="form-control-static" ng-if="course.openCourse!='Y'">
+		            <a href="javascript:void(0)" class="btn btn-primary btn-control" ng-click="doOpenEmpModal()">选择学习人员</a>
+		        </div>
+		        <div class="width_4" ng-include="'/enterpriseuniversity/views/modalTemplate/empModalTemplate.html'"></div>
+    		</div>
+    		<!-- <input type="hidden" name="emps" ng-model="course.empIds.length" require-emps>
+	        <div class="error" ng-show="courseForm.emps.$invalid&&courseForm.$submitted">
+                <span ng-show="courseForm.emps.$error.requireEmps" class="glyphicon glyphicon-exclamation-sign">请选择可见人员</span>
+           	</div> -->
+        </div>
+        <!--end 选择公开范围-->
+        
+        <!-- 课程安排 start-->
+        <div class="form-group">
+        	<label class="col-xs-2 control-label">课程安排：</label>
+		    <div class="col-xs-5 width_6">
+		        <!--  <div summernote height="300" ng-model="course.courseDetail"></div> -->
+		        <textarea id="newsEditor"  name="newsEditor"  class="ckeditor"></textarea>
+    		</div>
+        </div>
+        <div class="form-group">
+        	<label class="col-xs-2 control-label">课程安排英文：</label>
+		    <div class="col-xs-5 width_6">
+		         <!-- <div summernote  height="300" ng-model="course.courseDetailEn"></div> -->
+		         <textarea id="newsEditorEn"  name="newsEditorEn"  class="ckeditor"></textarea>
+    		</div>
+        </div>
+        <!--end 课程安排 -->
+        <!-- 授课次数 start-->
+        <div class="form-group">
+            <label class="col-xs-2 control-label">授课次数：</label>
+            <div class="col-xs-5 width_6">
+                <input type="text" class="form-control width_3" name="classesCount" 
+                	ng-model="course.classesCount" 
+                	ng-pattern ="/^(\+?[1-9]\d{0,1}|\+?100)$/"
+                	ng-change="createClasses(course);"
+                	required>
+            </div>
+            <div class="error width_9" ng-show="courseForm.classesCount.$dirty && courseForm.classesCount.$invalid || courseForm.$submitted && courseForm.classesCount.$invalid" >
+                <span ng-show="courseForm.classesCount.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+                <span ng-show="courseForm.classesCount.$error.pattern" class="glyphicon glyphicon-exclamation-sign">1-100的整数</span>
+            </div>
+		</div>
+	 	<!--end 授课次数-->
+		<!-- 授课日期 start--> 
+		<div ng-repeat="c in course.classesList">
+			<div class="form-group">
+				<label class="col-xs-2 control-label">班次(中文){{$index+1}}：</label> 
+				<div class="col-xs-5 width_6">
+					<input type="text" class="form-control width_1" name="classesName{{c.classes}}"  
+ 						ng-model="c.classesName" 
+ 						ng-maxlength ="50"
+ 						required placeholder="请输入班次名称(中文)"><span> (最多50个字符)</span>
+				</div>
+				<div class="error" ng-show="courseForm.classesName{{c.classes}}.$dirty && courseForm.classesName{{c.classes}}.$invalid||courseForm.$submitted&&courseForm.classesName{{c.classes}}.$invalid">
+	                <span ng-show="courseForm.classesName{{c.classes}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+	                <span ng-show="courseForm.classesName{{c.classes}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多50个字符</span>
+	            </div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-2 control-label">班次(英文){{$index+1}}：</label> 
+				<div class="col-xs-5 width_6">
+					<input type="text" class="form-control width_1" name="classesNameEn{{c.classes}}"  
+ 						ng-model="c.classesNameEn" 
+ 						ng-maxlength ="50"
+ 						required placeholder="请输入班次名称(英文)"><span> (最多50个字符)</span>
+				</div>
+				<div class="error" ng-show="courseForm.classesNameEn{{c.classes}}.$dirty && courseForm.classesNameEn{{c.classes}}.$invalid||courseForm.$submitted&&courseForm.classesNameEn{{c.classes}}.$invalid">
+	                <span ng-show="courseForm.classesNameEn{{c.classes}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+	                <span ng-show="courseForm.classesNameEn{{c.classes}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多50个字符</span>
+	            </div>
+			</div>
+			<div class="form-group">
+            <label for="courseName" class="col-xs-2 control-label">班次地点(中文){{$index+1}}：</label>
+            <div class="col-xs-5 width_6">
+                <textarea class="form-control width_1" name="classesAddress{{c.classes}}" rows="2"
+	                ng-model="c.classesAddress"
+	                ng-maxlength="200" 
+	                required 
+	                placeholder="请输入班次地点(中文)" ></textarea><span> (最多200个字符)</span>
+            </div>
+            <div class="error" ng-show="courseForm.classesAddress{{c.classes}}.$dirty&&courseForm.classesAddress{{c.classes}}.$invalid||courseForm.$submitted&&courseForm.classesAddress{{c.classes}}.$invalid" >
+                <span ng-show="courseForm.classesAddress{{c.classes}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+                <span ng-show="courseForm.classesAddress{{c.classes}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多200个字符</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="courseName" class="col-xs-2 control-label">班次地点(英文){{$index+1}}：</label>
+            <div class="col-xs-5 width_6">
+                <textarea class="form-control width_1" name="classesAddressEn{{c.classes}}" rows="2"
+	                ng-model="c.classesAddressEn"
+	                ng-maxlength="200" 
+	                required 
+	                placeholder="请输入班次地点(英文)" ></textarea><span> (最多200个字符)</span>
+            </div>
+            <div class="error" ng-show="courseForm.classesAddressEn{{c.classes}}.$dirty&&courseForm.classesAddressEn{{c.classes}}.$invalid||courseForm.$submitted&&courseForm.classesAddressEn{{c.classes}}.$invalid" >
+                <span ng-show="courseForm.classesAddressEn{{c.classes}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+                <span ng-show="courseForm.classesAddressEn{{c.classes}}.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多200个字符</span>
+            </div>
+        </div>
+			<div class="form-group">
+				<label class="col-xs-2 control-label"></label> 
+				<div class="col-xs-5 width_6">
+					<label>开始时间</label>
+					<input type="text" class="Wdate form-control width_5" name="classStartTime{{c.classes}}" onchange="" 
+						ng-model="c.beginTime" 
+						required
+						onfocus="WdatePicker({startDate:'%y-%M-%d 09:00:00',lang:'zh-cn',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly><!-- ,minDate:'new Date()' -->
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<label>结束时间</label>
+					<input type="text" class="Wdate form-control width_5" name="classEndTime{{c.classes}}" onchange="" 
+						ng-model="c.endTime" 
+						required
+						onfocus="WdatePicker({startDate:'%y-%M-%d 19:00:00',lang:'zh-cn',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly><!-- ,minDate:'{{c.beginTime}}' -->
+				</div>
+				<div class="error" ng-show="courseForm.$submitted && courseForm.classStartTime{{c.classes}}.$invalid || courseForm.$submitted && courseForm.classEndTime{{c.classes}}.$invalid">
+	                <span ng-show="courseForm.classStartTime{{c.classes}}.$error.required || courseForm.classEndTime{{c.classes}}.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+	            </div>
+			</div>
+		</div>
+		<!--end 授课日期-->
+        <div class="form-group">
+            <label  class="col-xs-2 control-label">课程下载：</label>
+            <div class="col-xs-5">
+                <label class="radio-inline ">
+                    <input type="radio" class="" name="courseDownloadable"  ng-model="course.courseDownloadable"
+                           value="Y" ng-checked="course.courseDownloadable=='Y'">开启
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" class="" name="courseDownloadable"  ng-model="course.courseDownloadable"
+                           value="N" ng-checked="course.courseDownloadable=='N'">关闭
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label  class="col-xs-2 control-label">精品课程：</label>
+            <div class="col-xs-5">
+                <label class="radio-inline ">
+                    <input type="radio" class="" name="isExcellentCourse"  ng-model="course.isExcellentCourse"
+                           value="Y" ng-checked="course.isExcellentCourse=='Y'">是&nbsp;&nbsp;&nbsp;
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" class="" name="isExcellentCourse"  ng-model="course.isExcellentCourse"
+                           value="N" ng-checked="course.isExcellentCourse=='N'">否
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label  class="col-xs-2 control-label">上架/下架：</label>
+            <div class="col-xs-5">
+                <label class="radio-inline ">
+                    <input type="radio" class="" name="status"  ng-model="course.status"
+                           value="Y" ng-checked="course.status=='Y'">上架
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" class="" name="status"  ng-model="course.status"
+                           value="N" ng-checked="course.status=='N'">下架
+                </label>
+            </div>
+        </div>
+<!--         <div class="form-group"> -->
+<!--             <label  class="col-xs-2 control-label">开启评论：</label> -->
+<!--             <div class="col-xs-5"> -->
+<!--                 <label class="radio-inline "> -->
+<!--                     <input type="radio" class="" name="openComment" ng-model="course.openComment"  -->
+<!--                            value="Y" ng-checked="course.openComment=='Y'">开启 -->
+<!--                 </label> -->
+<!--                 <label class="radio-inline"> -->
+<!--                     <input type="radio" class="" name="openComment"  ng-model="course.openComment" -->
+<!--                            value="N" ng-checked="course.openComment=='N'">关闭 -->
+<!--                 </label> -->
+<!--             </div> -->
+<!--         </div> -->
+<!--         <div class="form-group"> -->
+<!--             <label  class="col-xs-2 control-label">讲师/课程打分：</label> -->
+<!--             <div class="col-xs-8"> -->
+<!--                 <label class="radio-inline "> -->
+<!--                     <input type="radio" class="" name="gradeStatus"  ng-model="course.gradeStatus" -->
+<!--                            value="Y" ng-checked="course.gradeStatus=='Y'">开启 -->
+<!--                 </label> -->
+<!--                 <label class="radio-inline"> -->
+<!--                     <input type="radio" class="" name="gradeStatus"  ng-model="course.gradeStatus" -->
+<!--                            value="N" ng-checked="course.gradeStatus=='N'">关闭 -->
+<!--                 </label> -->
+<!--             </div> -->
+<!--         </div> -->
+       	<div class="form-group" ng-controller="OfflineCourseFormCommonSubmitController">
+            <div class="col-xs-offset-2 col-xs-8">
+                <a class="btn btn-primary btn-control" ng-click="doFormSubmit()">保&nbsp;&nbsp;&nbsp;存</a>
+                <a class="btn btn-link" ng-click="doReturn()">返&nbsp;&nbsp;&nbsp;回</a>
+            </div>
+        </div>
+        <div class="modal-backdrop fade" ng-class="{'in':editCourseSubmit,'display-block':editCourseSubmit,'display-none':!editCourseSubmit}"></div>
+    </form>
+    
+</div>
+<script type="text/javascript">
+//监听窗口大小变化，自适应高度
+$(document).ready(function () {
+	resizeView();
+ 	/* CKEDITOR.replace('newsEditor'); 
+ 	CKEDITOR.replace('newsEditorEn');   */
+});
+</script>

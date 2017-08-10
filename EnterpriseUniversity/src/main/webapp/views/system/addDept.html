@@ -1,0 +1,35 @@
+<meta charset="UTF-8" >
+<div class="container-fluid" ng-controller="AddDeptController" id="page">
+	<form name="deptForm" novalidate
+		class="form-horizontal" role="form" class="form-horizontal" role="form">
+		<div class="form-group">
+			<label class="col-xs-2 control-label" translate="xitongguanli.deptname">部门名称:</label>
+			<div class="col-xs-5 width_6">
+				<input type="text" class="form-control width_1" id="name" name="name" ng-model="dep.name"
+					ng-maxlength="50" required placeholder="请输入部门名称">(最多输入50个字符)
+			</div>
+			<div class="error" ng-show="deptForm.name.$dirty&&deptForm.name.$invalid||deptForm.$submitted&&deptForm.name.$invalid">
+				<span ng-show="deptForm.name.$error.required" class="glyphicon glyphicon-exclamation-sign" translate="xitongguanli.deptnotnull"></span>
+				<span ng-show="deptForm.name.$error.maxlength" class="glyphicon glyphicon-exclamation-sign" translate="xitongguanli.deptmax50"></span>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-xs-2 control-label" translate="xitongguanli.suoshudeptname"></label>
+			<div class="col-xs-5">
+				<input type="text" class="form-control width_1" id="topname" name="topname"  ng-model="topname" required  readonly/> 
+			</div>
+        </div> 
+        <div class="form-group">
+			<div class="col-xs-offset-2 col-xs-8">
+				<a class="btn btn-primary btn-control"  translate="xitongguanli.wancheng" ng-click="conservationDepartment()"></a> 
+				<a class="btn btn-link" ng-click="returnAddDept()" translate="xitongguanli.fannullhui"></a>
+			</div>
+		</div>
+	</form>
+</div>
+<script type="text/javascript">
+	//监听窗口大小变化，自适应高度
+	$(document).ready(function () {
+		resizeView();
+	});
+</script>

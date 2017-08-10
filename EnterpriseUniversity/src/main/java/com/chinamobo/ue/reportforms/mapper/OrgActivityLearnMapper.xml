@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.reportforms.dao.OrgActivityLearnMapper">
+	<resultMap id="BaseResultMap" type="com.chinamobo.ue.reportforms.dto.OrgActivityLearnDto">
+		
+		<result column="CODE" property="code" jdbcType="VARCHAR" />
+		<result column="name" property="orgName" jdbcType="VARCHAR" />
+		<result column="codeNum" property="codeNum" jdbcType="INTEGER" />
+		<result column="join_Num" property="joinStudyNum" jdbcType="INTEGER" />
+		<!-- 必修 -->
+		<result column="R_CodeNum" property="requireCodeNum" jdbcType="INTEGER" />
+<!-- 		<result column="R_eAvgStudyTime" property="requireAvgStudyTime" jdbcType="INTEGER" /> -->
+		<result column="R_StudyTime" property="requireStudyTime" jdbcType="DOUBLE" />
+		<result column="R_CompSection" property="requireComSection" jdbcType="INTEGER" />
+		<result column="R_TotalSection" property="requireTotalSection" jdbcType="INTEGER" />
+		<result column="R_AvgScore" property="requireAvgScore" jdbcType="DOUBLE" />
+		<result column="R_ComCourNumE" property="requireCourseENum" jdbcType="INTEGER" />
+		<result column="R_quaNum" property="requireScorePassNum" jdbcType="INTEGER" />
+		<result column="R_ScoreNum" property="requirescoreNum" jdbcType="INTEGER" />
+		<result column="R_ComCourNum" property="requireCourseCom" jdbcType="INTEGER" />
+		<result column="R_CourNum" property="requireCourseNum" jdbcType="INTEGER" />
+		<result column="R_PassExamE" property="requirePassExamE" jdbcType="INTEGER" />
+		<result column="R_TotalActivity" property="requireTotalActivity" jdbcType="INTEGER" />
+		<!-- 选修 -->
+		<result column="C_CodeNum" property="optionCodeNum" jdbcType="INTEGER" />
+<!-- 		<result column="C_eAvgStudyTime" property="optionAvgStudyTime" jdbcType="INTEGER" /> -->
+		<result column="C_StudyTime" property="optionStudyTime" jdbcType="DOUBLE" />
+		<result column="C_CompSection" property="optionComSection" jdbcType="INTEGER" />
+		<result column="C_TotalSection" property="optionTotalSection" jdbcType="INTEGER" />
+		<result column="C_AvgScore" property="optionAvgScore" jdbcType="DOUBLE" />
+		<result column="C_ComCourNumE" property="optionComCouNumE" jdbcType="INTEGER" />
+		<result column="C_quaNum" property="optionScorePassNum" jdbcType="INTEGER" />
+		<result column="C_ScoreNum" property="optionscoreNum" jdbcType="INTEGER" />
+		<result column="C_ComCourNum" property="optionCourseCom" jdbcType="INTEGER" />
+		<result column="C_CourNum" property="optionCourseNum" jdbcType="INTEGER" />
+		<result column="C_PassExamE" property="optionPassExamE" jdbcType="INTEGER" />
+		<result column="C_TotalActivity" property="optionTotalActivity" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<!-- 查询总共条数	 -->
+	 <select id="findListCoun" resultType="java.lang.Integer">
+	select count(*) from tom_org
+	</select>  
+		<!--  <select id="findListCoun" resultType="java.lang.Integer" >
+			select count(*) from tom_dept_activity_learning_data_view where 1=1
+				 <include refid="condition"></include>
+		</select> -->
+	<!-- 分页条件查询 -->
+	<select id="findList" resultType="com.chinamobo.ue.reportforms.dto.OrgActivityLearnDto" parameterType="map">
+		select 
+		 (select count(*) from tom_emp as g where 1=1
+		 	<include refid="condition"></include>) as codeNum ,
+			(SELECT COUNT(DISTINCT b.`CODE`) FROM tom_emp as g,tom_activity_emps_relation as b WHERE g.`CODE`=b.`CODE` 
+			<include refid="condition"></include>) as joinStudyNum,
+			(SELECT COUNT(DISTINCT b.`CODE`)   FROM tom_emp as g,tom_activity_emps_relation as b WHERE g.`CODE`=b.`CODE`
+			<include refid="condition"></include>
+			 AND b.is_required='Y') as requireCodeNum,
+			 (SELECT COUNT(DISTINCT b.`CODE`) FROM tom_emp as g,tom_activity_emps_relation as b WHERE g.`CODE`=b.`CODE` 
+			<include refid="condition"></include>
+			 AND b.is_required='N') as optionCodeNum,
+			 (SELECT COUNT(DISTINCT a.ACTIVITY_ID) FROM tom_activity_emps_relation AS a
+				LEFT JOIN tom_emp AS g ON a.code=g.code 
+				WHERE a.is_required='Y'  
+             <include refid="condition"></include>) as requireTotalActivity,
+			(SELECT COUNT(DISTINCT a.ACTIVITY_ID) FROM tom_activity_emps_relation AS a
+				LEFT JOIN tom_emp AS g ON a.code=g.code 
+				WHERE a.is_required='N' 
+             <include refid="condition"></include>) as optionTotalActivity,
+			(SELECT COUNT(DISTINCT b.COURSE_ID)FROM tom_activity_emps_relation as a
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			left join tom_emp as g on a.code=g.code
+			where  a.is_required='Y'  AND b.COURSE_ID is NOT NULL <include refid="condition"></include>)AS requireTotalSection,
+			(SELECT COUNT(DISTINCT b.COURSE_ID)FROM tom_activity_emps_relation as a
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			left join tom_emp as g on a.code=g.code
+			where  a.is_required='N'  AND b.COURSE_ID is NOT NULL <include refid="condition"></include>)as optionTotalSection
+			 FROM `tom_org` `a` 
+			 left join tom_emp as g on a.code=g.orgcode
+			group by a.code
+		limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+		</select>   
+	 <!-- 	 <select id="findList" resultMap="BaseResultMap" parameterType="map">
+			select * from tom_dept_activity_learning_data_view where 1=1
+				 <include refid="condition"></include>
+		limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+		</select>   -->
+	 <select id="RStudyTime" resultType="java.lang.Integer">
+		select ifnull(sum(d.TIME),0)
+			from tom_activity as a 
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			LEFT JOIN tom_activity_emps_relation as c ON a.activity_id=c.activity_id 
+			left join tom_learntime_log as d ON d.COURSE_ID=b.COURSE_ID 
+			 left join tom_emp as g on c.code=g.code
+			where  a.NEED_APPLY='N'   AND d.`CODE`=c.`CODE`
+			<include refid="condition"></include>
+	</select>
+	<select id="RComCourseSection"  resultType="java.lang.Integer">
+	SELECT
+		COUNT(DISTINCT c.COURSE_ID)
+		FROM
+		tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_course_learning_record d ON c.COURSE_ID=d.COURSE_ID
+		 left join tom_emp as g on a.code=g.code
+		WHERE  a.`STATUS`='Y' AND b.NEED_APPLY='N' AND c.COURSE_ID IS NOT NULL AND a.`CODE`=d.`CODE`
+		<include refid="condition"></include>
+	</select>
+	<select id="RAvgScore" resultType="double">
+	SELECT ifnull (avg(d.TOTAL_POINTS),0)
+			FROM tom_activity as a
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			LEFT JOIN tom_activity_emps_relation as c ON a.activity_id=c.activity_id
+			LEFT JOIN tom_exam_score as d ON d.EXAM_ID=b.EXAM_ID AND d.`CODE`=c.`CODE`
+			left join tom_emp as g on c.code=g.code
+			WHERE c.IS_REQUIRED='Y' AND b.EXAM_ID IS NOT NULL
+			<include refid="condition"></include>
+	</select>
+	<select id="RCourseE" resultType="java.lang.Integer">
+	<!-- SELECT SUM(abc.E_CURRENCY) FROM
+			(SELECT tc.E_CURRENCY
+			FROM tom_activity as a 
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			LEFT JOIN tom_courses as tc ON b.COURSE_ID=tc.COURSE_ID
+			LEFT JOIN tom_activity_emps_relation as c ON a.activity_id=c.activity_id
+			LEFT JOIN tom_course_emp_relation as d ON b.course_id=d.course_id and d.code=c.code
+			LEFT JOIN tom_course_section as e ON d.COURSE_ID=e.COURSE_ID 
+			LEFT JOIN tom_section_learning_record as f ON e.SECTION_ID=f.COURSE_SECTION_ID AND d.`CODE`=f.`CODE`
+			where  c.is_required='Y'  AND b.COURSE_ID is NOT NULL AND f.LEARNING_STATES ='Y'
+			GROUP BY a.ACTIVITY_ID,c.`CODE`,d.COURSE_ID) as abc -->
+			SELECT DISTINCT
+				ifnull(sum(e.E_CURRENCY),0)
+				FROM
+				tom_activity_emps_relation a
+				LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+				LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+				LEFT JOIN tom_course_learning_record d ON c.COURSE_ID=d.COURSE_ID
+				LEFT JOIN tom_courses e ON d.COURSE_ID=e.COURSE_ID
+				left join tom_emp as g on a.code=g.code
+				WHERE 1=1
+				AND a.`STATUS`='Y' AND b.NEED_APPLY='N' AND c.COURSE_ID IS NOT NULL AND a.`CODE`=d.`CODE`
+				<include refid="condition"></include>
+	</select>
+	<select id="RPassExam" resultType="java.lang.Integer">
+	SELECT count(*)
+			FROM tom_activity as a
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			LEFT JOIN tom_activity_emps_relation as c ON a.activity_id=c.activity_id
+			LEFT JOIN tom_exam_score as d ON d.EXAM_ID=b.EXAM_ID AND d.`CODE`=c.`CODE`
+			left join tom_emp as g on c.code=g.code
+			WHERE c.IS_REQUIRED='Y' AND b.EXAM_ID IS NOT NULL AND d.GRADE_STATE='Y'
+			<include refid="condition"></include>
+	</select>
+	<select id="RExamTotal" resultType="java.lang.Integer">
+		SELECT count(*) 
+			FROM tom_activity as a
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			LEFT JOIN tom_activity_emps_relation as c ON a.activity_id=c.activity_id
+			LEFT JOIN tom_exam_score as d ON d.EXAM_ID=b.EXAM_ID AND d.`CODE`=c.`CODE`
+			left join tom_emp as g on c.code=g.code
+			WHERE c.IS_REQUIRED='Y' AND b.EXAM_ID IS NOT NULL
+			<include refid="condition"></include>
+	</select>
+	<select id="RComCourseNum" resultType="java.lang.Integer">
+	SELECT COUNT(abc.activity_id)  FROM (
+			SELECT a.activity_id
+			FROM tom_activity as a 
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			LEFT JOIN tom_activity_emps_relation as c ON a.activity_id=c.activity_id
+			LEFT JOIN tom_course_emp_relation as d ON b.course_id=d.course_id and d.code=c.code
+			LEFT JOIN tom_course_section as e ON d.COURSE_ID=e.COURSE_ID 
+			LEFT JOIN tom_section_learning_record as f ON e.SECTION_ID=f.COURSE_SECTION_ID AND d.`CODE`=f.`CODE`
+			left join tom_emp as g on c.code=g.code
+			where  c.is_required='Y'  AND b.COURSE_ID is NOT NULL AND f.LEARNING_STATES='Y'
+			<include refid="condition"></include>
+			GROUP BY a.ACTIVITY_ID,c.`CODE`,d.COURSE_ID) as abc
+	</select>
+	<select id="RJoinCourseNum" resultType="java.lang.Integer">
+	SELECT COUNT(abc.activity_id) FROM (
+			SELECT a.activity_id
+			FROM tom_activity as a 
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			LEFT JOIN tom_activity_emps_relation as c ON a.activity_id=c.activity_id
+			LEFT JOIN tom_course_emp_relation as d ON b.course_id=d.course_id and d.code=c.code
+			LEFT JOIN tom_course_section as e ON d.COURSE_ID=e.COURSE_ID 
+			LEFT JOIN tom_section_learning_record as f ON e.SECTION_ID=f.COURSE_SECTION_ID AND d.`CODE`=f.`CODE`
+			left join tom_emp as g on c.code=g.code
+			where  c.is_required='Y'  AND b.COURSE_ID is NOT NULL AND f.LEARNING_STATES in ('Y','N')
+			<include refid="condition"></include>
+			GROUP BY a.ACTIVITY_ID,c.`CODE`,d.COURSE_ID) as abc
+	</select>
+	<select id="RPassExamE" resultType="java.lang.Integer">
+	SELECT ifnull(SUM(f.PASS_EB),0) 
+			FROM tom_activity as a
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			LEFT JOIN tom_activity_emps_relation as c ON a.activity_id=c.activity_id
+			LEFT JOIN tom_exam_score as d ON d.EXAM_ID=b.EXAM_ID AND d.`CODE`=c.`CODE`
+			LEFT JOIN tom_exam AS e ON e.exam_id=d.EXAM_ID
+			LEFT JOIN tom_exam_paper as f on f.exam_paper_id=e.exam_paper_id
+			left join tom_emp as g on c.code=g.code
+			WHERE c.IS_REQUIRED='Y' AND b.EXAM_ID IS NOT NULL AND d.GRADE_STATE='Y'
+			<include refid="condition"></include>
+			</select>
+	<select id="CStudyTime" resultType="java.lang.Integer">
+	select ifnull(sum(d.TIME),0) 
+			from tom_activity as a 
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			LEFT JOIN tom_activity_emps_relation as c ON a.activity_id=c.activity_id 
+			left join tom_learntime_log as d ON d.COURSE_ID=b.COURSE_ID 
+			left join tom_emp as g on c.code=g.code
+			where  a.NEED_APPLY='Y'  AND d.`CODE`=c.`CODE`
+			<include refid="condition"></include>
+	</select>
+	<select id="CComCourseSection"  resultType="java.lang.Integer">
+	SELECT
+		COUNT(DISTINCT c.COURSE_ID)
+		FROM
+		tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_course_learning_record d ON c.COURSE_ID=d.COURSE_ID
+		left join tom_emp as g on a.code=g.code
+		WHERE 1=1
+		AND a.`STATUS`='Y' AND b.NEED_APPLY='Y' AND c.COURSE_ID IS NOT NULL AND a.`CODE`=d.`CODE`
+		<include refid="condition"></include>
+	</select>
+	<select id="CAvgScore" resultType="double">
+	SELECT ifnull( AVG(d.TOTAL_POINTS),0.0) 
+			FROM tom_activity as a
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			LEFT JOIN tom_activity_emps_relation as c ON a.activity_id=c.activity_id
+			LEFT JOIN tom_exam_score as d ON d.EXAM_ID=b.EXAM_ID AND d.`CODE`=c.`CODE`
+			left join tom_emp as g on c.code=g.code
+			WHERE c.IS_REQUIRED='N' AND b.EXAM_ID IS NOT NULL
+			<include refid="condition"></include>
+	</select>
+	<select id="CCourseE" resultType="java.lang.Integer">
+	SELECT DISTINCT
+			ifnull(sum(e.E_CURRENCY),0)
+			FROM
+			tom_activity_emps_relation a
+			LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+			LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+			LEFT JOIN tom_course_learning_record d ON c.COURSE_ID=d.COURSE_ID
+			LEFT JOIN tom_courses e ON d.COURSE_ID=e.COURSE_ID
+			left join tom_emp as g on a.code=g.code
+			WHERE 1=1
+			AND a.`STATUS`='Y' AND b.NEED_APPLY='Y' AND c.COURSE_ID IS NOT NULL AND a.`CODE`=d.`CODE`
+			<include refid="condition"></include>
+		</select>
+		<select id="CPassExam" resultType="java.lang.Integer">
+		SELECT count(*)
+			FROM tom_activity as a
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			LEFT JOIN tom_activity_emps_relation as c ON a.activity_id=c.activity_id
+			LEFT JOIN tom_exam_score as d ON d.EXAM_ID=b.EXAM_ID AND d.`CODE`=c.`CODE`
+			left join tom_emp as g on c.code=g.code
+			WHERE c.IS_REQUIRED='N' AND b.EXAM_ID IS NOT NULL AND d.GRADE_STATE='Y'
+			<include refid="condition"></include>
+		</select>
+		<select id="CExamTotal" resultType="java.lang.Integer">
+		SELECT count(*) 
+			FROM tom_activity as a
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			LEFT JOIN tom_activity_emps_relation as c ON a.activity_id=c.activity_id
+			LEFT JOIN tom_exam_score as d ON d.EXAM_ID=b.EXAM_ID AND d.`CODE`=c.`CODE`
+			left join tom_emp as g on c.code=g.code
+			WHERE c.IS_REQUIRED='N' AND b.EXAM_ID IS NOT NULL
+			<include refid="condition"></include>
+		</select>
+		<select id="CComCourseNum" resultType="java.lang.Integer">
+		SELECT COUNT(abc.activity_id) FROM (
+			SELECT a.activity_id
+			FROM tom_activity as a 
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			LEFT JOIN tom_activity_emps_relation as c ON a.activity_id=c.activity_id
+			LEFT JOIN tom_course_emp_relation as d ON b.course_id=d.course_id and d.code=c.code
+			LEFT JOIN tom_course_section as e ON d.COURSE_ID=e.COURSE_ID 
+			LEFT JOIN tom_section_learning_record as f ON e.SECTION_ID=f.COURSE_SECTION_ID AND d.`CODE`=f.`CODE`
+			left join tom_emp as g on c.code=g.code
+			where  c.is_required='N'  AND b.COURSE_ID is NOT NULL AND f.LEARNING_STATES='Y'
+			<include refid="condition"></include>
+			GROUP BY a.ACTIVITY_ID,c.`CODE`,d.COURSE_ID) as abc
+		</select>
+		<select id="CJoinCourseNum" resultType="java.lang.Integer">
+		SELECT COUNT(abc.activity_id) FROM (
+			SELECT a.activity_id
+			FROM tom_activity as a 
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			LEFT JOIN tom_activity_emps_relation as c ON a.activity_id=c.activity_id
+			LEFT JOIN tom_course_emp_relation as d ON b.course_id=d.course_id and d.code=c.code
+			LEFT JOIN tom_course_section as e ON d.COURSE_ID=e.COURSE_ID 
+			LEFT JOIN tom_section_learning_record as f ON e.SECTION_ID=f.COURSE_SECTION_ID AND d.`CODE`=f.`CODE`
+			left join tom_emp as g on c.code=g.code
+			where  c.is_required='N'  AND b.COURSE_ID is NOT NULL AND f.LEARNING_STATES in ('Y','N')
+			<include refid="condition"></include>
+			GROUP BY a.ACTIVITY_ID,c.`CODE`,d.COURSE_ID) as abc
+		</select>
+		<select id="CPassExamE" resultType="java.lang.Integer">
+		SELECT ifnull(SUM(f.PASS_EB),0)
+			FROM tom_activity as a
+			LEFT JOIN tom_activity_property as b ON a.activity_id=b.activity_id
+			LEFT JOIN tom_activity_emps_relation as c ON a.activity_id=c.activity_id
+			LEFT JOIN tom_exam_score as d ON d.EXAM_ID=b.EXAM_ID AND d.`CODE`=c.`CODE`
+			LEFT JOIN tom_exam AS e ON e.exam_id=d.EXAM_ID
+			LEFT JOIN tom_exam_paper as f on f.exam_paper_id=e.exam_paper_id
+			left join tom_emp as g on c.code=g.code
+			WHERE c.IS_REQUIRED='N' AND b.EXAM_ID IS NOT NULL AND d.GRADE_STATE='Y'
+			<include refid="condition"></include>
+		</select> 
+	
+		
+		<sql id="condition">
+<!-- 			<if test="orgName != null"> -->
+<!-- 				and INSTR(name,#{orgName,jdbcType=VARCHAR})>0 -->
+<!-- 			</if> -->
+			<if test="orgName != null and orgName!='' ">
+				and g.orgcode = #{orgName,jdbcType=VARCHAR}
+			</if>
+			<if test="oneDeptName != null and oneDeptName!='' ">
+				and g.onedeptcode = #{oneDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="twoDeptName != null and twoDeptName!='' ">
+				and g.TWO_DEPT_CODE = #{twoDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="threeDeptName != null and threeDeptName!='' ">
+				and g.THREE_DEPT_CODE = #{threeDeptName,jdbcType=VARCHAR}
+			</if>
+	      	<!-- 	<if test="beginTimeq != null and '' != beginTimeq">
+			AND #{beginTimeq,jdbcType=TIMESTAMP} <![CDATA[<ACTIVITY_START_TIME]]>
+			</if>
+			<if test="endTimeq != null and '' != endTimeq">
+			and
+			#{endTimeq,jdbcType=TIMESTAMP} <![CDATA[>ACTIVITY_END_TIME]]>
+			</if>-->
+		</sql> 
+	
+	</mapper>
+	

@@ -1,0 +1,135 @@
+<meta charset="utf-8">
+<div class="container-fluid overflow-auto" id="page" ng-controller="orgPingtaiReportController">
+	<div class="row">
+		<div class="container-fluid top-func-bar">
+			<div class="row">
+				<div class="col-xs-12">
+					<form role="search" class="">
+						<div class="row">
+							<!--<div class="col-xs-3">
+								 <div class="input-group" ng-class="{'has-error':activityName.length>=20}">
+									<input type="text" placeholder="请输入人员姓名关键字" class="form-control " ng-model="courseName" maxlength="20" ng-keydown='autoSearch($event)'>
+									<span class="input-group-btn">
+										<a  class="btn  btn-primary"  ng-click="search()">搜索</a>
+									</span>
+								</div> 
+							</div>-->
+							<div class="col-xs-9" >
+								<label>统计区间：</label> 
+								<div style="display:inline-block;margin-left:15px;width:640px;">
+									<input type="text" class="Wdate form-control width_5" id="startTime" ng-model="beginTime" onFocus="WdatePicker({onpicked:pickedStartTimeFunc,oncleared:clearStartTimeFunc,startDate:'%y-%M-%d',lang:'zh-cn',dateFmt:'yyyy-MM-dd',maxDate:'#F{$dp.$D(\'endTime\')}'})" readonly/> 
+				                    
+				               		<label>至</label>
+				               		<input type="text" class="Wdate form-control width_5" id="endTime" ng-model="endTime" onFocus="WdatePicker({onpicked:pickedEndTimeFunc,oncleared:clearEndTimeFunc,startDate:'%y-%M-%d',lang:'zh-cn',dateFmt:'yyyy-MM-dd',minDate:'#F{$dp.$D(\'startTime\')}'})" readonly/>
+				            		
+				                	<a class="btn  btn-default pull-right" ng-click="reSetSearchOption()">重置</a>
+				                	<a class="btn  btn-primary pull-right" ng-click="searchData()">查询</a>
+				                	<a class="btn  btn-primary pull-right" ng-click="highsearchData()" >高级查询</a>
+								</div>
+							</div>
+							
+						</div>
+						<div style="margin: 15px 0;" class="row" ng-show="flag=='Y'">
+							<div class="col-xs-1">
+				                <!-- <select style="line-height: 28px;" class="form-control" ng-model="orgname" ng-change="changeSeclectOption1()" ng-options=" x.code as x.name for x in method1">
+  						            	<option value="" >所属组织</option>
+				                <lect> -->
+			                 </div>
+							
+						</div>
+					</form>
+				</div>
+				<!-- <div class="col-xs-2">
+					<select style="line-height: 28px;" class="form-control" ng-model="courseOnline" ng-change="changeSeclectOption()" ng-options=" x.value as x.name for x in method">
+   						<option value="" >全部111111111</option>
+					</select>
+				</div> -->
+			</div>
+			<div class="row" style="margin-top: 15px;" ng-show="flag=='Y'">
+				<!-- <div class="col-xs-1" ng-class="{'has-error':activityName.length>=20}">
+					<input type="text" placeholder="用户名" class="form-control " ng-model="userName" maxlength="20" '>
+				 </div>
+				  <div class="col-xs-1" ng-class="{'has-error':activityName.length>=20}">
+					<input type="text" placeholder="姓名" class="form-control " ng-model="userName" maxlength="20" '>
+				 </div> -->
+			  	<div class="col-xs-1">
+	               <select style="line-height: 28px;" class="form-control" ng-model="orgname" ng-change="changeSeclectOption1()" ng-options=" x.code as x.name for x in method1">
+		            	<option value="" >所属组织</option>
+	               </select>
+             	</div>
+			  	<div class="col-xs-1">
+	                <select style="line-height: 28px;" class="form-control" ng-model="onedeptname" ng-change="changeSeclectOption2()" ng-options=" x.code as x.firstName for x in method2">
+					            	<option value="" >一级部门</option>
+	                </select>
+                 </div>
+                 <div class="col-xs-1">
+	                <select style="line-height: 28px;" class="form-control" ng-model="deptname" ng-change="changeSeclectOption3()" ng-options=" x.code as x.secondName for x in method3">
+					            	<option value="" >二级部门</option>
+	                </select>
+                 </div>
+                 <div class="col-xs-1">
+	                <select style="line-height: 28px;" class="form-control" ng-model="thirdName" ng-change="changeSeclectOption4()" ng-options=" x.code as x.thirdName for x in method4">
+					            	<option value="" >三级部门</option>
+	                </select>
+                 </div>
+				 
+			</div>
+		</div>
+		<div class="container-fluid">
+			<table   class="table table-striped table-bordered table-hover table-condensed table-layout">
+					<thead>
+						<tr>
+							<th width="50px">序号</th>
+							<th class="col-xs-2">总用户数</th>
+							<th class="col-xs-2">登录人数</th>
+							<th class="col-xs-2">移动端登录人数</th>
+							<th class="col-xs-2">未上线人数</th>
+							<th class="col-xs-2">上线率</th>
+							<th class="col-xs-2">学习总时长</th>
+							<th class="col-xs-2">人均学习时长</th>
+							<th class="col-xs-2">人均获得学分</th>
+							<th class="col-xs-2">总活动数</th>
+							<th class="col-xs-2">完成活动数</th>
+							<th class="col-xs-2">活动平均完成率</th>
+							<th class="col-xs-2">总课程数</th>
+							<th class="col-xs-2">完成课程数</th>
+							<th class="col-xs-2">课程平均完成率</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-class="{'current-focus-tr':$index == currHighLightRow.$index}" ng-click="highLightCurrRow(item)" style="cursor:pointer;">
+					   		<td ng-bind="$index+1"></td>
+					   		<td ng-bind="page.empall"></td>
+							<td ng-bind="page.logincount"></td>
+							<td ng-bind="page.h5logincount"></td>
+							<td ng-bind="page.offlinlogin"></td>
+							<td ng-bind="page.onlinerate"></td>
+							<td ng-bind="page.learnAlltime"></td>
+							<td ng-bind="page.avglearntime"></td>
+							<td ng-bind="page.avgempEb"></td>
+							<td ng-bind="page.allactivity" ></td>
+							<td ng-bind="page.finishActivity"></td>
+							<td ng-bind="page.avgActivefinrate"></td>
+							<td ng-bind="page.allcourse"></td>
+							<td ng-bind="page.finishCourse"></td>
+							<td ng-bind="page.avgfinCourserate"></td>
+						</tr>
+					</tbody>
+			</table>
+			<div class="container-fluid" style="margin-top:20px;" >
+				<div class="row">
+					<a class="btn btn-primary btn-con-trol" ng-click="downLoadPingtaiExcel()">导&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;出</a>
+				</div>
+			</div>
+			<div class="container-fluid" pagination conf="paginationConf"></div>
+		</div>
+	</div>
+	<!-- <div class="form-group"  ng-include="'/enterpriseuniversity/views/modalTemplate/viewpelStatisticModalTemplate.html'"></div>
+	<div class="form-group"  ng-include="'/enterpriseuniversity/views/modalTemplate/viewlearnStatisticModalTemplate.html'"></div> -->
+	
+<script>
+//监听窗口大小变化，自适应高度
+$(document).ready(function () {
+	resizeView();
+});
+</script>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.reportforms.dao.LearningDeptExamMapper">
+	<resultMap id="BaseResultMap" type="com.chinamobo.ue.reportforms.dto.LearningDeptExamDto">
+		<result column="CODE" property="code" jdbcType="VARCHAR" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />
+		<result column="ORGNAME" property="orgName" jdbcType="VARCHAR" />
+		<result column="ONEDEPTNAME" property="oneDeptName" jdbcType="VARCHAR" />
+		<result column="TWO_DEPT_NAME" property="twoDeptName" jdbcType="VARCHAR" />
+		<result column="THREE_DEPT_NAME" property="threeDeptName" jdbcType="VARCHAR" />
+		<result column="SECRET_EMAIL" property="secretEmail" jdbcType="VARCHAR" />
+		<result column="ADMIN_NAMES" property="isAdmin" jdbcType="VARCHAR" />
+		
+		<result column="EXAM_ID" property="examId" jdbcType="INTEGER" />
+		<result column="EXAM_NAME" property="examName" jdbcType="VARCHAR" />
+		<result column="EXAM_NUMBER" property="examNumber" jdbcType="VARCHAR" />
+		<result column="EXAM_TYPE" property="examType" jdbcType="VARCHAR" />
+		<result column="PARENT_PROJECT_CLASSIFY_NAME" property="parentProjectClassifyName" jdbcType="VARCHAR" />
+		<result column="PASS_MARK" property="examScore" jdbcType="INTEGER" />
+		<result column="FULL_MARK" property="examinationScore" jdbcType="INTEGER" />
+		<result column="PASS_EB" property="passEb" jdbcType="INTEGER" />
+		<result column="TOTAL_POINTS" property="totalPoints" jdbcType="INTEGER" />
+		<result column="GRADE_STATE" property="gradeState" jdbcType="VARCHAR" />
+		<result column="EXAM_COUNT" property="examCount" jdbcType="INTEGER" />
+		<result column="d.CREATE_TIME" property="examCreateTime" jdbcType="DATE" />
+		<result column="g.CREATE_TIME" property="examTotalTime" jdbcType="DATE" />
+		
+		<result column="ACTIVITY_NAME" property="theActivityName" jdbcType="VARCHAR" />
+		<result column="ACTIVITY_NUMBER" property="activityNumber" jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="DATE" />
+		<result column="NEED_APPLY" property="needApply" jdbcType="VARCHAR" />
+		<result column="APPLICATION_START_TIME" property="applicationStartTime" jdbcType="DATE" />
+		<result column="ACTIVITY_START_TIME" property="activityStartTime" jdbcType="DATE" />
+		<result column="ACTIVITY_END_TIME" property="activityEndTime" jdbcType="DATE" />
+		<result column="NOT_PASS_EB" property="notPassEb" jdbcType="INTEGER" />
+		
+	</resultMap>
+	<select id="learningDeptExamList" resultMap="BaseResultMap" parameterType="map">
+		SELECT
+		b.`CODE` AS code,b.`NAME` AS name,b.ORGNAME AS orgName,b.ONEDEPTNAME AS oneDeptName,IFNULL(b.TWO_DEPT_NAME,'-') AS twoDeptName,
+		IFNULL(b.THREE_DEPT_NAME,'-') AS threeDeptName,IFNULL(b.SECRET_EMAIL,'-') AS secretEmail,
+		d.EXAM_ID AS examId,d.EXAM_NAME AS examName,d.EXAM_NUMBER AS examNumber,d.EXAM_TYPE AS examType,
+		d.PARENT_PROJECT_CLASSIFY_NAME AS parentProjectClassifyName,d.CREATE_TIME AS examCreateTime,d.ADMIN_NAMES AS isAdmin,
+		IFNULL(e.ACTIVITY_NAME,'-') AS theActivityName,IFNULL(e.ACTIVITY_NUMBER,'-') AS activityNumber,e.CREATE_TIME AS createTime,IFNULL(e.NEED_APPLY,'-') AS needApply,
+		e.APPLICATION_START_TIME AS applicationStartTime,e.ACTIVITY_START_TIME AS activityStartTime,e.ACTIVITY_END_TIME AS activityEndTime,
+		f.PASS_MARK AS examScore,f.FULL_MARK AS examinationScore,f.PASS_EB AS passEb,f.NOT_PASS_EB AS notPassEb,
+		g.TOTAL_POINTS AS totalPoints,g.GRADE_STATE AS gradeState,g.EXAM_COUNT AS examCount,g.CREATE_TIME AS examTotalTime
+		FROM tom_exam_emp_allocation a
+		LEFT JOIN tom_emp b ON a.`CODE`=b.`CODE`
+		LEFT JOIN tom_activity_property c ON a.EXAM_ID=c.EXAM_ID
+		LEFT JOIN tom_exam d ON a.EXAM_ID=d.EXAM_ID
+		LEFT JOIN tom_activity e ON c.ACTIVITY_ID=e.ACTIVITY_ID
+		LEFT JOIN tom_exam_paper f ON d.EXAM_PAPER_ID=f.EXAM_PAPER_ID
+		LEFT JOIN tom_exam_score g ON a.EXAM_ID=g.EXAM_ID
+		WHERE 1=1
+		AND a.`CODE`=g.`CODE` AND g.GRADE_STATE!='P'
+		<if test="examName != null and ''!= examName">
+			and INSTR(d.EXAM_NAME,#{examName,jdbcType=VARCHAR})>0
+		</if>
+		<if test="examTotalTime != null and ''!= examTotalTime" >
+       		and g.CREATE_TIME <![CDATA[<]]> #{examTotalTime,jdbcType=TIMESTAMP}
+    	</if>
+		<if test="code != null and ''!= code">
+			and INSTR(b.CODE,#{code,jdbcType=VARCHAR})>0
+		</if>
+		<if test="name != null and ''!= name">
+			and INSTR(b.NAME,#{name,jdbcType=VARCHAR})>0
+		</if>
+		<if test="activityId != null and ''!= activityId" >
+       		and e.ACTIVITY_ID = #{activityId,jdbcType=DECIMAL}
+      	</if>
+		<if test="orgcode != null and ''!= orgcode" >
+       		and b.ORGCODE = #{orgcode,jdbcType=VARCHAR}
+      	</if>
+      	<if test="onedeptcode != null and ''!= onedeptcode" >
+       		and b.ONEDEPTCODE = #{onedeptcode,jdbcType=VARCHAR}
+      	</if>
+      	<if test="deptcode2 != null and ''!= deptcode2" >
+       		and b.TWO_DEPT_CODE = #{deptcode2,jdbcType=VARCHAR}
+      	</if>
+      	<if test="deptcode3 != null and ''!= deptcode3" >
+       		and b.THREE_DEPT_CODE = #{deptcode3,jdbcType=VARCHAR}
+      	</if>
+      	<if test="projectId != null and ''!= projectId">
+			and d.PARENT_CLASSIFY_ID = #{projectId,jdbcType=DECIMAL}
+		</if>
+      	<if test="activityIn != null" >
+       		and e.ACTIVITY_END_TIME <![CDATA[>]]> #{activityIn,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="activityEnd != null" >
+       		and e.ACTIVITY_END_TIME <![CDATA[<]]> #{activityEnd,jdbcType=TIMESTAMP}
+    	</if>
+      	<if test="needApply != null and ''!= needApply">
+			and e.NEED_APPLY = #{needApply,jdbcType=VARCHAR}
+		</if>
+		limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+	</select>
+	<select id="learningDeptExamCount" resultType="java.lang.Integer" >
+		SELECT
+		COUNT(a.`CODE`)
+		FROM tom_exam_emp_allocation a
+		LEFT JOIN tom_emp b ON a.`CODE`=b.`CODE`
+		LEFT JOIN tom_activity_property c ON a.EXAM_ID=c.EXAM_ID
+		LEFT JOIN tom_exam d ON a.EXAM_ID=d.EXAM_ID
+		LEFT JOIN tom_activity e ON c.ACTIVITY_ID=e.ACTIVITY_ID
+		LEFT JOIN tom_exam_paper f ON d.EXAM_PAPER_ID=f.EXAM_PAPER_ID
+		LEFT JOIN tom_exam_score g ON a.EXAM_ID=g.EXAM_ID
+		WHERE 1=1
+		AND a.`CODE`=g.`CODE` AND g.GRADE_STATE!='P'
+		<if test="examName != null and ''!= examName">
+			and INSTR(d.EXAM_NAME,#{examName,jdbcType=VARCHAR})>0
+		</if>
+		<if test="examTotalTime != null and ''!= examTotalTime" >
+       		and g.CREATE_TIME <![CDATA[<]]> #{examTotalTime,jdbcType=TIMESTAMP}
+    	</if>
+		<if test="code != null and ''!= code">
+			and INSTR(b.CODE,#{code,jdbcType=VARCHAR})>0
+		</if>
+		<if test="name != null and ''!= name">
+			and INSTR(b.NAME,#{name,jdbcType=VARCHAR})>0
+		</if>
+		<if test="activityId != null and ''!= activityId" >
+       		and e.ACTIVITY_ID = #{activityId,jdbcType=DECIMAL}
+      	</if>
+		<if test="orgcode != null and ''!= orgcode" >
+       		and b.ORGCODE = #{orgcode,jdbcType=VARCHAR}
+      	</if>
+      	<if test="onedeptcode != null and ''!= onedeptcode" >
+       		and b.ONEDEPTCODE = #{onedeptcode,jdbcType=VARCHAR}
+      	</if>
+      	<if test="deptcode2 != null and ''!= deptcode2" >
+       		and b.TWO_DEPT_CODE = #{deptcode2,jdbcType=VARCHAR}
+      	</if>
+      	<if test="deptcode3 != null and ''!= deptcode3" >
+       		and b.THREE_DEPT_CODE = #{deptcode3,jdbcType=VARCHAR}
+      	</if>
+      	<if test="projectId != null and ''!= projectId">
+			and d.PARENT_CLASSIFY_ID = #{projectId,jdbcType=DECIMAL}
+		</if>
+      	<if test="activityIn != null" >
+       		and e.ACTIVITY_END_TIME <![CDATA[>]]> #{activityIn,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="activityEnd != null" >
+       		and e.ACTIVITY_END_TIME <![CDATA[<]]> #{activityEnd,jdbcType=TIMESTAMP}
+    	</if>
+      	<if test="needApply != null and ''!= needApply">
+			and e.NEED_APPLY = #{needApply,jdbcType=VARCHAR}
+		</if>
+	</select>
+</mapper>

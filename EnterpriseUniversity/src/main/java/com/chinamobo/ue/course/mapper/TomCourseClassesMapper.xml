@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.course.dao.TomCourseClassesMapper" >
+  <resultMap id="BaseResultMap" type="com.chinamobo.ue.course.entity.TomCourseClasses" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="course_id" property="courseId" jdbcType="INTEGER" />
+    <result column="classes" property="classes" jdbcType="INTEGER" />
+    <result column="begin_time" property="beginTime" jdbcType="TIMESTAMP" />
+    <result column="end_time" property="endTime" jdbcType="TIMESTAMP" />
+    <result column="classes_name" property="classesName" jdbcType="VARCHAR" />
+    <result column="classes_address" property="classesAddress" jdbcType="VARCHAR" />
+    <result column="classes_name_en" property="classesNameEn" jdbcType="VARCHAR" />
+    <result column="classes_address_en" property="classesAddressEn" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, course_id, classes, begin_time, end_time,classes_name,class_address,classes_name_en,class_address_en
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tom_course_classes
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tom_course_classes
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.chinamobo.ue.course.entity.TomCourseClasses" >
+    insert into tom_course_classes ( course_id, classes, 
+      begin_time, end_time,classes_name,classes_address,classes_name_en,classes_address_en)
+    values ( #{courseId,jdbcType=INTEGER}, #{classes,jdbcType=INTEGER}, 
+      #{beginTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP},#{classesName,jdbcType=VARCHAR},#{classesAddress,jdbcType=VARCHAR}
+      ,#{classesNameEn,jdbcType=VARCHAR},#{classesAddressEn,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.chinamobo.ue.course.entity.TomCourseClasses" >
+    insert into tom_course_classes
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="courseId != null" >
+        course_id,
+      </if>
+      <if test="classes != null" >
+        classes,
+      </if>
+      <if test="beginTime != null" >
+        begin_time,
+      </if>
+      <if test="endTime != null" >
+        end_time,
+      </if>
+      <if test="classesName != null">
+      	classese_name,
+      </if>
+      <if test="classesAddress != null">
+      	classes_address,
+      </if>
+       <if test="classesNameEn != null">
+      	classese_name_en,
+      </if>
+      <if test="classesAddressEn != null">
+      	classes_address_en,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="courseId != null" >
+        #{courseId,jdbcType=INTEGER},
+      </if>
+      <if test="classes != null" >
+        #{classes,jdbcType=INTEGER},
+      </if>
+      <if test="beginTime != null" >
+        #{beginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null" >
+        #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="classesName != null">
+      	#{classesName,jdbcType=VARCHAR},
+      </if>
+      <if test="classesAddress != null">
+      	#{classesAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="classesNameEn != null">
+      	#{classesNameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="classesAddressEn != null">
+      	#{classesAddressEn,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.chinamobo.ue.course.entity.TomCourseClasses" >
+    update tom_course_classes
+    <set >
+      <if test="courseId != null" >
+        course_id = #{courseId,jdbcType=INTEGER},
+      </if>
+      <if test="classes != null" >
+        classes = #{classes,jdbcType=INTEGER},
+      </if>
+      <if test="beginTime != null" >
+        begin_time = #{beginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null" >
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+       <if test="classesName != null">
+      	classes_name = #{classesName,jdbcType=VARCHAR},
+      </if>
+       <if test="classesAddress != null">
+      	classes_address = #{classesAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="classesNameEn != null">
+      	classes_name_en = #{classesNameEn,jdbcType=VARCHAR},
+      </if>
+       <if test="classesAddressEn != null">
+      	classes_address_en = #{classesAddressEn,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.chinamobo.ue.course.entity.TomCourseClasses" >
+    update tom_course_classes
+    set course_id = #{courseId,jdbcType=INTEGER},
+      classes = #{classes,jdbcType=INTEGER},
+      begin_time = #{beginTime,jdbcType=TIMESTAMP},
+      end_time = #{endTime,jdbcType=TIMESTAMP},
+      classes_name = #{classesName,jdbcType=VARCHAR},
+      classes_address = #{classesAddress,jdbcType=VARCHAR},
+       classes_name_en = #{classesNameEn,jdbcType=VARCHAR},
+      classes_address_en = #{classesAddressEn,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <delete id="deleteByCourseId" parameterType="com.chinamobo.ue.course.entity.TomCourseClasses">
+  	delete from tom_course_classes where course_id=#{courseId,jdbcType=INTEGER}
+  </delete>
+  <select id="selectByCourseId" resultMap="BaseResultMap" parameterType="map" >
+  	select * from tom_course_classes where 1=1
+  	<if test="courseId !=null">
+  		and course_id=#{courseId,jdbcType=INTEGER}
+  	</if>
+  	<if test="classId !=null">
+  		and classes=#{classId,jdbcType=INTEGER}
+  	</if>
+  </select>
+  
+  <select id="selectByTime" resultMap="BaseResultMap" parameterType="map">
+  	select * from tom_course_classes where 1=1
+  	<if test="courseId !=null">
+  		and course_id=#{courseId,jdbcType=INTEGER}
+  	</if>
+  	and  <![CDATA[end_time > now()]]>
+  	order by end_time asc
+  </select>
+  <select id="selectOne" resultMap="BaseResultMap" parameterType="map">
+  	select * from tom_course_classes where 1=1
+  	<if test="courseId !=null">
+  		and course_id=#{courseId,jdbcType=INTEGER}
+  	</if>
+  	<if test="classes !=null">
+  		and classes = #{classes,jdbcType=INTEGER}
+  	</if>
+  </select>
+  
+  
+  <!--查询根据课程id倒序  -->
+  <select id="selectByCourseIdSort" resultMap="BaseResultMap" parameterType="map" >
+  	select * from tom_course_classes where 1=1
+  	<if test="courseId !=null">
+  		and course_id=#{courseId,jdbcType=INTEGER}
+  	</if>
+  	<if test="classId !=null">
+  		and classes=#{classId,jdbcType=INTEGER}
+  	</if>
+  	order by classes asc
+  </select>
+</mapper>

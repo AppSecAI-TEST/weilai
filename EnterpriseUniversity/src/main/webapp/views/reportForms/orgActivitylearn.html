@@ -1,0 +1,111 @@
+<meta charset="UTF-8" >
+<div class="container-fluid overflow-auto view-report" id="page" ng-controller="orgActivitylearnController">
+	<div class="row">
+		<div class="container-fluid top-func-bar">
+			<div class="row">
+				<div class="col-xs-12">
+<!-- 					<div class="input-group" ng-class="{'has-error':orgName.length>=20}"> -->
+					  <form role="search" class="">
+					    <div class="row" style="margin-top: 15px;">
+							<div class="col-xs-1">
+							<select style="line-height: 28px;" class="form-control" ng-model="orgname" ng-change="changeSeclectOption1()" ng-options=" x.code as x.name for x in method4">
+   								<option value="" >所属组织</option>
+							</select>
+						</div>
+						<div class="col-xs-1">
+							<select style="line-height: 28px;" class="form-control" ng-model="oneDeptName" ng-change="changeSeclectOption2()" ng-options=" x.code as x.firstName for x in method5">
+   								<option value="" >一级部门</option>
+							</select>
+						</div>
+						<div class="col-xs-1">
+							<select style="line-height: 28px;" class="form-control" ng-model="twoDeptName" ng-change="changeSeclectOption3()" ng-options=" x.code as x.secondName for x in method6">
+   								<option value="" >二级部门</option>
+							</select>
+						</div>
+						<div class="col-xs-1">
+							<select style="line-height: 28px;" class="form-control" ng-model="threeDeptName" ng-change="changeSeclectOption()" ng-options=" x.code as x.thirdName for x in method7">
+   								<option value="" >三级部门</option>
+							</select>
+						</div>
+						</div>
+						</form>
+<!-- 					</div> -->
+				</div>
+			</div>
+		</div>
+		<div class="container-fluid">
+			<table class="table table-striped table-bordered table-hover table-condensed">
+				<thead>
+				<tr>
+						<td colspan="5" class="col-xs-2" align="center">活动数据</td>
+						<td colspan="7" class="col-xs-2" align="center">必修</td>
+						<td colspan="7" class="col-xs-2" align="center">选修</td>
+					</tr>
+					<tr>
+						<th class="min-width1">序号</th>
+						<th class="min-width1">部门名称</th>
+						<th class="min-width1">人数</th>
+						<th class="min-width1">参与学习人数</th>
+						<th class="min-width1">参与学习率</th>
+						<!-- 选修 -->
+						<th class="min-width1">统计人数</th>
+						<th class="min-width1">平均学习时长</th>
+						<th class="min-width1">平均学习进度</th>
+						<th class="min-width1">平均成绩</th>
+						<th class="min-width1">平均获得学分</th>
+						<th class="min-width1">考试及格率</th>
+						<th class="min-width1">课程完成率</th>
+						<!-- 必修 -->
+						<th class="min-width1">统计人数</th>
+						<th class="min-width1">平均学习时长</th>
+						<th class="min-width1">平均学习进度</th>
+						<th class="min-width1">平均成绩</th>
+						<th class="min-width1">平均获得学分</th>
+						<th class="min-width1">考试及格率</th>
+						<th class="min-width1">课程完成率</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="a in page.data" ng-class="{'current-focus-tr':a.checked}" ng-click="highLightCurrRow1(a)" style="cursor:pointer;">
+						<td ng-bind="$index+1"></td>
+						<td ng-bind="a.orgName"></td>
+						<td ng-bind="a.codeNum"></td>
+						<td ng-bind="a.joinStudyNum"></td>
+						<td ng-bind="a.joinStudyNumRate"></td>
+						
+						<td ng-bind="a.requireCodeNum"></td>
+						<td ng-bind="a.requireAvgStudyTime"></td>
+						<td ng-bind="a.requireStudyAvgProcess"></td>
+						<td ng-bind="a.requireAvgScore"></td>
+						<td ng-bind="a.requireAvgInter"></td>
+						<td ng-bind="a.requirePassRate"></td>
+						<td ng-bind="a.requireCourseRate"></td>
+						
+						<td ng-bind="a.optionCodeNum"></td>
+						<td ng-bind="a.optionAvgStudyTime"></td>
+						<td ng-bind="a.optionStudyAvgProcess"></td>
+						<td ng-bind="a.optionAvgScore"></td>
+						<td ng-bind="a.optionAvgInter"></td>
+						<td ng-bind="a.optionPassRate"></td>
+						<td ng-bind="a.optionCourseRate"></td>
+					</tr>
+				</tbody>
+			</table>
+				<div class="container-fluid" style="margin-top:20px;" ng-if="page.data.length>0">
+					<div class="row">
+<!-- 							 <a class="btn btn-primary btn-con-trol" href="/enterpriseuniversity/services/orgActivityLearn/orgActivityLearnExcel?pageNum={{page.pageNum}}&pageSize={{page.pageSize}}&orgName={{orgName}}&oneDeptName={{oneDeptName}}&twoDeptName={{twoDeptName}}&threeDeptName={{threeDeptName}}">导&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;出</a> -->
+								 <a class="btn btn-primary" ng-click="downloadOrgActivityLearnExcel()">导&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;出 </a>
+					</div>
+		        </div>
+			<div>
+				<div class="container-fluid" pagination conf="paginationConf"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	//监听窗口大小变化，自适应高度
+	$(document).ready(function () {
+		resizeView();
+	});
+</script>

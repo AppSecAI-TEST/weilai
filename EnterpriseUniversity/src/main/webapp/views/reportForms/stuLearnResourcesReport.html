@@ -1,0 +1,305 @@
+<meta charset="utf-8">
+<div class="container-fluid overflow-auto view-report" id="page" ng-controller="StuLearnResourcesController">
+	<div class="row">
+		<div class="container-fluid top-func-bar">
+			<div class="row">
+				<div class="col-xs-12">
+					<form role="search" class="">
+						<div class="row">
+							<div class="col-xs-3">
+								<div class="input-group" ng-class="{'has-error':activityName.length>=20}">
+									<input type="text" placeholder="请输入人员姓名关键字" class="form-control " ng-model="adminName" maxlength="20" ng-keydown='autoSearch($event)'>
+									<span class="input-group-btn">
+										<a  class="btn  btn-primary"  ng-click="search()">搜索</a>
+									</span>
+								</div>
+							</div>
+							<div class="col-xs-9" >
+								<label>统计区间：</label> 
+								<div style="display:inline-block;margin-left:15px;width:640px;">
+									<input type="text" class="Wdate form-control width_5" id="startTime" ng-model="beginTime" onFocus="WdatePicker({onpicked:pickedStartTimeFunc,oncleared:clearStartTimeFunc,startDate:'%y-%M-%d',lang:'zh-cn',dateFmt:'yyyy-MM-dd',maxDate:'#F{$dp.$D(\'endTime\')}'})" readonly/> 
+				                    
+				               		<label>至</label>
+				               		<input type="text" class="Wdate form-control width_5" id="endTime" ng-model="endTime" onFocus="WdatePicker({onpicked:pickedEndTimeFunc,oncleared:clearEndTimeFunc,startDate:'%y-%M-%d',lang:'zh-cn',dateFmt:'yyyy-MM-dd',minDate:'#F{$dp.$D(\'startTime\')}'})" readonly/>
+				            		<a class="btn  btn-primary pull-right" ng-click="highsearchData()" >高级查询</a>
+				                	<a class="btn  btn-default pull-right" ng-click="reSetSearchOption()">重置</a>
+				                	<a class="btn  btn-primary pull-right" ng-click="searchData()">查询</a>
+				                	
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="row" style="margin-top: 15px;" ng-show="flag=='Y'">
+				<!-- <div class="col-xs-1" ng-class="{'has-error':activityName.length>=20}">
+					<input type="text" placeholder="用户名" class="form-control " ng-model="userName" maxlength="20" '>
+				 </div>
+				  <div class="col-xs-1" ng-class="{'has-error':activityName.length>=20}">
+					<input type="text" placeholder="姓名" class="form-control " ng-model="userName" maxlength="20" '>
+				 </div> -->
+			  	<div class="col-xs-1">
+	               <select style="line-height: 28px;" class="form-control" ng-model="orgname" ng-change="changeSeclectOption1()" ng-options=" x.code as x.name for x in method1">
+		            	<option value="" >所属组织</option>
+	               </select>
+             	</div>
+			  	<div class="col-xs-1">
+	                <select style="line-height: 28px;" class="form-control" ng-model="onedeptname" ng-change="changeSeclectOption2()" ng-options=" x.code as x.firstName for x in method2">
+					            	<option value="" >一级部门</option>
+	                </select>
+                 </div>
+                 <div class="col-xs-1">
+	                <select style="line-height: 28px;" class="form-control" ng-model="deptname" ng-change="changeSeclectOption3()" ng-options=" x.code as x.secondName for x in method3">
+					            	<option value="" >二级部门</option>
+	                </select>
+                 </div>
+                 <div class="col-xs-1">
+	                <select style="line-height: 28px;" class="form-control" ng-model="thirdName" ng-change="changeSeclectOption4()" ng-options=" x.code as x.thirdName for x in method4">
+					            	<option value="" >三级部门</option>
+	                </select>
+                 </div>
+				 
+			</div>
+		</div>
+		<div class="container-fluid">
+			<div class="report-table-container">
+				<table   class="table table-striped table-bordered table-hover table-condensed">
+					<thead>
+						<tr>
+							<td colspan="9" class="col-xs-2" align="center">用户信息</td>
+							<td colspan="10" class="col-xs-2" align="center">总学习资源</td>
+							<td colspan="13" class="col-xs-2" align="center">必修活动内线上课程和考试</td>
+							<td colspan="15" class="col-xs-2" align="center">选修活动内线上课程和考试</td>
+							<td colspan="15" class="col-xs-2" align="center">非活动内线上课程和考试</td>
+							<td colspan="10" class="col-xs-2" align="center">必修活动内线下课程</td>
+							<td colspan="10" class="col-xs-2" align="center">选修活动内线下课程</td>
+						</tr>
+						<tr>
+							<th width="50px">序号</th>
+							<th class="min-width1">用户名</th>
+							<th class="min-width1">所属组织</th>
+							<th class="min-width1">一级部门</th>
+							<th class="min-width1">二级部门</th>	
+							<th class="min-width1">三级部门</th>	
+							<!-- <th class="min-width1">管理角色分配</th>	
+							 <th class="min-width1">职务</th>	 -->
+							<!--<th class="min-width1">职级</th>	 -->
+							<th class="min-width2" >邮箱</th>
+							
+							<th class="min-width1">总学习资源数</th>
+							<th class="min-width1">线上学习资源数</th>
+							<th class="min-width1">线下学习资源数</th>
+							<th class="min-width1">线上考试数</th>
+							<th class="min-width1">线上总学习时长</th>
+							<th class="min-width1">线上平均学习进度</th>	
+							<th class="min-width1">线上平均完成率</th>
+							<th class="min-width1">线上考试通过率</th>
+							<th class="min-width1">线下课程报名率</th>
+							<th class="min-width1">线下课程签到率</th>
+							
+							<th class="min-width1">被分配课程数</th>
+							<th class="min-width1">已开始课程数</th>
+							<th class="min-width1">未开始课程数</th>
+							<th class="min-width1">已完成课程数</th>
+							<th class="min-width1">总学习时长</th>
+							<th class="min-width1">平均学习时长</th>
+							<th class="min-width1">平均完成率</th>
+							<th class="min-width1">平均学习进度</th>
+							<th class="min-width1">需参加考试数</th>
+							<th class="min-width1">已完成考试数</th>
+							<th class="min-width1">未完成考试数</th>
+							<th class="min-width1">通过考试数</th>
+							<th class="min-width1">平均考试通过率</th>
+							
+							<th class="min-width1">被分配课程数</th>
+							<th class="min-width1">已开始课程数</th>
+							<th class="min-width1">未开始课程数</th>
+							<th class="min-width1">已完成课程数</th>
+							<th class="min-width1">总学习时长</th>
+							<th class="min-width1">平均学习时长</th>
+							<th class="min-width1">平均完成率</th>
+							<th class="min-width1">平均学习进度</th>
+							<th class="min-width1">需参加考试数</th>
+							<th class="min-width1">已完成考试数</th>
+							<th class="min-width1">未完成考试数</th>
+							<th class="min-width1">通过考试数</th>
+							<th class="min-width1">平均考试通过率</th>
+							<th class="min-width1">需获得积分</th>	
+							<th class="min-width1">已获得总积分</th>
+							
+							<th class="min-width1">被分配课程数</th>
+							<th class="min-width1">已开始课程数</th>
+							<th class="min-width1">未开始课程数</th>
+							<th class="min-width1">已完成课程数</th>
+							<th class="min-width1">总学习时长</th>
+							<th class="min-width1">平均学习时长</th>
+							<th class="min-width1">平均完成率</th>
+							<th class="min-width1">平均学习进度</th>
+							<th class="min-width1">需参加考试数</th>
+							<th class="min-width1">已完成考试数</th>
+							<th class="min-width1">未完成考试数</th>
+							<th class="min-width1">通过考试数</th>
+							<th class="min-width1">平均考试通过率</th>
+							<!-- <th class="min-width1">活动线上考试数</th>
+							<th class="min-width1">活动线下课程数</th>
+							<th class="min-width1">开放公开课</th> -->
+							<th class="min-width1">需获得积分</th>	
+							<th class="min-width1">已获得总积分</th>		
+							
+							<th class="min-width1">被分配课程数</th>
+							<th class="min-width1">被开放课程数</th>
+							<th class="min-width1">已报名课程数</th>
+							<th class="min-width1">未报名课程数</th>
+							<th class="min-width1">已签到课程数</th>
+							<th class="min-width1">未签到课程数</th>
+							<th class="min-width1">平均报名率</th>
+							<th class="min-width1">平均签到率</th>
+							<th class="min-width1">需获得积分</th>
+							<th class="min-width1">已获得总积分</th>
+							
+							<th class="min-width1">被分配课程数</th>
+							<th class="min-width1">被开放课程数</th>
+							<th class="min-width1">已报名课程数</th>
+							<th class="min-width1">未报名课程数</th>
+							<th class="min-width1">已签到课程数</th>
+							<th class="min-width1">未签到课程数</th>
+							<th class="min-width1">平均报名率</th>
+							<th class="min-width1">平均签到率</th>
+							<th class="min-width1">需获得积分</th>
+							<th class="min-width1">已获得总积分</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="item in page.data" ng-class="{'current-focus-tr':item.userId == currHighLightRow.userId}" ng-click="highLightCurrRow(item)" style="cursor:pointer;">
+					   		<td ng-bind="$index+1"></td>
+							<td ng-bind="item.userName"></td>
+							<td ng-bind="item.orgName"></td>
+							<td ng-bind="item.onedept"></td>
+							<td ng-bind="item.twodept"></td>
+							<td ng-bind="item.threedept"></td>
+							<!-- <td ng-bind="item.rolename"></td>
+							<td ng-bind="item.job"></td> -->
+							<!-- <td ng-bind="item.jobtier"></td> -->
+							<td ng-bind="item.empEmail"></td>
+							
+							<td ng-bind="item.sumResnum"></td>
+							<td ng-bind="item.onlineResnum"></td>
+							<td ng-bind="item.offlineResnum"></td>
+							<td ng-bind="item.onlineExamnum"></td>
+							<td ng-bind="item.onlinelearnAlltime"></td>
+							<td ng-bind="item.avgOnschedule"></td>
+							<td ng-bind="item.avgOnfinishrate"></td>
+							<td ng-bind="item.onExamfinishrate"></td>
+							<td ng-bind="item.offcourseApplyrate"></td>
+							<td ng-bind="item.offcourseSign"></td>
+							
+							
+							<!-- 必修活动内线上课程和考试 -->
+							<td ng-bind="item.coursenuma"></td>
+							<td ng-bind="item.startCoursenuma"></td>
+							<td ng-bind="item.notAtCoursenuma"></td>
+							<td ng-bind="item.finishCoursenuma"></td>
+							<td ng-bind="item.courseAlltimea"></td>
+							<td ng-bind="item.avgCoulearnTimea"></td>
+							<td ng-bind="item.avgfinishratea"></td>
+							<td ng-bind="item.avetempoa"></td>
+							<td ng-bind="item.needExamnuma"></td>
+							<td ng-bind="item.finExamnuma"></td>
+							<td ng-bind="item.unfinExamnuma"></td>
+							<td ng-bind="item.exampassratea"></td>
+							<td ng-bind="item.avgExampassratea"></td>
+					
+					        <!--选修活动内线上课程和考试  -->
+							<td ng-bind="item.coursenumb"></td>
+							<td ng-bind="item.startCoursenumb"></td>
+							<td ng-bind="item.notAtCoursenumb"></td>
+							<td ng-bind="item.finishCoursenumb"></td>
+							<td ng-bind="item.courseAlltimeb"></td>
+							<td ng-bind="item.avgCoulearnTimeb"></td>
+							<td ng-bind="item.avgfinishrateb"></td>
+							<td ng-bind="item.avetempob"></td>
+							<td ng-bind="item.needExamnumb"></td>
+							<td ng-bind="item.finExamnumb"></td>
+							<td ng-bind="item.unfinExamnumb"></td>
+							<td ng-bind="item.exampassrateb"></td>
+							<td ng-bind="item.avgExampassrateb"></td>
+							<td ng-bind="item.needEbb"></td>
+							<td ng-bind="item.getEbb"></td>
+							
+							<!--非活动内线上课程和考试  -->
+							<td ng-bind="item.coursenumc"></td>
+							<td ng-bind="item.startCoursenumc"></td>
+							<td ng-bind="item.notAtCoursenumc"></td>
+							<td ng-bind="item.finishCoursenumc"></td>
+							<td ng-bind="item.courseAlltimec"></td>
+							<td ng-bind="item.avgCoulearnTimec"></td>
+							<td ng-bind="item.avgfinishratec"></td>
+							<td ng-bind="item.avetempoc"></td>
+							<td ng-bind="item.needExamnumc"></td>
+							<td ng-bind="item.finExamnumc"></td>
+							<td ng-bind="item.unfinExamnumc"></td>
+							<td ng-bind="item.exampassratec"></td>
+							<td ng-bind="item.avgExampassratec"></td>
+							<!-- <td ng-bind="item.activeOnlineExamNum"></td>
+							<td ng-bind="item.activeOffcourseNum"></td>
+							<td ng-bind="item.unActiveOpencourse"></td> -->
+							<td ng-bind="item.needEbc"></td>
+							<td ng-bind="item.getEbc"></td>
+							
+							<!--必修活动内线下课程  -->
+							<td ng-bind="item.coursenumd"></td>
+							<td ng-bind="item.openCoursenumd"></td>
+							<td ng-bind="item.applyCoursenumd"></td>
+							<td ng-bind="item.unappCoursenumd"></td>
+							<td ng-bind="item.signCoursenumd"></td>
+							<td ng-bind="item.unsignCoursenumd"></td>
+							<td ng-bind="item.avgaApprated"></td>
+							<td ng-bind="item.avetSignrated"></td>
+							<td ng-bind="item.needEbd"></td>
+							<td ng-bind="item.getEbd"></td>
+							
+							<!--选修活动内线下课程  -->
+							<td ng-bind="item.coursenume"></td>
+							<td ng-bind="item.openCoursenume"></td>
+							<td ng-bind="item.applyCoursenume"></td>
+							<td ng-bind="item.unappCoursenume"></td>
+							<td ng-bind="item.signCoursenume"></td>
+							<td ng-bind="item.unsignCoursenume"></td>
+							<td ng-bind="item.avgaAppratee"></td>
+							<td ng-bind="item.avetSignratee"></td>
+							<td ng-bind="item.needEbe"></td>
+							<td ng-bind="item.getEbe"></td>
+							<td ng-bing="item.userId" hidden="true"></td>
+						</tr>
+						 
+					</tbody>
+				</table>
+		 	</div> 
+		 	<div class="form-group">
+		 	<p class="">选择导出模块：全选<input type="checkbox" ng-checked="allIsChecked"  ng-click="toggleCheckAllColume()"></p>
+	            <div class="container-fluid" style="margin-left:20px;">
+	            	<div class="row">
+	            		<label class="checkbox-inline checkbox-control" ng-repeat="colume in queryColumes">
+		                    <input type="checkbox" ng-checked="colume.checked"  ng-click="toggleColumeChecked(colume)">{{colume.name}}
+		                </label>
+		          	</div>
+	            </div> 
+		 	</div>
+			
+			<div class="container-fluid" style="margin-top:20px;" ng-show="page.data.length>0">
+					<div class="row">
+						<!-- <a class="btn btn-primary btn-con-trol" href="/enterpriseuniversity/services/empLearningAction/downLoadStuleranResourceExcel?pageNum={{page.pageNum}}&pageSize={{page.pageSize}}&beginTimeq={{beginTime}}&endTimeq={{endTime}}&deptname={{deptname}}&onedeptname={{onedeptname}}&thirdName={{thirdName}}&name={{adminName}}">导&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;出</a> -->
+						<a class="btn  btn-primary btn-con-trol" ng-click="reportResources()" >导出</a>
+					</div>
+				</div>
+			<div class="container-fluid" pagination conf="paginationConf"></div>
+		</div>
+	</div>
+</div>
+<script>
+//监听窗口大小变化，自适应高度
+$(document).ready(function () {
+	resizeView();
+});
+
+</script>

@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.reportforms.dao.EmpLearningDetailedCourseMapper">
+	  <resultMap id="BaseResultMap" type="com.chinamobo.ue.reportforms.dto.EmpLearningDetailedCourseDto">
+		<!-- 用户信息 -->
+		<result column="CODE" property="code" jdbcType="VARCHAR" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />
+		<result column="orgcode" property="orgCode" jdbcType="VARCHAR" />
+		<result column="orgname" property="orgName" jdbcType="VARCHAR" />
+		<result column="onedeptcode" property="oneDeptCode" jdbcType="VARCHAR" />
+		<result column="onedeptname" property="oneDeptName" jdbcType="VARCHAR" />
+		<result column="twoDeptcode" property="twoDeptCode" jdbcType="VARCHAR" />
+		<result column="TWO_DEPT_NAME" property="twoDeptName" jdbcType="VARCHAR" />
+		<result column="threeDeptcode" property="threeDeptCode" jdbcType="VARCHAR" />
+		<result column="THREE_DEPT_NAME" property="threeDeptName" jdbcType="VARCHAR" />
+		<result column="isAdmin" property="isAdmin" jdbcType="VARCHAR" />
+		<result column="jobcode" property="jobCode" jdbcType="VARCHAR" />
+		<result column="jobname" property="jobName" jdbcType="VARCHAR" />
+		<result column="secret_email" property="secretEmail" jdbcType="VARCHAR" />
+		<!-- 资源信息 -->
+		<result column="COURSE_NUMBER" property="courseNumber" jdbcType="VARCHAR" />
+		<result column="COURSE_NAME" property="courseName" jdbcType="VARCHAR" />
+		<result column="e_currency" property="ecurrency" jdbcType="INTEGER" />
+		<result column="open_course" property="openCourse" jdbcType="VARCHAR" />
+		<result column="course_online" property="courseOnline" jdbcType="VARCHAR" />
+		<result column="section_classify_code" property="sectionClassifyCode" jdbcType="VARCHAR" />
+		<result column="section_classify_name" property="sectionClassifyName" jdbcType="VARCHAR" />
+		<!--活动  -->
+		<result column="activity_id" property="activityId" jdbcType="INTEGER" />
+		<result column="activity_number" property="activityNumber" jdbcType="VARCHAR" />
+		<result column="activity_name" property="activityName" jdbcType="VARCHAR" />
+		<result column="parent_project_classify_name" property="parentProjectClassifyName" jdbcType="VARCHAR" />
+		<result column="activity_create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="need_apply" property="needApply" jdbcType="VARCHAR" />
+		<result column="application_start_time" property="applicationStartTime" jdbcType="TIMESTAMP" />
+		<result column="activity_start_time" property="activityStartTime" jdbcType="TIMESTAMP" />
+		<result column="activity_end_time" property="activityEndTime" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+		<!-- 线上课程 -->
+		<result column="first_visit_time" property="firstVisitTime" jdbcType="VARCHAR" />
+		<result column="learning_count" property="learningCount" jdbcType="VARCHAR" />
+		<result column="course_times" property="courseTimes" jdbcType="DOUBLE" />
+		<result column="learning_course_times" property="learningCourseTimes" jdbcType="VARCHAR" />
+		<result column="learning_rate" property="learningrate" jdbcType="VARCHAR" />
+		<!-- 线下班次 -->
+		<result column="classes_sign_up" property="classesSignUp" jdbcType="VARCHAR" />
+		<result column="classes_name" property="classesName" jdbcType="VARCHAR" />
+		<result column="classes_time" property="classesTime" jdbcType="VARCHAR" />
+		<result column="classes_address" property="classesAddress" jdbcType="VARCHAR" />
+		<result column="classes_sign_up_time" property="classesSignUpTime" jdbcType="VARCHAR" />
+		<result column="classes_begin_time" property="classesBeginTime" jdbcType="TIMESTAMP" />
+		<result column="classes_end_time" property="classesEndTime" jdbcType="TIMESTAMP" />
+		<result column="classes_sign_time" property="classesSignTime" jdbcType="TIMESTAMP" />
+		
+		<!--  评分 -->
+		<result column="score" property="score" jdbcType="DOUBLE" />
+		<result column="CREATE_TIME" property="commentDate" jdbcType="TIMESTAMP" />
+		<result column="courseGradeDimensionsC1" property="courseGradeDimensionsC1" jdbcType="VARCHAR" />
+		<result column="courseGradeDimensionsC2" property="courseGradeDimensionsC2" jdbcType="VARCHAR" />
+		<result column="courseGradeDimensionsC3" property="courseGradeDimensionsC3" jdbcType="VARCHAR" />
+		<result column="courseGradeDimensionsC4" property="courseGradeDimensionsC4" jdbcType="VARCHAR" />
+		<result column="courseGradeDimensionsC5" property="courseGradeDimensionsC5" jdbcType="VARCHAR" />
+		<result column="favorite_status" property="favoriteStatus" jdbcType="VARCHAR" />
+		<result column="thump_up_status" property="thumbUpStatus" jdbcType="VARCHAR" />
+		<result column="COURSE_COMMENT_CONTENT" property="oneCourseCommentContent" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<!-- 条件 分页 查询 -->
+	<select id="findPageList" resultMap="BaseResultMap" parameterType="map">
+	   SELECT 
+	   <include refid="fields"></include>
+	   FROM
+		(<include refid="sql_view"></include> ) AS abc
+		left join tom_course_learning_record as d on abc.course_id=d.course_id and d.code=abc.code
+        LEFT JOIN tom_courses as e ON e.course_id=abc.course_id 
+        LEFT JOIN tom_course_classes as i ON i.course_id=abc.course_id
+        LEFT JOIN tom_course_comment as l ON l.course_id=abc.course_id AND l.code=abc.code
+        LEFT JOIN tom_favorite_course as m ON m.course_id=abc.course_id AND m.code=abc.code
+        LEFT JOIN tom_course_thumb_up as n ON n.course_id=abc.course_id AND n.code=abc.code
+        WHERE 1=1
+		<include refid="condition"></include>
+		<if test="endNum!='-1'.toString() and startNum!=null and endNum!=null">
+          limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+        </if>
+	</select>
+	<!-- 条件查询记录数 -->
+	<select id="findCount" resultType="java.lang.Integer" >
+       SELECT 
+       count(*)
+       FROM
+        (<include refid="sql_view"></include> ) AS abc
+        left join tom_course_learning_record as d on abc.course_id=d.course_id and d.code=abc.code
+        LEFT JOIN tom_courses as e ON e.course_id=abc.course_id 
+        LEFT JOIN tom_course_classes as i ON i.course_id=abc.course_id
+        LEFT JOIN tom_course_comment as l ON l.course_id=abc.course_id AND l.code=abc.code
+        WHERE 1=1
+        <include refid="condition"></include>
+		
+	</select>
+	<!-- 条件 查询 -->
+	<select id="findList" resultMap="BaseResultMap" parameterType="map">
+	   SELECT 
+       <include refid="fields"></include>
+       FROM
+        (<include refid="sql_view"></include> ) AS abc
+        left join tom_course_learning_record as d on abc.course_id=d.course_id and d.code=abc.code
+        LEFT JOIN tom_courses as e ON e.course_id=abc.course_id 
+        LEFT JOIN tom_course_classes as i ON i.course_id=abc.course_id
+        LEFT JOIN tom_course_comment as l ON l.course_id=abc.course_id AND l.code=abc.code
+        LEFT JOIN tom_favorite_course as m ON m.course_id=abc.course_id AND m.code=abc.code
+        LEFT JOIN tom_course_thumb_up as n ON n.course_id=abc.course_id AND n.code=abc.code
+        WHERE 1=1
+        <include refid="condition"></include>
+		<if test="endNum!='-1'.toString() and startNum!=null and endNum!=null">
+          limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+        </if>
+	</select>
+	<select id="findSectionClassify" resultMap="BaseResultMap">
+		SELECT CLASSIFY_CODE as section_classify_code,CLASSIFY_NAME as section_classify_name 
+		 FROM tom_course_section_classify
+	</select>
+	
+	<!-- 页面 共用条件 -->
+	<sql id="condition">
+			<if test="courseName != null">
+				and e.COURSE_NAME LIKE "%" #{courseName,jdbcType=VARCHAR} "%"
+			</if>
+			<if test="code != null">
+				and abc.CODE LIKE "%" #{code,jdbcType=VARCHAR} "%"
+			</if>
+			<if test="name != null">
+				and abc.NAME LIKE "%" #{name,jdbcType=VARCHAR} "%"
+			</if>
+			<if test="openCourse != null">
+                and e.open_course = #{openCourse,jdbcType=VARCHAR}
+            </if>
+            <if test="courseOnline != null">
+                and e.course_online = #{courseOnline,jdbcType=VARCHAR} 
+            </if>
+			<if test="sectionClassifyName != null and sectionClassifyName!='' ">
+				<foreach collection="sectionClassifyName" item="item" index="index" >
+		             <if test="index==0">
+		                 and
+		                find_in_set(#{item},e.SECTION_TYPES)
+		             </if>
+		             <if test="index!=0">
+		                 or find_in_set(#{item},e.SECTION_TYPES)
+		             </if>
+                </foreach>
+			</if>
+			<if test="orgName != null and orgName!='' ">
+				and abc.orgcode = #{orgName,jdbcType=VARCHAR}
+			</if>
+			<if test="jobName != null and jobName!='' ">
+				and abc.jobcode = #{jobName,jdbcType=VARCHAR}
+			</if>
+			<if test="parentClassifyId != null">
+				and abc.PARENT_CLASSIFY_ID = #{parentClassifyId,jdbcType=VARCHAR}
+			</if>
+			<if test="activityName != null">
+                and abc.activity_name LIKE "%" #{activityName,jdbcType=VARCHAR} "%"
+            </if>
+			<if test="needApply != null">
+				and abc.need_apply = #{needApply,jdbcType=VARCHAR}
+			</if>
+			<if test="activityState !=null">
+				<if test="activityState=='0'.toString()">
+					AND now() <![CDATA[>]]> abc.activity_start_time AND now() <![CDATA[<]]> abc.activity_end_time
+				</if>
+				<if test="activityState=='1'.toString()">
+					AND now() <![CDATA[>]]> abc.activity_end_time
+				</if>
+		  </if>
+			<if test="oneDeptName != null and oneDeptName!='' ">
+				and abc.onedeptcode = #{oneDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="twoDeptName != null and twoDeptName!='' ">
+				and abc.TWO_DEPT_CODE = #{twoDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="threeDeptName != null and threeDeptName!='' ">
+				and abc.THREE_DEPT_CODE = #{threeDeptName,jdbcType=VARCHAR}
+			</if>
+			
+            <if test="examTotalTime != null" >
+                and d.learning_date <![CDATA[<]]> #{examTotalTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="courseNumber != null">
+                and e.COURSE_NUMBER = #{courseNumber,jdbcType=VARCHAR}
+            </if>
+	</sql>
+   
+    <sql id="fields">
+            abc.*,e.course_number,e.course_name,e.e_currency,e.open_course,e.course_online,
+             (select group_concat(CLASSIFY_NAME) from tom_course_section_classify where find_in_set(CLASSIFY_CODE,e.SECTION_TYPES)) as section_classify_name,
+            getEmpDetailedCourse(e.course_id,abc.code,1) as  first_visit_time,
+            getEmpDetailedCourse(e.course_id,abc.code,2) as  learning_count,
+          
+            (<include refid="courseTimes"></include>) as course_times,
+            getEmpDetailedCourse(e.course_id,abc.code,3) as  learning_course_times,
+            getEmpDetailedCourse(e.course_id,abc.code,4) as  learning_rate,
+            i.classes_name,
+            i.classes_address,
+            i.begin_time as classes_begin_time,
+            i.end_time as classes_end_time,
+            (select create_time from tom_grade_records where course_id=e.course_id and code=abc.code limit 1) as CREATE_TIME,
+            getGradeId(e.course_grade_dimensions,",",1,abc.code,e.course_id) as courseGradeDimensionsC1,
+            getGradeId(e.course_grade_dimensions,",",2,abc.code,e.course_id) as courseGradeDimensionsC2,
+            getGradeId(e.course_grade_dimensions,",",3,abc.code,e.course_id) as courseGradeDimensionsC3,
+            getGradeId(e.course_grade_dimensions,",",4,abc.code,e.course_id) as courseGradeDimensionsC4,
+            getGradeId(e.course_grade_dimensions,",",5,abc.code,e.course_id) as courseGradeDimensionsC5,
+            l.course_comment_content,
+            m.status as favorite_status,
+            n.status as thump_up_status
+    </sql>
+	<sql id="sql_view">
+	SELECT b.COURSE_ID,
+	       a.code,a.name,a.orgcode,a.orgname,
+           a.onedeptcode,a.onedeptname,a.TWO_DEPT_CODE,a.TWO_DEPT_NAME,a.THREE_DEPT_CODE,a.THREE_DEPT_NAME,
+           a.jobcode,a.jobname,a.secret_email,
+           e.activity_name,e.PARENT_CLASSIFY_ID,e.parent_project_classify_name,e.activity_number,e.create_time as activity_create_time,
+           e.need_apply,e.application_start_time,e.activity_start_time,e.activity_end_time,IFNULL(e.update_time,e.create_time) as update_time
+		FROM tom_emp as a
+		left join tom_section_learning_record as c on a.code=c.code
+		left join tom_course_section as b on c.course_section_id=b.section_id
+		LEFT JOIN tom_activity_emps_relation as g on a.`CODE`=g.`CODE` 
+		LEFT JOIN tom_activity_property as d ON d.COURSE_ID=b.COURSE_ID AND d.ACTIVITY_ID=g.ACTIVITY_ID
+		LEFT JOIN tom_activity as e ON e.ACTIVITY_ID=d.ACTIVITY_ID 
+		LEFT JOIN tom_course_comment as f ON f.course_id=b.course_id AND f.code=a.code
+		WHERE  a.poststat='Y' and c.`CODE` IS NOT null 
+		GROUP BY a.`CODE`,b.COURSE_ID,e.ACTIVITY_ID,f.COURSE_COMMENT_ID
+	union
+		SELECT b.COURSE_ID,
+		   a.code,a.name,a.orgcode,a.orgname,
+          a.onedeptcode,a.onedeptname,a.TWO_DEPT_CODE,a.TWO_DEPT_NAME,a.THREE_DEPT_CODE,a.THREE_DEPT_NAME,
+           a.jobcode,a.jobname,a.secret_email,
+           e.activity_name,e.PARENT_CLASSIFY_ID,e.parent_project_classify_name,e.activity_number,e.create_time as activity_create_time,
+           e.need_apply,e.application_start_time,e.activity_start_time,e.activity_end_time,IFNULL(e.update_time,e.create_time) as update_time
+		FROM tom_emp as a
+		LEFT JOIN tom_offline_sign as b ON b.`code`=a.`CODE`
+		LEFT JOIN tom_activity_emps_relation as g on a.`CODE`=g.`CODE`
+		LEFT JOIN tom_activity_property as d ON d.COURSE_ID=b.COURSE_ID  AND d.ACTIVITY_ID=g.ACTIVITY_ID
+		LEFT JOIN tom_activity as e ON e.ACTIVITY_ID=d.ACTIVITY_ID 
+		LEFT JOIN tom_course_comment as f ON f.course_id=b.course_id AND f.code=a.code
+		WHERE a.poststat='Y' and b.`code` is NOT null  
+		GROUP BY a.`CODE`,b.COURSE_ID,e.ACTIVITY_ID,f.COURSE_COMMENT_ID
+	</sql>
+	
+	<sql id="courseTimes">
+	   SELECT SUM(section_size)  from tom_course_section where COURSE_ID=e.course_id AND section_type='1'
+	</sql>
+	
+</mapper>
