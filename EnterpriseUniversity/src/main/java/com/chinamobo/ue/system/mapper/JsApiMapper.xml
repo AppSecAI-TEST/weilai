@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.system.dao.JsApiMapper" >
+  <resultMap id="BaseResultMap" type="com.chinamobo.ue.system.entity.JsApi" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="ticket" property="ticket" jdbcType="VARCHAR" />
+    <result column="validity" property="validity" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, ticket, validity
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from js_api
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from js_api
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.chinamobo.ue.system.entity.JsApi" >
+    insert into js_api (id, ticket, validity
+      )
+    values (#{id,jdbcType=INTEGER}, #{ticket,jdbcType=VARCHAR}, #{validity,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.chinamobo.ue.system.entity.JsApi" >
+    insert into js_api
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="ticket != null" >
+        ticket,
+      </if>
+      <if test="validity != null" >
+        validity,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="ticket != null" >
+        #{ticket,jdbcType=VARCHAR},
+      </if>
+      <if test="validity != null" >
+        #{validity,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.chinamobo.ue.system.entity.JsApi" >
+    update js_api
+    <set >
+      <if test="ticket != null" >
+        ticket = #{ticket,jdbcType=VARCHAR},
+      </if>
+      <if test="validity != null" >
+        validity = #{validity,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.chinamobo.ue.system.entity.JsApi" >
+    update js_api
+    set ticket = #{ticket,jdbcType=VARCHAR},
+      validity = #{validity,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.reportforms.dao.LearningResourseOrgDeptExamMapper">
+	  <resultMap id="BaseResultMap" type="com.chinamobo.ue.reportforms.dto.LearningResourseOrgDeptExamDto">
+	  <!-- 线上考试 -->
+	  	<result column="exam_id" property="examId" jdbcType="INTEGER" />
+		<result column="exam_number" property="examNumber" jdbcType="VARCHAR" />
+		<result column="exam_name" property="examName" jdbcType="VARCHAR" />
+		<result column="pass_eb" property="passEb" jdbcType="INTEGER" />
+		<result column="offline_exam" property="offlineExam" jdbcType="VARCHAR" />
+		<result column="exam_type" property="examType" jdbcType="VARCHAR" />
+		<result column="retaking_exam_count" property="retakingExamCount" jdbcType="INTEGER" />
+		<result column="totale_people_count" property="totalePeopleCount" jdbcType="INTEGER" />
+		<result column="people_count" property="peopleCount" jdbcType="INTEGER" />
+		<result column="exam_time" property="examTime" jdbcType="INTEGER" />
+		<result column="pass_mark" property="passMark" jdbcType="INTEGER" />
+		<result column="avg_score" property="avgScore" jdbcType="DOUBLE" />
+		<result column="total_score" property="totalScore" jdbcType="DOUBLE" />
+		<result column="pass_count" property="passCount" jdbcType="INTEGER" />
+	</resultMap>
+	
+	 <!-- 条件 分页 查询 -->
+	<select id="findPageList" resultMap="BaseResultMap" parameterType="map">
+		<include refid="sql_view"></include>  where 1=1
+		<include refid="condition"></include>
+		<if test="endNum!='-1'.toString() and startNum!=null and endNum!=null">
+          limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+        </if>
+	</select>
+	<!-- 条件查询记录数 -->
+	<select id="findCount" resultType="java.lang.Integer" >
+	    select count(*)
+        FROM tom_exam as a
+        LEFT JOIN tom_exam_paper as b ON a.exam_paper_id=b.exam_paper_id where 1=1
+        <include refid="condition"></include>
+ 	</select>
+	<!-- 条件 查询 -->
+	<select id="findList" resultMap="BaseResultMap" parameterType="map">
+		<include refid="sql_view"></include> where 1=1
+		<include refid="condition"></include>
+		<if test="endNum!='-1'.toString() and startNum!=null and endNum!=null">
+          limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+        </if>
+	</select>
+	
+	<!-- 页面 共用条件 -->
+	<sql id="condition">
+		<if test="beginTimeq != null" >
+      		and a.begin_time <![CDATA[>]]> #{beginTimeq,jdbcType=TIMESTAMP}
+   		</if>
+   		<if test="endTimeq != null" >
+      	    and a.begin_time <![CDATA[<]]> #{endTimeq,jdbcType=TIMESTAMP}
+   		</if>
+   		<if test="examTotalTime != null" >
+            and a.end_time <![CDATA[<]]> #{examTotalTime,jdbcType=TIMESTAMP}
+        </if>
+		<if test="examName != null">
+			and a.exam_name LIKE "%" #{examName,jdbcType=VARCHAR} "%"
+		</if>
+		<if test="offlineExam != null">
+			and a.offline_exam = #{offlineExam,jdbcType=VARCHAR}
+		</if>
+		<if test="examType != null">
+			and a.exam_type = #{examType,jdbcType=VARCHAR}
+		</if>
+	</sql>
+	<sql id="sql_view">
+	   select a.exam_number,a.exam_name,b.pass_eb,a.offline_exam,a.exam_type,a.retaking_exam_count+1 as retaking_exam_count,
+		
+		(<include refid="totalePeopleCount"></include>) as totale_people_count,
+		(<include refid="peopleCount"></include>) as people_count,
+		a.exam_time,b.pass_mark,
+		(<include refid="avgScore"></include>) as avg_score,
+		(<include refid="passCount"></include>) as pass_count,
+		b.full_mark as total_score,
+		a.begin_time,a.end_time
+		FROM tom_exam as a
+		LEFT JOIN tom_exam_paper as b ON a.exam_paper_id=b.exam_paper_id
+	</sql>
+	<!-- 总考试次数 -->
+	<sql id="totalePeopleCount">
+	   <if test="orgName != null  or jobName != null  or oneDeptName != null  
+	   or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+	        select IFNULL(sum(es.exam_count),0) from tom_exam_score as es
+	         left join tom_emp as e ON es.CODE=e.CODE
+	         where es.exam_id=a.exam_id 
+	          <include refid="empDeptCondition"></include>
+        </if>
+        <if test="orgName == null  and jobName == null  and oneDeptName == null  
+            and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+            select IFNULL(sum(exam_count),0) from tom_exam_score where exam_id=a.exam_id
+        </if>
+	</sql>
+	<!-- 考试人数 -->
+	<sql id="peopleCount">
+	   <if test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+             select IFNULL(count(*),0) from tom_exam_emp_allocation as es
+             left join tom_emp as e ON es.CODE=e.CODE
+             where es.exam_id=a.exam_id 
+             <include refid="empDeptCondition"></include>
+        </if>
+       
+        <if test="orgName == null  and jobName == null  and oneDeptName == null  
+            and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+            select IFNULL(count(*),0) from tom_exam_emp_allocation where exam_id=a.exam_id
+        </if>
+	</sql>
+	<!-- 平均成绩 -->
+	<sql id="avgScore">
+       <if test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+            select IFNULL(avg(es.total_points),0) from tom_exam_score  as es
+             left join tom_emp as e ON es.CODE=e.CODE
+             where es.exam_id=a.exam_id 
+              <include refid="empDeptCondition"></include>
+        </if>
+       
+        <if test="orgName == null  and jobName == null  and oneDeptName == null  
+            and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+            select IFNULL(avg(total_points),0) from tom_exam_score where exam_id=a.exam_id
+        </if>
+    </sql>
+    <!-- 及格人数 -->
+    <sql id="passCount">
+       <if test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+            select IFNULL(count(*),0) from tom_exam_score  as es
+             left join tom_emp as e ON es.CODE=e.CODE
+             where es.exam_id=a.exam_id and es.total_points>=b.pass_mark 
+              <include refid="empDeptCondition"></include>
+        </if>
+       
+        <if test="orgName == null  and jobName == null  and oneDeptName == null  
+            and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+            select IFNULL(count(*),0) from tom_exam_score where exam_id=a.exam_id and total_points>=b.pass_mark
+        </if>
+    </sql>
+    <!-- 考试总成绩 -->
+    <sql id="totalScore">
+       <!--  <if test="orgName != null  or jobName != null  or oneDeptName != null  
+       or twoDeptName != null  or threeDeptName != null or code != null or name != null">
+            select IFNULL(sum(es.total_points),0) from tom_exam_score  as es
+             left join tom_emp as e ON es.CODE=e.CODE
+             where es.exam_id=a.exam_id 
+             <include refid="empDeptCondition"></include>
+        </if>
+       
+        <if test="orgName == null  and jobName == null  and oneDeptName == null  
+            and twoDeptName == null  and threeDeptName == null and code == null and name == null">
+            select IFNULL(sum(total_points),0) from tom_exam_score where exam_id=a.exam_id
+        </if>
+        -->
+        
+    </sql>
+    <!-- 页面 员工和部门条件 -->
+    <sql id="empDeptCondition">
+         <if test="orgName != null">
+            and e.orgcode = #{orgName,jdbcType=VARCHAR}
+        </if>
+        <if test="jobName != null and jobName!='' ">
+            and e.jobcode = #{jobName,jdbcType=VARCHAR}
+        </if>
+        <if test="oneDeptName != null and oneDeptName!='' ">
+            and e.onedeptcode = #{oneDeptName,jdbcType=VARCHAR}
+        </if>
+        <if test="twoDeptName != null and twoDeptName!='' ">
+            and e.TWO_DEPT_CODE = #{twoDeptName,jdbcType=VARCHAR}
+        </if>
+        <if test="threeDeptName != null and threeDeptName!='' ">
+            and e.THREE_DEPT_CODE = #{threeDeptName,jdbcType=VARCHAR}
+        </if>
+        
+        <if test="code != null">
+            and e.CODE LIKE "%" #{code,jdbcType=VARCHAR} "%"
+        </if>
+        <if test="name != null">
+            and e.NAME LIKE "%" #{name,jdbcType=VARCHAR} "%"
+        </if>
+    </sql>
+</mapper>	

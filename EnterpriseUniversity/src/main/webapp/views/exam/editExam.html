@@ -1,0 +1,185 @@
+<meta charset="UTF-8" >
+<div id="page" class="container-fluid overflow-auto" ng-controller="EditExamController">
+	    <form name="examForm" class="form-horizontal" role="form" enctype="multipart/form-data" >
+	        <div class="form-group">
+	        <label class="col-xs-2 control-label">考试语言：</label>
+	        <div class="col-xs-8 width_6">
+		        <div class="form-control-static">
+		            <label class="checkbox-inline">
+		                <input type="checkbox" ng-checked ="exam.isCN=='Y'" ng-click="changeCN()"/>中文考试
+		            </label>
+		            <label class="checkbox-inline">
+		                  <input type="checkbox" ng-checked ="exam.isEN=='Y'" ng-click="changeEN()"/>英文考试
+		            </label>
+		        </div>
+	        </div>
+        	<input type="hidden" name="language" ng-model="exam.language" required-language>
+          	<div class="error" ng-show="examForm.$submitted&&examForm.language.$invalid" >
+                <span ng-show="examForm.language.$error.requiredLanguage" class="glyphicon glyphicon-exclamation-sign" translate="必选一个"></span>
+            </div>
+        </div>
+	        <div class="form-group">
+	            <label for="examName" class="col-xs-2 control-label">考试名称(中文)：</label>
+	            <div class="col-xs-5 width_6">
+	                <input type="text" class="form-control width_1" 
+	                	id="examName" name="examName" 
+	                	ng-model="exam.examName"
+	                	ng-pattern ="/^((?!\/).)*$/"
+                     	ng-maxlength="100"
+                       	required
+                       	placeholder="请输入考试名称(中文)"><span> (最多100个字符)</span>
+	            </div>
+	            <div class="error" ng-show="examForm.examName.$dirty && examForm.examName.$invalid || examForm.$submitted&&examForm.examName.$invalid" >
+	                <span ng-show="examForm.examName.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+	                <span ng-show="!examForm.examName.$error.maxlength && examForm.examName.$error.pattern" class="glyphicon glyphicon-exclamation-sign">不能输入非法"/"</span>
+	                <span ng-show="examForm.examName.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多100个字符</span>
+	            </div>
+	        </div>
+	        <div class="form-group">
+	            <label for="examName" class="col-xs-2 control-label">考试名称(英文)：</label>
+	            <div class="col-xs-5 width_6">
+	                <input type="text" class="form-control width_1" 
+	          			id="examNameEn" name="examNameEn"
+	                    ng-model="exam.examNameEn"
+	                    ng-pattern ="/^((?!\/).)*$/"
+	             		ng-maxlength="100" required
+	             		ng-keydown="characterRule($event)"
+	                    placeholder="请考试名称(英文)"><span> (最多100个字符)</span>
+	            </div>
+	            <div class="error" ng-show="examForm.examNameEn.$dirty&&examForm.examNameEn.$invalid||examForm.$submitted&&examForm.examNameEn.$invalid" >
+	                <span ng-show="examForm.examNameEn.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+	                <span ng-show="!examForm.examNameEn.$error.maxlength && examForm.examNameEn.$error.pattern" class="glyphicon glyphicon-exclamation-sign">不能输入非法"/"</span>
+	                <span ng-show="examForm.examNameEn.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">最多100个字符</span>
+	            </div>
+        	</div>
+	        <div class="form-group">
+            	<label  class="col-xs-2 control-label">开放时间：</label>
+	  		  	<div class="col-xs-2">
+	              <label for="beginTime">开始时间</label>
+	              <input class="Wdate form-control" id="beginTimeS" type="text" ng-model="exam.beginTimeS" onFocus="WdatePicker({startDate:'%y-%M-%d 09:00:00',lang:'zh-cn',dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'new Date()'})" readonly> 
+	           	</div>
+	           	<div class="col-xs-2">
+	              <label for="endTime">结束时间</label>
+	              <input class="Wdate form-control" id="endTimeS0" type="text" ng-model="exam.endTimeS" onFocus="WdatePicker({startDate:'%y-%M-%d 19:00:00',lang:'zh-cn',dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'#F{$dp.$D(\'beginTimeS\')}'})" readonly>
+	           	</div>
+        	</div>
+        	
+        	  <!-- 项目名称分类 -->
+        <div class="form-group">
+            <label  class="col-xs-2 control-label">项目名称分类：</label>
+            <div class="col-xs-5 width_6">
+            	<div class="input-group width_2">
+                    <input type="text" placeholder="请选择项目名称分类" class="form-control width_1" 
+                    	name="parentClassifyName" 
+                    	readonly 
+                    	ng-model="exam.parentProjectClassifyName" required>
+                    <span class="input-group-btn">
+                        <a href="javascript:void(0)" class="btn btn-primary btn-control"  ng-click="doOpenRadioProjectClassifyModal()">选择项目名称分类</a>
+                    </span>
+                </div>
+            </div>
+            <div ng-include="'/enterpriseuniversity/views/modalTemplate/radioProjectClassifyModalTemplate.html'"></div>
+        <div class="error" ng-show="examForm.parentClassifyName.$dirty&&examForm.parentClassifyName.$invalid||examForm.$submitted&&examForm.parentClassifyName.$invalid" >
+               <span ng-show="examForm.parentClassifyName.$error.required" class="glyphicon glyphicon-exclamation-sign">必填</span>
+            </div>
+        </div>
+	         <!--选择考试人员-->
+	        <div class="form-group">
+	        	<label class="col-xs-2 control-label" for="courseSection"></label>
+			    <div class="col-xs-5 width_6">
+			        <div class="form-control-static">
+			            <a href="javascript:void(0)" class="btn btn-primary  btn-control" 
+			               	ng-click="doOpenEmpModal()">添加考试人员</a>
+			        </div>
+			        <div class="width_4" ng-include="'/enterpriseuniversity/views/modalTemplate/empModalTemplate.html'"></div>
+	    		</div>
+	    		<input type="hidden" name="emps" ng-model="exam.empIds.length" require-emps>
+    		 	<div class="error" ng-show="examForm.emps.$invalid&&examForm.$submitted">
+                	<span ng-show="examForm.emps.$error.requireEmps" class="glyphicon glyphicon-exclamation-sign">请选择考试人员</span>
+           		</div>
+	        </div>
+        	<!--end 选择考试人员-->
+	    	<!--选择试卷 -->
+			<div class="form-group">
+		       <label class="col-xs-2 control-label">选择试卷：</label>
+		       <div class="col-xs-5 width_6">
+					<div class="input-group width_2">
+	          			<input type="text" class="form-control width_1"  ng-model="exam.examPaper.examPaperName" readonly="readonly">
+		           		<span class="input-group-btn">
+		           			<a href="javascript:void(0)" class="btn btn-primary  btn-control"  ng-click="openExamPaperModal()">选择试卷</a>
+	           			</span>
+		        	</div>
+		       </div>
+		       <input type="hidden" name="examPaperId"  ng-model="exam.examPaper.examPaperId" required-exampaper>
+		       <div class="error" ng-show="examForm.examPaperId.$invalid&&examForm.$submitted">
+                	<span ng-show="examForm.examPaperId.$error.requiredExampaper" class="glyphicon glyphicon-exclamation-sign">请选择考试试卷</span>
+           		</div>
+		       <div ng-include="'/enterpriseuniversity/views/modalTemplate/examPaperModalTemplate.html'"></div>
+			</div>
+	        <!--end 选择试卷-->
+	        <div class="form-group">
+			     <label class="col-xs-2 control-label">考试时长：</label>
+			     <div class="col-xs-5">
+			         <input type="text" class="form-control width_3"  name="examTime" ng-model="exam.examPaper.examTime" readonly="readonly">
+			         <label class="control-label">分钟</label>
+			     </div>
+			</div>
+			<div class="form-group">
+	            <label class="col-xs-2 control-label">补考次数：</label>
+	            <div class="col-xs-5 width_6">
+<!-- 	                <input type="number" ng-keydown="onlyNumber($event)" class="form-control" id="retakingExamCount" name="retakingExamCount" ng-maxlength="20"  ng-change="addInput()" ng-model="exam.retakingExamCount" required> -->
+	                <input type="text" class="form-control width_3" id="retakingExamCount" name="retakingExamCount" 
+	                	ng-pattern ="/^(\+?[1-9]\d{0,1}|\+?100|0)$/"
+	                	ng-model="exam.retakingExamCount"  
+	                	ng-change="addInput()" required>
+	            </div>
+	            <div class="error" ng-show="examForm.retakingExamCount.$dirty&&examForm.retakingExamCount.$invalid||examForm.$submitted&&examForm.retakingExamCount.$invalid" >
+	                <span  ng-show="examForm.retakingExamCount.$error.required" class="glyphicon glyphicon-exclamation-sign">请填写补考次数(不能补考请填0)</span>
+	                <span  ng-show="examForm.retakingExamCount.$error.pattern" class="glyphicon glyphicon-exclamation-sign">请输入0-100数字</span>
+	            </div>
+        	</div>
+	        <div id="retakingExamTime"></div>
+	        <div class="form-group">
+	            <label class="col-xs-2 control-label" ></label>
+	            <div class="col-xs-5">   
+	                 <input type="checkbox" value="2" ng-click="toggle()" ng-checked="exam.offlineExam=='2'">线下考试
+	            </div>
+	        </div>
+	        <div class="form-group" ng-hide="myVar">
+	           	<label class="col-xs-2 control-label">考试地址：</label>
+	           	<div class="col-xs-5 width_6" >   
+	             	<input type="text" class="form-control width_1" id="examAddress" name="examAddress" ng-maxlength="50" ng-model="exam.examAddress" required-exam-address>(最多输入50个字符)
+	            </div>
+	            <div class="error" ng-show="examForm.examAddress.$dirty&&examForm.examAddress.$invalid||examForm.examAddress.$invalid&&examForm.$submitted">
+	       			<span ng-show="examForm.examAddress.$error.requiredExamAddress" class="glyphicon glyphicon-exclamation-sign">请填写线下考试地址</span>
+	       			<span ng-show="examForm.examAddress.$error.maxlength" class="glyphicon glyphicon-exclamation-sign">考试地址最50个字符</span>
+  				</div>
+	        </div>
+			<div class="form-group">
+	        	<label class="col-xs-2 control-label">考试授权：</label>
+	            <div class="col-xs-5 width_6">
+			        <div class="form-control-static">
+			            <a href="javascript:void(0)" class="btn btn-primary  btn-control" data-toggle="modal" ng-click="doOpenAdminModal()">选择管理员</a>
+			        </div>
+			        <div class="width_4" ng-include="'/enterpriseuniversity/views/modalTemplate/adminModalTemplate.html'"></div>
+	       		</div>
+	       		<input type="hidden" name="admins" ng-model="exam.admins" required-admin>
+	       		<div class="error" ng-show="examForm.admins.$invalid&&examForm.$submitted">
+	       			<span ng-show="examForm.admins.$error.requiredAdmin" class="glyphicon glyphicon-exclamation-sign">请选择管理员</span>
+  				</div>
+	       	</div>
+	        <div class="form-group">
+	            <div class="col-xs-offset-2 col-xs-8">
+	                <a class="btn btn-primary btn-control" ng-click="update()">保存</a> 
+	                <a class="btn btn-link" ng-click="returnToList()">返&nbsp;&nbsp;&nbsp;回</a>
+	            </div>
+	        </div>
+	        <div class="modal-backdrop fade" ng-class="{'in':editExamSubmit,'display-block':editExamSubmit,'display-none':!editExamSubmit}"></div>
+	    </form>
+</div>
+<script type="text/javascript">
+//监听窗口大小变化，自适应高度
+$(document).ready(function () {
+	resizeView();
+});
+</script>

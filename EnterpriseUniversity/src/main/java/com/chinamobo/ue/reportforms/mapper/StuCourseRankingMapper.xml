@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.reportforms.dao.StuCourseRankingMapper" >
+<!--   	学员活动，学分排行 -->
+
+  	<select id="findEmpActivityCount"  resultType="java.lang.Integer" parameterType="map">
+			select count(*) from( SELECT b.add_up_e_number as exchangeNumber,a.code,a.name
+			FROM tom_emp as a 
+			LEFT JOIN tom_user_info as b ON a.code=b.code
+			<!-- LEFT JOIN tom_dept as c ON c.`CODE`=getDeptCode(`a`.`DEPTCODE`,`a`.`DEPTTOPCODE`,`a`.`ONEDEPTCODE`,2)
+			LEFT JOIN tom_dept as d ON d.`CODE`=getDeptCode(`a`.`DEPTCODE`,`a`.`DEPTTOPCODE`,`a`.`ONEDEPTCODE`,3) -->
+			WHERE a.poststat='Y'
+			<if test="beginTimeq != null" >
+       			and b.update_time <![CDATA[>]]> #{beginTimeq,jdbcType=TIMESTAMP}
+    		</if>
+    		<if test="endTimeq != null" >
+       			and b.update_time <![CDATA[<]]> #{endTimeq,jdbcType=TIMESTAMP}
+    		</if>
+			<if test="orgName != null and orgName!='' ">
+				and a.orgcode = #{orgName,jdbcType=VARCHAR}
+			</if>
+			<if test="oneDeptName != null and oneDeptName!='' ">
+				and a.onedeptcode = #{oneDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="twoDeptName != null and twoDeptName!='' ">
+				and a.TWO_DEPT_CODE = #{twoDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="threeDeptName != null and threeDeptName!='' ">
+				and a.THREE_DEPT_CODE = #{threeDeptName,jdbcType=VARCHAR}
+			</if>
+				ORDER BY exchangeNumber DESC 
+			 ) AS abc
+  	</select>
+  	
+  	<select id="findEmpActivity"  resultType="com.chinamobo.ue.reportforms.dto.StuCourseRankingDto" parameterType="map">
+			 SELECT ifnull(b.add_up_e_number ,0)as exchangeNumber,a.code,a.name
+			FROM tom_emp as a 
+			LEFT JOIN tom_user_info as b ON a.code=b.code
+			<!-- LEFT JOIN tom_dept as c ON c.`CODE`=getDeptCode(`a`.`DEPTCODE`,`a`.`DEPTTOPCODE`,`a`.`ONEDEPTCODE`,2)
+			LEFT JOIN tom_dept as d ON d.`CODE`=getDeptCode(`a`.`DEPTCODE`,`a`.`DEPTTOPCODE`,`a`.`ONEDEPTCODE`,3) -->
+			WHERE a.poststat='Y'
+			<if test="beginTimeq != null" >
+       			and b.update_time <![CDATA[>]]> #{beginTimeq,jdbcType=TIMESTAMP}
+    		</if>
+    		<if test="endTimeq != null" >
+       			and b.update_time <![CDATA[<]]> #{endTimeq,jdbcType=TIMESTAMP}
+    		</if>
+			<if test="orgName != null and orgName!='' ">
+				and a.orgcode = #{orgName,jdbcType=VARCHAR}
+			</if>
+			<if test="oneDeptName != null and oneDeptName!='' ">
+				and a.onedeptcode = #{oneDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="twoDeptName != null and twoDeptName!='' ">
+				and a.TWO_DEPT_CODE = #{twoDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="threeDeptName != null and threeDeptName!='' ">
+				and a.THREE_DEPT_CODE = #{threeDeptName,jdbcType=VARCHAR}
+			</if>
+			ORDER BY exchangeNumber DESC 
+			limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+  	</select>
+  	
+<!--   	学员活动，学时排行 -->
+  	<select id="findActivityScoreCount" resultType="java.lang.Integer" parameterType="map">
+  		SELECT count(d.code) FROM(
+	SELECT a.code
+			FROM tom_emp as a
+			LEFT JOIN tom_learntime_log as b ON a.code=b.code
+			<!-- LEFT JOIN tom_dept as c ON c.`CODE`=getDeptCode(`a`.`DEPTCODE`,`a`.`DEPTTOPCODE`,`a`.`ONEDEPTCODE`,2)
+			LEFT JOIN tom_dept as d ON d.`CODE`=getDeptCode(`a`.`DEPTCODE`,`a`.`DEPTTOPCODE`,`a`.`ONEDEPTCODE`,3) -->
+			WHERE a.poststat='Y' 
+			<include refid="condition"></include>
+			GROUP BY a.`CODE`
+			ORDER BY Time DESC
+			) as d
+  	</select>
+  	
+  		<select id="findActivityScore"  resultType="com.chinamobo.ue.reportforms.dto.StuCourseRankingDto" parameterType="map">
+	SELECT SUM(b.TIME) as Time,a.code,a.name
+			FROM tom_emp as a
+			LEFT JOIN tom_learntime_log as b ON a.code=b.code
+			<!-- LEFT JOIN tom_dept as c ON c.`CODE`=getDeptCode(`a`.`DEPTCODE`,`a`.`DEPTTOPCODE`,`a`.`ONEDEPTCODE`,2)
+			LEFT JOIN tom_dept as d ON d.`CODE`=getDeptCode(`a`.`DEPTCODE`,`a`.`DEPTTOPCODE`,`a`.`ONEDEPTCODE`,3) -->
+			
+			WHERE a.poststat='Y' 
+			<include refid="condition"></include>
+			GROUP BY a.`CODE`
+			ORDER BY Time DESC
+			limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+  	</select>
+  	
+<!--   	//学员活动，课程评分排行 -->
+  	<select id="findActivityCourseScoreCount" resultType="java.lang.Integer" parameterType="map">
+  		SELECT count(c.COURSE_ID) FROM (
+		SELECT a.COURSE_ID
+			FROM tom_courses as a
+			LEFT JOIN tom_grade_records as b ON a.course_id=b.course_id
+			WHERE  b.grade_type='C'  
+			<if test="beginTimeq != null" >
+       			and b.create_time<![CDATA[>]]> #{beginTimeq,jdbcType=TIMESTAMP}
+    		</if>
+    		<if test="endTimeq != null" >
+       			and b.create_time <![CDATA[<]]> #{endTimeq,jdbcType=TIMESTAMP}
+    		</if>
+			GROUP BY a.course_id 
+			ORDER BY score DESC
+			) AS c
+  	</select>
+  	
+  	<select id="findActivityCourseScore" resultType="com.chinamobo.ue.reportforms.dto.StuCourseRankingDto" parameterType="map">
+		SELECT sum(b.score) as score,a.course_number as courseNumber,a.course_name as courseName
+			FROM tom_courses as a
+			LEFT JOIN tom_grade_records as b ON a.course_id=b.course_id
+			WHERE  b.grade_type='C'
+			<if test="beginTimeq != null" >
+       			and b.create_time<![CDATA[>]]> #{beginTimeq,jdbcType=TIMESTAMP}
+    		</if>
+    		<if test="endTimeq != null" >
+       			and b.create_time <![CDATA[<]]> #{endTimeq,jdbcType=TIMESTAMP}
+    		</if>
+			GROUP BY a.course_id 
+			ORDER BY score DESC
+			limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+  	</select>
+  	
+  	<!-- -->
+  	<sql id="condition">
+			<if test="beginTimeq != null and beginTimeq!=''">
+       			and b.create_time<![CDATA[>]]> #{beginTimeq,jdbcType=TIMESTAMP}
+    		</if>
+    		<if test="endTimeq != null and endTimeq!=''" >
+       			and b.create_time <![CDATA[<]]> #{endTimeq,jdbcType=TIMESTAMP}
+    		</if>
+			<if test="orgName != null and orgName !=''">
+				and a.orgcode = #{orgName,jdbcType=VARCHAR}
+			</if>
+			<if test="oneDeptName != null and oneDeptName!=''">
+				and a.onedeptcode = #{oneDeptName,jdbcType=VARCHAR}
+			</if>
+			<!-- <if test="twoDeptName != null and twoDeptName!=''">
+				and c.`CODE` = #{twoDeptName,jdbcType=VARCHAR}
+			</if> -->
+			<if test="twoDeptName != null and twoDeptName!=''">
+				and a.TWO_DEPT_CODE = #{twoDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="threeDeptName != null and threeDeptName!='' ">
+				and a.THREE_DEPT_CODE = #{threeDeptName,jdbcType=VARCHAR}
+			</if>
+			<!-- <if test="threeDeptName != null and threeDeptName!='' ">
+				and d.`CODE` = #{threeDeptName,jdbcType=VARCHAR}
+			</if> -->
+		</sql> 
+ 
+</mapper>

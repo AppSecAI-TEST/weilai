@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.system.dao.TomLoginRecordMapper" >
+  <resultMap id="BaseResultMap" type="com.chinamobo.ue.system.entity.TomLoginRecord" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="driver" property="driver" jdbcType="VARCHAR" />
+    <result column="code" property="code" jdbcType="VARCHAR" />
+    <result column="login_num" property="loginNum" jdbcType="INTEGER" />
+    <result column="login_date" property="loginDate" jdbcType="DATE" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, driver, code, login_num, login_date
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tom_login_record
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tom_login_record
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.chinamobo.ue.system.entity.TomLoginRecord" >
+    insert into tom_login_record ( driver, code, 
+      login_num, login_date)
+    values ( #{driver,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR}, 
+      #{loginNum,jdbcType=INTEGER}, #{loginDate,jdbcType=DATE})
+  </insert>
+  <insert id="insertSelective" parameterType="com.chinamobo.ue.system.entity.TomLoginRecord" >
+    insert into tom_login_record
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+     
+      <if test="driver != null" >
+        driver,
+      </if>
+      <if test="code != null" >
+        code,
+      </if>
+      <if test="loginNum != null" >
+        login_num,
+      </if>
+      <if test="loginDate != null" >
+        login_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+     
+      <if test="driver != null" >
+        #{driver,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null" >
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="loginNum != null" >
+        #{loginNum,jdbcType=INTEGER},
+      </if>
+      <if test="loginDate != null" >
+        #{loginDate,jdbcType=DATE},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.chinamobo.ue.system.entity.TomLoginRecord" >
+    update tom_login_record
+    <set >
+      <if test="driver != null" >
+        driver = #{driver,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null" >
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="loginNum != null" >
+        login_num = #{loginNum,jdbcType=INTEGER},
+      </if>
+      <if test="loginDate != null" >
+        login_date = #{loginDate,jdbcType=DATE},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.chinamobo.ue.system.entity.TomLoginRecord" >
+    update tom_login_record
+    set driver = #{driver,jdbcType=VARCHAR},
+      code = #{code,jdbcType=VARCHAR},
+      login_num = #{loginNum,jdbcType=INTEGER},
+      login_date = #{loginDate,jdbcType=DATE}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByMap" resultMap="BaseResultMap"  parameterType="map">
+  	select * from tom_login_record where 1=1
+  	<if test="loginDate != null" >
+  		and login_date = #{loginDate,jdbcType=DATE}
+  	</if>
+  	<if test="code != null" >
+  		and  code = #{code,jdbcType=VARCHAR}
+  	</if>
+  	<if test="driver != null" >
+  		and driver = #{driver,jdbcType=VARCHAR}
+	</if>
+  </select>
+	<!-- 查询总登陆次数与最近登陆时间 -->
+  <select id="selectByDateCount" resultMap="BaseResultMap"  parameterType="java.lang.String" >
+  	SELECT ifnull(sum(login_num),0) as loginNum,max(login_date) as loginDate FROM
+  	tom_login_record
+  	WHERE code = #{code,jdbcType=VARCHAR}
+  </select>
+</mapper>

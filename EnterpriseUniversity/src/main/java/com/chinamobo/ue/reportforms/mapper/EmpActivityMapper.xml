@@ -1,0 +1,724 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.reportforms.dao.EmpActivityMapper">
+	<resultMap id="BaseResultMap" type="com.chinamobo.ue.reportforms.dto.EmpActivityDto">
+		<result column="CODE" property="code" jdbcType="VARCHAR" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />
+		<result column="ORGNAME" property="orgName" jdbcType="VARCHAR" />
+		<result column="ONEDEPTNAME" property="oneDeptName" jdbcType="VARCHAR" />
+		<result column="TWO_DEPT_NAME" property="twoDeptName" jdbcType="VARCHAR" />
+		<result column="THREE_DEPT_NAME" property="threeDeptName" jdbcType="VARCHAR" />
+		<result column="SECRET_EMAIL" property="secretEmail" jdbcType="VARCHAR" />
+		<result column="STATUS" property="isAdmin" jdbcType="VARCHAR" />
+		<result column="login_date" property="recentLandingTime" jdbcType="DATE" />
+		<result column="login_num" property="totalNumberOfLandings" jdbcType="INTEGER" />
+		<result column="LEARNING_TIME" property="totalLengthOfStudy" jdbcType="VARCHAR" />
+		
+		<result column="ACTIVITY_ID" property="activityId" jdbcType="DECIMAL" />
+		<result column="COURSE_ID" property="courseId" jdbcType="DECIMAL" />
+		<result column="EXAM_ID" property="examId" jdbcType="DECIMAL" />
+		<result column="IS_REQUIRED" property="isRequired" jdbcType="VARCHAR" />
+		<result column="CURRENCY_COUNT" property="currencyCount" jdbcType="INTEGER" />
+	</resultMap>
+	<select id="empActivityList" resultMap="BaseResultMap" parameterType="map">
+		SELECT
+		a.`CODE` AS code,a.`NAME` AS name,a.ORGNAME AS orgName,a.ONEDEPTNAME AS oneDeptName,
+		IFNULL(a.TWO_DEPT_NAME,'-') AS twoDeptName,IFNULL(a.THREE_DEPT_NAME,'-') AS threeDeptName,
+		IFNULL(a.SECRET_EMAIL,'-') AS secretEmail,
+		IFNULL(b.`STATUS`,'-') AS isAdmin,
+		IFNULL(MAX(c.login_date),'-') AS recentLandingTime,IFNULL(SUM(c.login_num),0) AS totalNumberOfLandings,
+		IFNULL(d.LEARNING_TIME,0) AS totalLengthOfStudy
+		FROM tom_emp a
+		LEFT JOIN tom_admin b ON a.`CODE`=b.`CODE`
+		LEFT JOIN tom_login_record c ON a.`CODE`=c.`code`
+		LEFT JOIN tom_user_info d ON a.`CODE`=d.`CODE`
+		WHERE 1=1
+		<if test="code != null">
+			and INSTR(a.CODE,#{code,jdbcType=VARCHAR})>0
+		</if>
+		<if test="name != null">
+			and INSTR(a.NAME,#{name,jdbcType=VARCHAR})>0
+		</if>
+		<if test="orgcode != null">
+			and a.ORGCODE = #{orgcode,jdbcType=VARCHAR}
+ 		</if>
+		<if test="onedeptcode != null">
+			and a.ONEDEPTCODE = #{onedeptcode,jdbcType=VARCHAR}
+ 		</if>
+ 		<if test="deptcode2 != null">
+			and a.TWO_DEPT_CODE = #{deptcode2,jdbcType=VARCHAR}
+ 		</if>
+ 		<if test="deptcode3 != null">
+			and a.THREE_DEPT_CODE = #{deptcode3,jdbcType=VARCHAR}
+ 		</if>
+		GROUP BY a.`CODE`
+		limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+	</select>
+	<select id="empActivityCount" resultType="java.lang.Integer" >
+		SELECT
+		COUNT(a.`CODE`)
+		FROM
+		tom_emp a
+		WHERE 1=1
+		<if test="code != null">
+			and INSTR(CODE,#{code,jdbcType=VARCHAR})>0
+		</if>
+		<if test="name != null">
+			and INSTR(NAME,#{name,jdbcType=VARCHAR})>0
+		</if>
+		<if test="code != null">
+			and INSTR(CODE,#{code,jdbcType=VARCHAR})>0
+		</if>
+		<if test="name != null">
+			and INSTR(NAME,#{name,jdbcType=VARCHAR})>0
+		</if>
+		<if test="orgcode != null">
+			and ORGCODE = #{orgcode,jdbcType=VARCHAR}
+ 		</if>
+ 		<if test="onedeptcode != null">
+			and ONEDEPTCODE = #{onedeptcode,jdbcType=VARCHAR}
+ 		</if>
+ 		<if test="deptcode2 != null">
+			and TWO_DEPT_CODE = #{deptcode2,jdbcType=VARCHAR}
+ 		</if>
+ 		<if test="deptcode3 != null">
+			and THREE_DEPT_CODE = #{deptcode3,jdbcType=VARCHAR}
+ 		</if>
+	</select>
+	<!-- 根据条件查询总活动数总活动数 -->
+	<select id="totalActivityCount" resultType="java.lang.Integer" parameterType="map">
+		SELECT
+		COUNT(a.ACTIVITY_ID)
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y'
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+	</select>
+	<!-- 根据条件查询活动内完成线上课程数 -->
+	<select id="numberOfOnlineCoursesCompleted" resultType="java.lang.Integer" parameterType="map">
+		SELECT
+		COUNT(DISTINCT c.COURSE_ID)
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_course_learning_record d ON c.COURSE_ID=d.COURSE_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND c.COURSE_ID IS NOT NULL AND a.`CODE`=d.`CODE`
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+	</select>
+	<!-- 根据条件查询活动内完成线下课程数 -->
+	<select id="numberOfCoursesCompletedInTheEvent" resultType="java.lang.Integer" parameterType="map">
+		SELECT
+		COUNT(DISTINCT c.COURSE_ID)
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_offline_sign d ON c.COURSE_ID=d.COURSE_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND c.COURSE_ID IS NOT NULL AND a.`CODE`=d.`CODE`
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+	</select>
+	<!-- 根据条件查询活动内完成线上考试数 -->
+	<select id="numberOfOnlineExamsCompleted" resultType="java.lang.Integer" parameterType="map">
+		SELECT
+		COUNT(c.EXAM_ID)
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_exam d ON c.EXAM_ID=d.EXAM_ID
+		LEFT JOIN tom_exam_score e ON d.EXAM_ID=e.EXAM_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND c.EXAM_ID IS NOT NULL AND d.OFFLINE_EXAM='1' AND a.`CODE`=e.`CODE` AND e.GRADE_STATE='Y'
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+	</select>
+	<!-- 根据条件查询必修活动数/开放选修活动数 -->
+	<select id="requiredElectiveCount" resultMap="BaseResultMap" parameterType="map" >
+		SELECT
+		a.IS_REQUIRED AS isRequired,COUNT(DISTINCT a.ACTIVITY_ID) AS currencyCount
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR}
+		<if test="projectId != null" >
+       		AND b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+    	<if test="isRequired != null" >
+       		AND a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+    	GROUP BY a.IS_REQUIRED
+	</select>
+	<!-- 根据条件查询已开始学习的必修活动数 -->
+	<select id="numberOfRequiredActivitiesToStartLearning" resultType="java.lang.Integer" parameterType="map">
+		SELECT COUNT(abc.ACTIVITY_ID) FROM
+		(SELECT
+		b.ACTIVITY_ID
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_course_section d ON c.COURSE_ID=d.COURSE_ID
+		LEFT JOIN tom_section_learning_record e ON d.SECTION_ID=e.COURSE_SECTION_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND a.IS_REQUIRED='Y' AND c.COURSE_ID IS NOT NULL AND a.`CODE`=e.`CODE`
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+		GROUP BY b.ACTIVITY_ID) AS abc
+	</select>
+	<!-- 根据统计区间查询已开始学习的选修活动数量 -->
+	<select id="numberOfElectivesThatHaveBegunToLearn" resultType="java.lang.Integer" parameterType="map">
+		SELECT COUNT(abc.ACTIVITY_ID) FROM
+		(SELECT
+		b.ACTIVITY_ID
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_course_section d ON c.COURSE_ID=d.COURSE_ID
+		LEFT JOIN tom_section_learning_record e ON d.SECTION_ID=e.COURSE_SECTION_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND a.IS_REQUIRED='N' AND c.COURSE_ID IS NOT NULL AND a.`CODE`=e.`CODE`
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+		GROUP BY b.ACTIVITY_ID) AS abc
+	</select>
+	<!-- 根据统计区间查询报名选修活动数 -->
+	<select id="numberOfEnrollment" resultType="java.lang.Integer" parameterType="map">
+		SELECT
+		COUNT(a.ACTIVITY_ID)
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND a.IS_REQUIRED='N' AND a.APPLY_STATUS='Y'
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+	</select>
+	<!-- 根据条件查询必修活动考试数量/选修活动考试数量 -->
+	<select id="requiredElectiveExamCount" resultMap="BaseResultMap" parameterType="map" >
+		SELECT
+		a.IS_REQUIRED AS isRequired,COUNT(b.EXAM_ID) AS currencyCount
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity_property b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR}
+		AND b.EXAM_ID IS NOT NULL
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="projectId != null" >
+       		and c.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+    	<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+		GROUP BY a.IS_REQUIRED
+	</select>
+	<!-- 根据条件查询必修活动考试总分/选修活动考试总分 -->
+	<select id="requiredElectiveExamScore" resultMap="BaseResultMap" parameterType="map" >
+		SELECT
+		a.IS_REQUIRED AS isRequired,SUM(d.TOTAL_POINTS) AS currencyCount
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_exam_score d ON c.EXAM_ID=d.EXAM_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND c.EXAM_ID IS NOT NULL AND a.`CODE`=d.`CODE` AND d.GRADE_STATE!='D'
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+		GROUP BY a.IS_REQUIRED
+	</select>
+	<!-- 根据条件查询必修活动考试及格数/选修活动考试及格数 -->
+	<select id="requiredElectiveExamPass" resultMap="BaseResultMap" parameterType="map" >
+		SELECT
+		a.IS_REQUIRED AS isRequired,IFNULL(COUNT(c.EXAM_ID),0) AS currencyCount
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_exam_score d ON c.EXAM_ID=d.EXAM_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND c.EXAM_ID IS NOT NULL AND a.`CODE`=d.`CODE` AND d.GRADE_STATE='Y'
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+		GROUP BY a.IS_REQUIRED
+	</select>
+	<!-- 根据条件查询必修活动课程积分/选修活动课程积分 -->
+	<select id="requiredElectiveCourseIntegral" resultMap="BaseResultMap" parameterType="map" >
+		SELECT
+		a.IS_REQUIRED AS isRequired,IFNULL(SUM(d.E_CURRENCY),0) AS currencyCount
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_courses d ON c.COURSE_ID=d.COURSE_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND c.COURSE_ID IS NOT NULL
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+		GROUP BY a.IS_REQUIRED
+	</select>
+	<!-- 根据条件查询必修活动考试积分/选修活动考试积分 -->
+	<select id="requiredElectiveExamIntegral" resultMap="BaseResultMap" parameterType="map" >
+		SELECT
+		a.IS_REQUIRED AS isRequired,IFNULL(SUM(e.PASS_EB),0) AS currencyCount
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_exam d ON c.EXAM_ID=d.EXAM_ID
+		LEFT JOIN tom_exam_paper e ON d.EXAM_PAPER_ID= e.EXAM_PAPER_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND c.EXAM_ID IS NOT NULL
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+		GROUP BY a.IS_REQUIRED
+	</select>
+	<!-- 根据条件查询必修活动获得线上课程积分/选修活动获得线上课程积分 -->
+	<select id="resquiredElectiveGetCourseIntegral" resultMap="BaseResultMap" parameterType="map" >
+		SELECT
+		a.IS_REQUIRED AS isRequired,IFNULL(SUM(e.E_CURRENCY),0) AS currencyCount
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_course_learning_record d ON c.COURSE_ID=d.COURSE_ID
+		LEFT JOIN tom_courses e ON d.COURSE_ID=e.COURSE_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND c.COURSE_ID IS NOT NULL AND a.`CODE`=d.`CODE`
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+		GROUP BY a.IS_REQUIRED
+	</select>
+	<!-- 根据条件查询必修活动获得线下课程积分/选修活动获得线下课程积分 -->
+	<select id="rexquiredElectiveGetCourseIntegral" resultMap="BaseResultMap" parameterType="map" >
+		SELECT
+		a.IS_REQUIRED AS isRequired,SUM(d.E_CURRENCY) AS currencyCount
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_courses d ON c.COURSE_ID=d.COURSE_ID
+		LEFT JOIN tom_offline_sign e ON d.COURSE_ID=e.COURSE_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND c.COURSE_ID IS NOT NULL AND d.COURSE_ONLINE='N' AND a.`CODE`=e.`CODE`
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+		GROUP BY a.IS_REQUIRED
+	</select>
+	<!-- 根据条件查询必修活动完成考试获得积分/选修活动完成考试获得积分 -->
+	<select id="requiredElectiveGetExamIntegral" resultMap="BaseResultMap" parameterType="map" >
+		SELECT
+		a.IS_REQUIRED AS isRequired,IFNULL(SUM(f.PASS_EB),0) AS currencyCount
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_exam_score d ON c.EXAM_ID=d.EXAM_ID
+		LEFT JOIN tom_exam e ON d.EXAM_ID=e.EXAM_ID
+		LEFT JOIN tom_exam_paper f ON e.EXAM_PAPER_ID=f.EXAM_PAPER_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND c.EXAM_ID IS NOT NULL AND a.`CODE`=d.`CODE` AND d.GRADE_STATE='Y'
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+		GROUP BY a.IS_REQUIRED
+	</select>
+	<!-- 根据条件查询必修活动未完成考试扣除积分/选修活动未完成考试扣除积分 -->
+	<select id="requiredElectiveDeductionExamIntegral" resultMap="BaseResultMap" parameterType="map" >
+		SELECT
+		a.IS_REQUIRED AS isRequired,SUM(f.NOT_PASS_EB) AS currencyCount
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_exam_score d ON c.EXAM_ID=d.EXAM_ID
+		LEFT JOIN tom_exam e ON d.EXAM_ID=e.EXAM_ID
+		LEFT JOIN tom_exam_paper f ON e.EXAM_PAPER_ID=f.EXAM_PAPER_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND c.EXAM_ID IS NOT NULL AND a.`CODE`=d.`CODE` AND d.GRADE_STATE!='Y'
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+		GROUP BY a.IS_REQUIRED
+	</select>
+	<!-- 根据条件查询所有活动ID,忽略选修未报名 -->
+	<select id="activityIdList" resultMap="BaseResultMap" parameterType="map" >
+		SELECT
+		a.IS_REQUIRED AS isRequired,a.ACTIVITY_ID AS activityId
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND a.APPLY_STATUS='Y'
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+	</select>
+	<!-- 根据活动ID查询课程/考试ID -->
+	<select id="requiredElectiveCourseExamId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+		SELECT
+		a.COURSE_ID AS courseId,a.EXAM_ID AS examId,b.IS_REQUIRED AS isRequired
+		FROM tom_activity_property a
+		LEFT JOIN tom_activity_emps_relation b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		WHERE a.ACTIVITY_ID = #{activityId,jdbcType=DECIMAL}
+		GROUP BY a.COURSE_ID,a.EXAM_ID
+	</select>
+	<!-- 根据条件查询已开始的必修活动/选修活动 -->
+	<select id="ksRequiredElective" resultMap="BaseResultMap" parameterType="map">
+		SELECT
+		a.IS_REQUIRED AS isRequired,COUNT(a.ACTIVITY_ID) AS currencyCount
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y'
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+		GROUP BY a.IS_REQUIRED
+	</select>
+	<!-- 根据条件查询未报名总活动数 -->
+	<select id="wbmActivity" resultType="java.lang.Integer" parameterType="map">
+		SELECT
+		COUNT(a.ACTIVITY_ID)
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.APPLY_STATUS='N'
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+	</select>
+	<!-- 根据条件查询必修活动课程积分 -->
+	<select id="rCourseIntegral" resultType="java.lang.Integer" parameterType="map">
+		SELECT
+		IFNULL(SUM(E_CURRENCY),0)
+		FROM tom_courses
+		WHERE COURSE_ID IN
+		(SELECT
+		DISTINCT c.COURSE_ID
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND a.IS_REQUIRED='Y' AND c.COURSE_ID IS NOT NULL
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>)
+	</select>
+	<!-- 根据条件查询选修活动课程积分 -->
+	<select id="eCourseIntegral" resultType="java.lang.Integer" parameterType="map">
+		SELECT
+		IFNULL(SUM(E_CURRENCY),0)
+		FROM tom_courses
+		WHERE COURSE_ID IN
+		(SELECT
+		DISTINCT c.COURSE_ID
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND a.IS_REQUIRED='N' AND c.COURSE_ID IS NOT NULL
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>)
+	</select>
+	<!-- 根据条件查询必修活动线上课程获得积分 -->
+	<select id="rsGetCourseIntegral" resultType="java.lang.Integer" parameterType="map">
+		SELECT
+		IFNULL(SUM(E_CURRENCY),0)
+		FROM tom_courses WHERE COURSE_ID IN
+		(SELECT
+		DISTINCT c.COURSE_ID
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_course_learning_record d ON c.COURSE_ID=d.COURSE_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND a.IS_REQUIRED='Y' AND c.COURSE_ID IS NOT NULL AND a.`CODE`=d.`CODE`
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>)
+	</select>
+	<!-- 根据条件查询选修活动线上课程获得积分 -->
+	<select id="esGetCourseIntegral" resultType="java.lang.Integer" parameterType="map">
+		SELECT
+		IFNULL(SUM(E_CURRENCY),0)
+		FROM tom_courses WHERE COURSE_ID IN
+		(SELECT
+		DISTINCT c.COURSE_ID
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_course_learning_record d ON c.COURSE_ID=d.COURSE_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND a.IS_REQUIRED='N' AND c.COURSE_ID IS NOT NULL AND a.`CODE`=d.`CODE`
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>)
+	</select>
+	<!-- 根据条件查询必修活动线下课程获得积分 -->
+	<select id="rxGetCourseIntegral" resultType="java.lang.Integer" parameterType="map">
+		SELECT
+		IFNULL(SUM(E_CURRENCY),0)
+		FROM tom_courses WHERE COURSE_ID IN
+		(SELECT
+		DISTINCT c.COURSE_ID
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_offline_sign d ON c.COURSE_ID=d.COURSE_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND a.IS_REQUIRED='Y' AND c.COURSE_ID IS NOT NULL AND a.`CODE`=d.`CODE`
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>)
+	</select>
+	<!-- 根据条件查询选修活动线下课程获得积分 -->
+	<select id="exGetCourseIntegral" resultType="java.lang.Integer" parameterType="map">
+		SELECT
+		IFNULL(SUM(E_CURRENCY),0)
+		FROM tom_courses WHERE COURSE_ID IN
+		(SELECT
+		DISTINCT c.COURSE_ID
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity_property c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_offline_sign d ON c.COURSE_ID=d.COURSE_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR} AND a.`STATUS`='Y' AND a.IS_REQUIRED='N' AND c.COURSE_ID IS NOT NULL AND a.`CODE`=d.`CODE`
+		<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+    	<if test="projectId != null" >
+       		and b.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>)
+	</select>
+	<select id="examPassNum" resultType="java.lang.Integer" parameterType="map">
+		SELECT
+		COUNT(DISTINCT b.EXAM_ID) as examPassNum
+		FROM tom_activity_emps_relation a
+		LEFT JOIN tom_activity_property b ON a.ACTIVITY_ID=b.ACTIVITY_ID
+		LEFT JOIN tom_activity c ON b.ACTIVITY_ID=c.ACTIVITY_ID
+		LEFT JOIN tom_exam_score d ON b.EXAM_ID = d.EXAM_ID
+		WHERE a.CODE = #{code,jdbcType=VARCHAR}
+		AND b.EXAM_ID IS NOT NULL
+		AND d.GRADE_STATE = 'Y'
+		AND a.`CODE` = d.`CODE`
+		<if test="startTime != null" >
+       		and a.CREATE_TIME <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="endTime != null" >
+       		and a.CREATE_TIME <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+    	</if>
+    	<if test="projectId != null" >
+       		and c.PARENT_CLASSIFY_ID = #{projectId,jdbcType=INTEGER}
+    	</if>
+    	<if test="isRequired != null" >
+       		and a.IS_REQUIRED = #{isRequired,jdbcType=VARCHAR}
+    	</if>
+	</select>
+</mapper>

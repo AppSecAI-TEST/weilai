@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.reportforms.dao.EmpScoreDetaileMapper">
+	  <resultMap id="BaseResultMap" type="com.chinamobo.ue.reportforms.dto.EmpScoreDetaileDto">
+	  	<result column="CODE" property="code" jdbcType="VARCHAR" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />
+		<result column="orgcode" property="orgCode" jdbcType="VARCHAR" />
+		<result column="orgname" property="orgName" jdbcType="VARCHAR" />
+		<!-- 部门 -->
+		<result column="onedeptcode" property="oneDeptCode" jdbcType="VARCHAR" />
+		<result column="onedeptname" property="oneDeptName" jdbcType="VARCHAR" />
+		<result column="TWO_DEPT_CODE" property="twoDeptCode" jdbcType="VARCHAR" />
+		<result column="TWO_DEPT_NAME" property="twoDeptName" jdbcType="VARCHAR" />
+		<result column="THREE_DEPT_CODE" property="threeDeptCode" jdbcType="VARCHAR" />
+		<result column="THREE_DEPT_NAME" property="threeDeptName" jdbcType="VARCHAR" />
+		<!-- 积分 -->
+		<result column="e_number" property="enumber" jdbcType="DOUBLE" />
+		<result column="add_up_e_number" property="addUpENumber" jdbcType="DOUBLE" />
+		<result column="GET_TIME" property="getTime" jdbcType="TIMESTAMP" />
+		<result column="exchange_number" property="exchangeNumber" jdbcType="DOUBLE" />
+		<result column="road" property="road" jdbcType="VARCHAR" />
+		
+		<!-- 复合数组 存储类型和积分数 “,”隔开 -->
+		<result column="ROADS" property="roads" jdbcType="VARCHAR" />
+		<!-- 暂时没用上 -->
+		<result column="EBS" property="ebs" jdbcType="VARCHAR" />
+	  </resultMap>
+	  
+	  <!-- 条件 分页 查询 -->
+	<select id="findPageList" resultMap="BaseResultMap" parameterType="map">
+	           <if test="beginTimeq != null and endTimeq != null" >     
+                select  tom_emp.NAME,tom_emp.CODE,tom_emp.orgcode,tom_emp.orgname,tom_emp.onedeptcode,tom_emp.onedeptname,
+                tom_emp.TWO_DEPT_NAME,tom_emp.THREE_DEPT_NAME,
+                getEmpScore(tom_emp.code,1,#{beginTimeq,jdbcType=VARCHAR},#{endTimeq,jdbcType=VARCHAR}) as ROADS,
+                getEmpScore(tom_emp.code,2,#{beginTimeq,jdbcType=VARCHAR},#{endTimeq,jdbcType=VARCHAR}) as e_number,
+                getEmpScore(tom_emp.code,3,#{beginTimeq,jdbcType=VARCHAR},#{endTimeq,jdbcType=VARCHAR}) as add_up_e_number
+                FROM tom_emp
+                WHERE tom_emp.poststat='Y' 
+            </if>
+             <if test="beginTimeq == null or endTimeq == null" >     
+                select  tom_emp.NAME,tom_emp.CODE,tom_emp.orgcode,tom_emp.orgname,tom_emp.onedeptcode,tom_emp.onedeptname,
+                tom_emp.TWO_DEPT_NAME,tom_emp.THREE_DEPT_NAME,
+                getEmpScore(tom_emp.code,1,'','') as ROADS,
+                getEmpScore(tom_emp.code,2,'','') as e_number,
+                getEmpScore(tom_emp.code,3,'','') as add_up_e_number
+                FROM tom_emp
+                WHERE tom_emp.poststat='Y' 
+            </if>
+             <include refid="condition"></include>
+		<if test="endNum!='-1'.toString() and startNum!=null and endNum!=null">
+          limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+        </if>
+	</select>
+	<!-- 条件查询记录数 -->
+	<select id="findCount" resultType="java.lang.Integer" parameterType="map">
+		select count(*) from tom_emp where tom_emp.poststat='Y'
+		<include refid="condition"></include>
+		
+	</select>
+	<!-- 条件 查询 -->
+	<select id="findList" resultMap="BaseResultMap" parameterType="map">
+		 <if test="beginTimeq != null and endTimeq != null" >     
+                select  tom_emp.NAME,tom_emp.CODE,tom_emp.orgcode,tom_emp.orgname,tom_emp.onedeptcode,tom_emp.onedeptname,
+                tom_emp.TWO_DEPT_NAME,tom_emp.THREE_DEPT_NAME,
+                getEmpScore(tom_emp.code,1,#{beginTimeq,jdbcType=VARCHAR},#{endTimeq,jdbcType=VARCHAR}) as ROADS,
+                getEmpScore(tom_emp.code,2,#{beginTimeq,jdbcType=VARCHAR},#{endTimeq,jdbcType=VARCHAR}) as e_number,
+                getEmpScore(tom_emp.code,3,#{beginTimeq,jdbcType=VARCHAR},#{endTimeq,jdbcType=VARCHAR}) as add_up_e_number
+                FROM tom_emp
+                WHERE tom_emp.poststat='Y' 
+            </if>
+             <if test="beginTimeq == null or endTimeq == null" >     
+                select  tom_emp.NAME,tom_emp.CODE,tom_emp.orgcode,tom_emp.orgname,tom_emp.onedeptcode,tom_emp.onedeptname,
+                tom_emp.TWO_DEPT_NAME,tom_emp.THREE_DEPT_NAME,
+                getEmpScore(tom_emp.code,1,'','') as ROADS,
+                getEmpScore(tom_emp.code,2,'','') as e_number,
+                getEmpScore(tom_emp.code,3,'','') as add_up_e_number
+                FROM tom_emp
+                WHERE tom_emp.poststat='Y' 
+            </if>
+            <include refid="condition"></include>
+            <if test="endNum!='-1'.toString() and startNum!=null and endNum!=null">
+          limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+        </if>
+	</select>
+	<!-- 条件 查询个人 -->
+	<select id="findOne" resultMap="BaseResultMap" parameterType="map">
+		select CODE,exchange_number,road,UPDATE_TIME AS GET_TIME
+		from tom_eb_record where 1=1 
+		and CODE=#{empCode,jdbcType=VARCHAR}
+		<if test="beginTimeq != null" >
+                and UPDATE_TIME <![CDATA[>]]> #{beginTimeq,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endTimeq != null" >
+                and UPDATE_TIME <![CDATA[<]]> #{endTimeq,jdbcType=TIMESTAMP}
+            </if>
+		<if test="endNum!='-1'.toString() and startNum!=null and endNum!=null">
+			limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+		</if>
+		
+	</select>
+	<!-- 条件查询个人积分数 -->
+	<select id="findOneCount" resultType="java.lang.Integer" parameterType="map">
+		select count(*) from tom_eb_record where 1=1 
+		and CODE=#{empCode,jdbcType=VARCHAR}
+		<if test="beginTimeq != null" >
+                and UPDATE_TIME <![CDATA[>]]> #{beginTimeq,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endTimeq != null" >
+                and UPDATE_TIME <![CDATA[<]]> #{endTimeq,jdbcType=TIMESTAMP}
+            </if>
+	</select>
+	
+	<!-- 页面 共用条件 -->
+	<sql id="condition">
+	      <if test="code != null">
+                and CODE LIKE "%" #{code,jdbcType=VARCHAR} "%"
+            </if>
+            <if test="name != null">
+                and NAME LIKE "%" #{name,jdbcType=VARCHAR} "%"
+            </if>
+            <if test="orgName != null and orgName!='' ">
+                and orgcode = #{orgName,jdbcType=VARCHAR}
+            </if>
+            <if test="jobName != null and jobName!='' ">
+                and jobcode = #{jobName,jdbcType=VARCHAR}
+            </if>
+            <if test="projectId != null">
+                and projectId = #{projectId,jdbcType=VARCHAR}
+            </if>
+            <if test="oneDeptName != null and oneDeptName!='' ">
+                and onedeptcode = #{oneDeptName,jdbcType=VARCHAR}
+            </if>
+            <if test="twoDeptName != null and twoDeptName!='' ">
+                and TWO_DEPT_CODE = #{twoDeptName,jdbcType=VARCHAR}
+            </if>
+            <if test="threeDeptName != null and threeDeptName!='' ">
+                and THREE_DEPT_CODE = #{threeDeptName,jdbcType=VARCHAR}
+            </if>
+	</sql>
+</mapper>

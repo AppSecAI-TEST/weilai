@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.reportforms.dao.ActivityDeptListMapper">
+	<resultMap id="BaseResultMap" type="com.chinamobo.ue.reportforms.dto.ActivityDeptListDto">
+		
+		<result column="actitvtyId" property="actitvtyId" jdbcType="VARCHAR" />
+		<result column="courseId" property="courseId" jdbcType="INTEGER" />
+		<result column="examId" property="examId" jdbcType="INTEGER" />
+		<result column="code" property="code" jdbcType="VARCHAR" />
+		<result column="orgcode" property="orgcode" jdbcType="VARCHAR" />
+		<result column="orgname" property="orgname" jdbcType="VARCHAR" />
+		<result column="oneDeptCode" property="oneDeptCode" jdbcType="VARCHAR" />
+		<result column="onedeptname" property="oneDeptName" jdbcType="VARCHAR" />
+		<result column="twoDeptCode" property="twoDeptCode" jdbcType="VARCHAR" />
+		<result column="twoDeptName" property="twoDeptName" jdbcType="VARCHAR" />
+		<result column="threeDeptCode" property="threeDeptCode" jdbcType="VARCHAR" />
+		<result column="threeDeptName" property="threeDeptName" jdbcType="VARCHAR" />
+		<result column="activityNumber" property="activityNumber" jdbcType="VARCHAR" />
+		<result column="activityNmae" property="activityName" jdbcType="VARCHAR" />
+		<result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="needApply" property="needApply" jdbcType="VARCHAR" />
+		<result column="activityStartTime" property="activityStartTime" jdbcType="TIMESTAMP" />
+		<result column="activityEndTime" property="activityEndTime" jdbcType="TIMESTAMP" />
+		<result column="admins" property="admins" jdbcType="VARCHAR" />
+		<result column="adminsName" property="adminsName" jdbcType="VARCHAR" />
+		<result column="activityType" property="activityType" jdbcType="INTEGER" />
+		<result column="openNum" property="openNum" jdbcType="INTEGER" />
+		<result column="notLearnNumber" property="notLearnNumber" jdbcType="INTEGER" />
+		<result column="isLearningNumber" property="isLearningNumber" jdbcType="INTEGER" />
+		<result column="toCourse" property="toCourse" jdbcType="INTEGER" />
+		<result column="toExam" property="toExam" jdbcType="INTEGER" />
+		<result column="totalTime" property="totalTime" jdbcType="BIGINT" />
+		<result column="Score" property="Score" jdbcType="DOUBLE" />
+		<result column="joinExam" property="joinExam" jdbcType="INTEGER" />
+		<result column="OpenNumber" property="OpenNumber" jdbcType="INTEGER" />
+		<result column="numberOfParticipants" property="numberOfParticipants" jdbcType="INTEGER" />
+		<result column="integral" property="integral" jdbcType="INTEGER" />
+		<result column="toBe" property="toBe" jdbcType="INTEGER" />
+		<result column="joinCourse" property="joinCourse" jdbcType="INTEGER" />
+		<result column="codes" property="codes" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 分页条件查询 -->
+		<select id="findActivityDept"  resultMap="BaseResultMap"  parameterType="map">
+		 	  SELECT a.*,GROUP_CONCAT(CODE) AS codes FROM  tom_activity_dept_view a WHERE 1=1
+			 <include refid="condition"></include>
+		 	   GROUP BY  `a`.`actitvtyId`,`a`.`oneDeptCode`,`a`.`twoDeptCode`,`a`.`threeDeptCode`
+			  <if test="startNum != null and endNum != null">
+				limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+			</if>
+		</select>
+		<select id="findActivityDeptView"  resultMap="BaseResultMap"  parameterType="map">
+			  SELECT a.* FROM tom_activity_dept_view a
+		</select>
+		<select id="findActivityDeptCount" resultType="int"  parameterType="map">
+			select count(abc.`ACTIVITY_ID`) from(SELECT   `a`.`ACTIVITY_ID`
+			FROM
+			  `tom_activity` `a`,
+			  `tom_activity_emps_relation` `b`,
+			  `tom_emp` c 
+			WHERE  `a`.`ACTIVITY_ID` = `b`.`ACTIVITY_ID`
+			  AND b.`CODE` = c.`CODE` 
+			<include refid="condition3"></include>
+			GROUP BY
+			`a`.`ACTIVITY_ID`,
+			`c`.`ONEDEPTCODE`,
+			`c`.`TWO_DEPT_CODE`,
+			`c`.`THREE_DEPT_CODE`) AS abc
+		</select>
+		<select id="findActivityDeptExcel"  resultMap="BaseResultMap"  parameterType="map">
+		select * from tom_activity_dept_details_view where 1=1
+		<include refid="condition"></include>
+		</select>
+		<select id="findJoinCourseCount" resultType="int" parameterType="map">
+			SELECT COUNT(*) FROM (SELECT a.`actitvtyId`  FROM tom_activity_dept_view AS a
+			LEFT JOIN tom_activity_property AS b ON a.actitvtyId=b.activity_id
+			LEFT JOIN tom_course_section AS c ON c.course_id= b.course_id
+			LEFT JOIN tom_section_learning_record AS e ON e.course_section_id=c.section_id 
+			WHERE  a.actitvtyId=#{activityId,jdbcType=DECIMAL}   AND a.`CODE`=e.`CODE`
+			<if test="threeDeptCode != null and '' != threeDeptCode">
+				AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+			</if>
+			<if test="twoDeptCode != null and '' != twoDeptCode">
+				AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+			</if>
+			<if test="oneDeptCode != null and '' != oneDeptCode">
+				AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+			</if>
+			 GROUP BY  `a`.`actitvtyId`,`a`.`oneDeptCode`,`a`.`twoDeptCode`,`a`.`threeDeptCode`) AS abc
+		</select>
+		<select id="findIsLearningNumber" resultType="Integer" parameterType="map">
+			SELECT COUNT(*) FROM (select cc.code from(
+			 SELECT 
+			DISTINCT a.`CODE` FROM  tom_activity_dept_view AS a 
+			LEFT JOIN tom_activity_property AS b 
+			ON a.actitvtyId = b.activity_id 
+			LEFT JOIN tom_course_section AS c 
+			ON c.course_id = b.course_id 
+			LEFT JOIN tom_section_learning_record AS e 
+			ON e.course_section_id = c.section_id 
+			WHERE  a.actitvtyId=#{activityId,jdbcType=DECIMAL} 
+			AND e.code = a.code 
+			<if test="threeDeptCode != null and '' != threeDeptCode">
+				AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+			</if>
+			<if test="twoDeptCode != null and '' != twoDeptCode">
+				AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+			</if>
+			<if test="oneDeptCode != null and '' != oneDeptCode">
+				AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+			</if>
+			<!--  GROUP BY  `a`.`actitvtyId`,`a`.`oneDeptCode`,`a`.`twoDeptCode`,`a`.`threeDeptCode` --> ) as cc
+			 where cc.`code` 
+		not in (
+				<!-- select ifnull(bb.code,'')from tom_activity_property as aa
+				left join tom_course_learning_record as bb on aa.course_id=bb.COURSE_ID  and  aa.activity_id=#{activityId,jdbcType=DECIMAL}  -->
+		SELECT a.code  FROM tom_course_learning_record AS a
+LEFT JOIN tom_activity_property AS b ON a.course_id=b.course_id
+LEFT JOIN tom_activity_dept_view AS c ON b.activity_id=c.actitvtyId
+WHERE c.actitvtyId=#{activityId,jdbcType=DECIMAL}
+ <if test="threeDeptCode != null and '' != threeDeptCode">
+				AND c.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+			</if>
+			<if test="twoDeptCode != null and '' != twoDeptCode">
+				AND c.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND c.`threeDeptCode` = ''
+			</if>
+			<if test="oneDeptCode != null and '' != oneDeptCode">
+				AND c.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND c.`twoDeptCode` = ''
+			</if> 
+		)
+			 )AS abc
+		</select>
+		<select id="findToCourse" resultType="int" parameterType="map">
+			SELECT COUNT(abc.actitvtyId) FROM(SELECT a.actitvtyId FROM tom_activity_dept_view AS a
+			LEFT JOIN tom_activity_property AS b ON a.actitvtyId=b.activity_id
+			LEFT JOIN tom_course_learning_record AS c ON b.COURSE_ID=c.COURSE_ID
+			WHERE  a.actitvtyId=#{activityId,jdbcType=DECIMAL}
+			AND a.`CODE` =c.`CODE`
+			<if test="threeDeptCode != null and '' != threeDeptCode">
+				AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+			</if>
+			<if test="twoDeptCode != null and '' != twoDeptCode">
+				AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+			</if>
+			<if test="oneDeptCode != null and '' != oneDeptCode">
+				AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+			</if>
+			 GROUP BY  `a`.`actitvtyId`,`a`.`oneDeptCode`,`a`.`twoDeptCode`,`a`.`threeDeptCode`) AS abc;
+		</select>
+		<select id="findToCourse1" resultMap="BaseResultMap"  parameterType="map">
+			SELECT a.actitvtyId,a.`code`,b.COURSE_ID as courseId FROM tom_activity_dept_view AS a
+			LEFT JOIN tom_activity_property AS b ON a.actitvtyId=b.activity_id
+			LEFT JOIN tom_course_learning_record AS c ON b.COURSE_ID=c.COURSE_ID
+			WHERE  a.actitvtyId=#{activityId,jdbcType=DECIMAL}
+			AND a.`CODE` =c.`CODE`
+			<if test="threeDeptCode != null and '' != threeDeptCode">
+				AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+			</if>
+			<if test="twoDeptCode != null and '' != twoDeptCode">
+				AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+			</if>
+			<if test="oneDeptCode != null and '' != oneDeptCode">
+				AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+			</if>
+			 GROUP BY  `a`.`actitvtyId`,`a`.`oneDeptCode`,`a`.`twoDeptCode`,`a`.`threeDeptCode`
+		</select>
+		<select id="findTotalTime" resultType="int" parameterType="map">
+			SELECT COALESCE(SUM(abc.TIME),0) FROM (SELECT c.TIME  FROM tom_activity_dept_view AS a
+			LEFT JOIN tom_activity_property AS b ON a.actitvtyId=b.activity_id
+			LEFT JOIN tom_learntime_log AS c ON c.COURSE_ID=b.COURSE_ID AND c.`CODE`=a.`CODE`
+			WHERE  a.actitvtyId=#{activityId,jdbcType=DECIMAL}
+			<!-- AND a.`CODE` =c.`CODE` -->
+			<if test="threeDeptCode != null and '' != threeDeptCode">
+				AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+			</if>
+			<if test="twoDeptCode != null and '' != twoDeptCode">
+				AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+			</if>
+			<if test="oneDeptCode != null and '' != oneDeptCode">
+				AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+			</if>
+			) AS abc;
+		</select>
+		<select id="findScore" resultType="int" parameterType="map">
+			SELECT COALESCE(SUM(abc.total_points),0) FROM (SELECT total_points FROM tom_activity_dept_view AS a
+			LEFT JOIN tom_activity_property AS b ON a.actitvtyId=b.activity_id
+			LEFT JOIN tom_exam_score AS c ON c.EXAM_ID=b.EXAM_ID 
+			WHERE  a.actitvtyId=#{activityId,jdbcType=DECIMAL}
+			AND a.`CODE` =c.`CODE`
+		    <![CDATA[AND c.GRADE_STATE<>'D']]>
+			<if test="threeDeptCode != null and '' != threeDeptCode">
+				AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+			</if>
+			<if test="twoDeptCode != null and '' != twoDeptCode">
+				AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+			</if>
+			<if test="oneDeptCode != null and '' != oneDeptCode">
+				AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+			</if>
+			 GROUP BY  `a`.`actitvtyId`,`a`.`oneDeptCode`,`a`.`twoDeptCode`,`a`.`threeDeptCode`) AS abc
+		</select>
+		 <select id="findToExam" resultType="int" parameterType="map">
+			SELECT COUNT(abc.actitvtyId) FROM(SELECT a.actitvtyId  FROM tom_activity_dept_view AS a 
+			LEFT JOIN tom_activity_property AS b ON a.actitvtyId=b.activity_id
+			LEFT JOIN tom_exam_score AS c ON c.EXAM_ID=b.EXAM_ID
+			WHERE  a.actitvtyId=#{activityId,jdbcType=DECIMAL}
+			AND a.`CODE` =c.`CODE`
+			AND c.GRADE_STATE='Y' 
+			<if test="threeDeptCode != null and '' != threeDeptCode">
+				AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+			</if>
+			<if test="twoDeptCode != null and '' != twoDeptCode">
+				AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+			</if>
+			<if test="oneDeptCode != null and '' != oneDeptCode">
+				AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+			</if>
+			<!--  GROUP BY  `a`.`actitvtyId`,`a`.`oneDeptCode`,`a`.`twoDeptCode`,`a`.`threeDeptCode` -->) AS abc
+		</select> 
+		<select id="findToExam1" resultMap="BaseResultMap"  parameterType="map">
+			SELECT a.actitvtyId,a.`code`,b.EXAM_ID as examId FROM tom_activity_dept_view AS a 
+			LEFT JOIN tom_activity_property AS b ON a.actitvtyId=b.activity_id
+			LEFT JOIN tom_exam_score AS c ON c.EXAM_ID=b.EXAM_ID
+			WHERE  a.actitvtyId=#{activityId,jdbcType=DECIMAL}
+			AND a.`CODE` =c.`CODE`
+			AND c.GRADE_STATE='Y' 
+			<if test="threeDeptCode != null and '' != threeDeptCode">
+				AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+			</if>
+			<if test="twoDeptCode != null and '' != twoDeptCode">
+				AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+			</if>
+			<if test="oneDeptCode != null and '' != oneDeptCode">
+				AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+			</if>
+			 GROUP BY  `a`.`actitvtyId`,`a`.`oneDeptCode`,`a`.`twoDeptCode`,`a`.`threeDeptCode`
+		</select>
+		<select id="findJoinExam" resultType="int" parameterType="map">
+			SELECT COUNT(abc.actitvtyId) FROM (SELECT a.actitvtyId FROM tom_activity_dept_view AS a
+			LEFT JOIN tom_activity_property AS b ON a.actitvtyId=b.activity_id
+			LEFT JOIN tom_exam_score AS c ON c.EXAM_ID=b.EXAM_ID
+			WHERE  a.actitvtyId=#{activityId,jdbcType=DECIMAL}
+			AND a.`CODE` =c.`CODE`
+			<![CDATA[AND c.GRADE_STATE<>'D']]>
+			<if test="threeDeptCode != null and '' != threeDeptCode">
+				AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+			</if>
+			<if test="twoDeptCode != null and '' != twoDeptCode">
+				AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+			</if>
+			<if test="oneDeptCode != null and '' != oneDeptCode">
+				AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+			</if>
+			 <!-- GROUP BY  `a`.`actitvtyId`,`a`.`oneDeptCode`,`a`.`twoDeptCode`,`a`.`threeDeptCode` -->) AS abc
+		</select>
+		<select id="findOpenNumber" resultType="int" parameterType="map">
+			SELECT COUNT(abc.actitvtyId) FROM (SELECT a.actitvtyId FROM tom_activity_dept_view AS a,tom_activity_emps_relation AS b  
+			WHERE  a.actitvtyId=#{activityId,jdbcType=DECIMAL} 
+			AND a.actitvtyId=b.activity_id 
+			AND a.`CODE`=b.`CODE` 
+			AND b.IS_REQUIRED='N' 
+			<if test="threeDeptCode != null and '' != threeDeptCode">
+				AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+			</if>
+			<if test="twoDeptCode != null and '' != twoDeptCode">
+				AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+			</if>
+			<if test="oneDeptCode != null and '' != oneDeptCode">
+				AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+			</if>
+			) AS abc
+		</select>
+		<select id="findNumberOfParticipants" resultType="int" parameterType="map">
+			SELECT COUNT(abc.actitvtyId) FROM (SELECT a.actitvtyId FROM tom_activity_dept_view AS a,tom_activity_emps_relation AS b  
+			WHERE  a.actitvtyId=#{activityId,jdbcType=DECIMAL} 
+			AND a.actitvtyId=b.activity_id 
+			AND a.`CODE`=b.`CODE` 
+			AND b.IS_REQUIRED='N' 
+			AND b.apply_status='Y' 
+			<if test="threeDeptCode != null and '' != threeDeptCode">
+				AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+			</if>
+			<if test="twoDeptCode != null and '' != twoDeptCode">
+				AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+			</if>
+			<if test="oneDeptCode != null and '' != oneDeptCode">
+				AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+			</if>
+			 GROUP BY  `a`.`actitvtyId`,`a`.`oneDeptCode`,`a`.`twoDeptCode`,`a`.`threeDeptCode`) AS abc
+		</select>
+		<select id="findCourseEcurrency" resultType="int" parameterType="map">
+			SELECT COALESCE(SUM(abc.E_CURRENCY),0) FROM (SELECT  c.E_CURRENCY FROM  tom_activity_dept_view AS a 
+	    	 LEFT JOIN tom_activity_property AS b 
+	      	 ON a.actitvtyId = b.activity_id 
+	    	 LEFT JOIN tom_courses AS c 
+	      	 ON b.COURSE_ID = c.COURSE_ID 
+	    	 LEFT JOIN tom_course_learning_record AS e 
+	      	 ON b.COURSE_ID = e.COURSE_ID 
+	  		 WHERE  a.actitvtyId=#{activityId,jdbcType=DECIMAL} 
+	  		 AND a.`CODE` = e.`CODE` 
+			 <if test="threeDeptCode != null and '' != threeDeptCode">
+				AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+			</if>
+			<if test="twoDeptCode != null and '' != twoDeptCode">
+				AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+			</if>
+			<if test="oneDeptCode != null and '' != oneDeptCode">
+				AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+			</if>
+			 GROUP BY  `a`.`actitvtyId`,`a`.`oneDeptCode`,`a`.`twoDeptCode`,`a`.`threeDeptCode`) AS abc
+		</select>
+		<select id="findExamPassEB" resultType="int" parameterType="map">
+			SELECT COALESCE(SUM(abc.PASS_EB),0) FROM (SELECT d.PASS_EB FROM tom_activity_dept_view AS a
+			LEFT JOIN tom_activity_property AS b ON a.actitvtyId=b.activity_id
+			LEFT JOIN tom_exam AS c ON c.EXAM_ID=b.EXAM_ID
+			LEFT JOIN tom_exam_paper AS d ON d.EXAM_PAPER_ID=c.EXAM_PAPER_ID
+			LEFT JOIN tom_exam_score AS e ON e.EXAM_ID=b.EXAM_ID
+			WHERE  a.actitvtyId=#{activityId,jdbcType=DECIMAL} 
+			AND e.`CODE`=a.`CODE` 
+			AND e.GRADE_STATE='Y' 
+			<if test="threeDeptCode != null and '' != threeDeptCode">
+				AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+			</if>
+			<if test="twoDeptCode != null and '' != twoDeptCode">
+				AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+			</if>
+			<if test="oneDeptCode != null and '' != oneDeptCode">
+				AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+			</if>
+			 GROUP BY  `a`.`actitvtyId`,`a`.`oneDeptCode`,`a`.`twoDeptCode`,`a`.`threeDeptCode`) AS abc
+		</select>
+		<select id="findToBe" resultType="int" parameterType="map">
+			SELECT COUNT(*) FROM (SELECT  aaa.code 
+			FROM (
+					SELECT  a.`code`,a.`actitvtyId`,a.`oneDeptCode`,a.`threeDeptCode`,a.`twoDeptCode`  FROM tom_activity_dept_view AS a 
+		   			LEFT JOIN tom_activity_property AS b 
+		     		ON a.actitvtyId = b.activity_id 
+		    		LEFT JOIN tom_course_learning_record AS c 
+		      		ON b.COURSE_ID = c.COURSE_ID 
+		  			WHERE  a.actitvtyId=#{activityId,jdbcType=DECIMAL}
+		    		AND a.`CODE` = c.`CODE` 
+		    		
+		    		<if test="threeDeptCode != null and '' != threeDeptCode">
+						AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+					</if>
+					<if test="twoDeptCode != null and '' != twoDeptCode">
+						AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+					</if>
+					<if test="oneDeptCode != null and '' != oneDeptCode">
+						AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+					</if>
+					
+		  			UNION
+		   			SELECT  a.`code`,a.`actitvtyId`,a.`oneDeptCode`,a.`threeDeptCode`,a.`twoDeptCode`  FROM tom_activity_dept_view AS a 
+		    		LEFT JOIN tom_activity_property AS b 
+		      		ON a.actitvtyId = b.activity_id 
+		    		LEFT JOIN tom_exam_score AS c 
+		      		ON c.EXAM_ID = b.EXAM_ID 
+		  			WHERE  a.actitvtyId=#{activityId,jdbcType=DECIMAL} 
+		    		AND a.`CODE` = c.`CODE` 
+		    		AND c.GRADE_STATE = 'Y'
+		    		<if test="threeDeptCode != null and '' != threeDeptCode">
+						AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+					</if>
+					<if test="twoDeptCode != null and '' != twoDeptCode">
+						AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+					</if>
+					<if test="oneDeptCode != null and '' != oneDeptCode">
+						AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+					</if>
+    		) AS aaa
+    		
+    		 GROUP BY  `aaa`.`actitvtyId`,`aaa`.`oneDeptCode`,`aaa`.`twoDeptCode`,`aaa`.`threeDeptCode`) AS abc
+		</select>
+		<select id="selectExam"  resultType="Integer"  parameterType="map">
+			SELECT COUNT(abc.EXAM_ID) FROM( SELECT a.EXAM_ID FROM tom_activity_property AS a WHERE 1=1
+			  <if test="activityId!= null">
+				and a.ACTIVITY_ID=#{activityId,jdbcType=DECIMAL}
+			 </if>
+			 and a.EXAM_ID is not NULL
+			 GROUP BY a.`EXAM_ID`
+			 ) AS abc
+		</select>
+		<select id="findEmpActivityCourseAndExam" resultMap="BaseResultMap" parameterType="map">
+			SELECT 
+		      b.ACTIVITY_ID AS actitvtyId,
+		      b.`COURSE_ID` AS courseId,
+		      b.`EXAM_ID` AS examId,
+		      a.`code` AS code
+		    FROM
+		      `tom_activity_dept_view` a,
+		      `tom_activity_property` b 
+		    WHERE a.`actitvtyId` = b.`ACTIVITY_ID` 
+		    AND a.`actitvtyId`=#{activityId,jdbcType=DECIMAL}
+		      <if test="threeDeptCode != null and '' != threeDeptCode">
+					AND a.threeDeptCode=#{threeDeptCode,jdbcType=VARCHAR} 
+			  </if>
+			  <if test="twoDeptCode != null and '' != twoDeptCode">
+					AND a.twoDeptCode=#{twoDeptCode,jdbcType=VARCHAR} AND a.`threeDeptCode` = ''
+			  </if>
+			  <if test="oneDeptCode != null and '' != oneDeptCode">
+					AND a.oneDeptCode=#{oneDeptCode,jdbcType=VARCHAR} AND a.`twoDeptCode` = ''
+			  </if>
+		</select>
+		<sql id="condition">
+			<if test="activityType!= null">
+				and a.`projectId`=#{activityType,jdbcType=VARCHAR}
+			</if>
+			<!-- <if test="actitvtyId != null">
+				and a.`actitvtyId`=#{actitvtyId,jdbcType=DECIMAL}
+			</if> -->
+			<if test="activityName != null">
+				and a.`actitvtyId`=#{activityName,jdbcType=VARCHAR}
+			</if>
+			<if test="status ==1">
+			and
+				 a.`activityStartTime`<![CDATA[<now()]]>
+			 	and
+			 	a.`activityEndTime`<![CDATA[>now()]]>
+				
+			</if>
+			<if test="status ==2">
+				and
+				 a.`activityStartTime`<![CDATA[>now()]]>
+			</if>
+			<if test="status ==3">
+			 	and
+			  	a.`activityEndTime`<![CDATA[<now()]]>
+				</if>
+			<if test="needApply != null">
+				and
+				INSTR(a.`needApply`,#{needApply,jdbcType=VARCHAR})>0
+			</if>
+			<if test="beginTimeq != null and '' != beginTimeq">
+				AND a.`activityStartTime` <![CDATA[>]]> #{beginTimeq,jdbcType=TIMESTAMP} 
+			</if>
+			<if test="endTimeq != null and '' != endTimeq">
+				and a.`activityStartTime` <![CDATA[<]]> #{endTimeq,jdbcType=TIMESTAMP} 
+			</if>
+			 <if test="orgname != null and orgname!='' ">
+				and a.`orgcode` = #{orgname,jdbcType=VARCHAR}
+			</if>
+			<if test="oneDeptName != null and oneDeptName!='' ">
+				and a.`oneDeptCode` = #{oneDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="twoDeptName != null and twoDeptName!='' ">
+				and a.`twoDeptCode` = #{twoDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="threeDeptName != null and threeDeptName!='' ">
+				and a.`threeDeptCode` = #{threeDeptName,jdbcType=VARCHAR}
+			</if> 
+	</sql>
+	<sql id="condition2">
+			<if test="activityType!= null">
+				and a.`PARENT_CLASSIFY_ID`=#{activityType,jdbcType=DECIMAL}
+			</if>
+			<if test="activityName != null">
+				and a.`actitvtyId` =  #{activityName,jdbcType=VARCHAR} 
+			</if>
+			<if test="status ==1">
+				and
+				 a.`ACTIVITY_START_TIME`<![CDATA[<now()]]>
+			 	and
+			 	a.`ACTIVITY_END_TIME`<![CDATA[>now()]]>
+				
+			</if>
+			<if test="status ==2">
+				and
+				 a.`ACTIVITY_START_TIME`<![CDATA[>now()]]>
+			</if>
+			<if test="status ==3">
+			 	and
+			  	a.`ACTIVITY_END_TIME`<![CDATA[<now()]]>
+				</if>
+			<if test="needApply != null">
+				and
+				INSTR(a.`NEED_APPLY`,#{needApply,jdbcType=VARCHAR})>0
+			</if>
+				<if test="beginTimeq != null and '' != beginTimeq">
+				AND a.`ACTIVITY_START_TIME` <![CDATA[>]]> #{beginTimeq,jdbcType=TIMESTAMP} 
+			</if>
+			<if test="endTimeq != null and '' != endTimeq">
+				and  a.`ACTIVITY_START_TIME` <![CDATA[<]]> #{endTimeq,jdbcType=TIMESTAMP} 
+			</if>
+			 <if test="orgname != null and orgname!='' ">
+				and c.`ORGCODE` = #{orgname,jdbcType=VARCHAR}
+			</if>
+			<if test="oneDeptName != null and oneDeptName!='' ">
+				and c.`ONEDEPTCODE` = #{oneDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="twoDeptName != null and twoDeptName!='' ">
+				and c.`TWO_DEPT_CODE` = #{twoDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="threeDeptName != null and threeDeptName!='' ">
+				and c.`THREE_DEPT_CODE` = #{threeDeptName,jdbcType=VARCHAR}
+			</if> 
+	</sql>
+		<sql id="condition3">
+			<if test="activityType!= null">
+				and a.`PARENT_CLASSIFY_ID`=#{activityType,jdbcType=DECIMAL}
+			</if>
+			<if test="activityName != null">
+				and a.`activity_id` =  #{activityName,jdbcType=VARCHAR} 
+			</if>
+			<if test="status ==1">
+				and
+				 a.`ACTIVITY_START_TIME`<![CDATA[<now()]]>
+			 	and
+			 	a.`ACTIVITY_END_TIME`<![CDATA[>now()]]>
+				
+			</if>
+			<if test="status ==2">
+				and
+				 a.`ACTIVITY_START_TIME`<![CDATA[>now()]]>
+			</if>
+			<if test="status ==3">
+			 	and
+			  	a.`ACTIVITY_END_TIME`<![CDATA[<now()]]>
+				</if>
+			<if test="needApply != null">
+				and
+				INSTR(a.`NEED_APPLY`,#{needApply,jdbcType=VARCHAR})>0
+			</if>
+				<if test="beginTimeq != null and '' != beginTimeq">
+				AND a.`ACTIVITY_START_TIME` <![CDATA[>]]> #{beginTimeq,jdbcType=TIMESTAMP} 
+			</if>
+			<if test="endTimeq != null and '' != endTimeq">
+				and  a.`ACTIVITY_START_TIME` <![CDATA[<]]> #{endTimeq,jdbcType=TIMESTAMP} 
+			</if>
+			 <if test="orgname != null and orgname!='' ">
+				and c.`ORGCODE` = #{orgname,jdbcType=VARCHAR}
+			</if>
+			<if test="oneDeptName != null and oneDeptName!='' ">
+				and c.`ONEDEPTCODE` = #{oneDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="twoDeptName != null and twoDeptName!='' ">
+				and c.`TWO_DEPT_CODE` = #{twoDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="threeDeptName != null and threeDeptName!='' ">
+				and c.`THREE_DEPT_CODE` = #{threeDeptName,jdbcType=VARCHAR}
+			</if> 
+	</sql>
+	</mapper>
+	

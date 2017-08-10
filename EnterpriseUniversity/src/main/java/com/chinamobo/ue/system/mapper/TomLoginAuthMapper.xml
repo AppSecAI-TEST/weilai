@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.system.dao.TomLoginAuthMapper" >
+  <resultMap id="BaseResultMap" type="com.chinamobo.ue.system.entity.TomLoginAuth" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="code" property="code" jdbcType="VARCHAR" />
+    <result column="qr_path" property="qrPath" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, code, qr_path, status
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tom_login_auth
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByMap" resultMap="BaseResultMap" parameterType="map">
+	select   
+	<include refid="Base_Column_List" />
+	from tom_login_auth where 1=1
+	<if test="code != null" >
+		and code=#{code,jdbcType=VARCHAR}
+	</if>
+	<if test="userId != null" >
+		and user_id=#{userId,jdbcType=VARCHAR}
+	</if>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tom_login_auth
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByCode" parameterType="map">
+  	delete from tom_login_auth 
+  	where code = #{code,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.chinamobo.ue.system.entity.TomLoginAuth" >
+    insert into tom_login_auth ( user_id, code, 
+      qr_path, status)
+    values ( #{userId,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR}, 
+      #{qrPath,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.chinamobo.ue.system.entity.TomLoginAuth" >
+    insert into tom_login_auth
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="code != null" >
+        code,
+      </if>
+      <if test="qrPath != null" >
+        qr_path,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null" >
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="qrPath != null" >
+        #{qrPath,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.chinamobo.ue.system.entity.TomLoginAuth" >
+    update tom_login_auth
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null" >
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="qrPath != null" >
+        qr_path = #{qrPath,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.chinamobo.ue.system.entity.TomLoginAuth" >
+    update tom_login_auth
+    set user_id = #{userId,jdbcType=VARCHAR},
+      code = #{code,jdbcType=VARCHAR},
+      qr_path = #{qrPath,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

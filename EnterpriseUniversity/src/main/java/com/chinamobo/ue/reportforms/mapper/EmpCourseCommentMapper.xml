@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.reportforms.dao.EmpCourseCommentMapper">
+	  <resultMap id="BaseResultMap" type="com.chinamobo.ue.reportforms.dto.EmpCourseCommentDto">
+	
+		<result column="CODE" property="code" jdbcType="VARCHAR" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />
+		<result column="orgcode" property="orgCode" jdbcType="VARCHAR" />
+		<result column="orgname" property="orgName" jdbcType="VARCHAR" />
+		<!-- 部门 -->
+		<result column="onedeptcode" property="oneDeptCode" jdbcType="VARCHAR" />
+		<result column="onedeptname" property="oneDeptName" jdbcType="VARCHAR" />
+		<result column="TWO_DEPT_CODE" property="twoDeptCode" jdbcType="VARCHAR" />
+		<result column="TWO_DEPT_NAME" property="twoDeptName" jdbcType="VARCHAR" />
+		<result column="THREE_DEPT_CODE" property="threeDeptCode" jdbcType="VARCHAR" />
+		<result column="THREE_DEPT_NAME" property="threeDeptName" jdbcType="VARCHAR" />
+		
+		<result column="isAdmin" property="isAdmin" jdbcType="VARCHAR" />
+		<result column="jobcode" property="jobCode" jdbcType="VARCHAR" />
+		<result column="jobname" property="jobName" jdbcType="VARCHAR" />
+		<result column="secret_email" property="secretEmail" jdbcType="VARCHAR" />
+		<result column="COURSE_NUMBER" property="courseNumber" jdbcType="VARCHAR" />
+		<result column="COURSE_NAME" property="courseName" jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" property="commentDate" jdbcType="TIMESTAMP" />
+		<result column="TOT_SCORE" property="score" jdbcType="DOUBLE" />
+		<result column="favoriteStatus" property="favoriteStatus" jdbcType="VARCHAR" />
+		<result column="thumbUpStatus" property="thumbUpStatus" jdbcType="VARCHAR" />
+		<result column="COURSE_COMMENT_CONTENT" property="oneCourseCommentContent" jdbcType="VARCHAR" />
+		
+		<!--  课程与讲师 维度评分 -->
+		<result column="courseGradeDimensionsC1" property="courseGradeDimensionsC1" jdbcType="VARCHAR" />
+		<result column="courseGradeDimensionsC2" property="courseGradeDimensionsC2" jdbcType="VARCHAR" />
+		<result column="courseGradeDimensionsC3" property="courseGradeDimensionsC3" jdbcType="VARCHAR" />
+		<result column="courseGradeDimensionsC4" property="courseGradeDimensionsC4" jdbcType="VARCHAR" />
+		<result column="courseGradeDimensionsC5" property="courseGradeDimensionsC5" jdbcType="VARCHAR" />
+		
+		<result column="courseGradeDimensionsL1" property="courseGradeDimensionsL1" jdbcType="VARCHAR" />
+		<result column="courseGradeDimensionsL2" property="courseGradeDimensionsL2" jdbcType="VARCHAR" />
+		<result column="courseGradeDimensionsL3" property="courseGradeDimensionsL3" jdbcType="VARCHAR" />
+		<result column="courseGradeDimensionsL4" property="courseGradeDimensionsL4" jdbcType="VARCHAR" />
+		<result column="courseGradeDimensionsL5" property="courseGradeDimensionsL5" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<!-- 条件 分页 查询 -->
+	<select id="findPageList" resultMap="BaseResultMap" parameterType="map">
+		<include refid="sql_view"></include> 
+		<include refid="condition"></include>
+		<if test="endNum!='-1'.toString() and startNum!=null and endNum!=null">
+          limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+        </if>
+	</select>
+	<!-- 条件查询记录数 -->
+	<select id="findCount" resultType="java.lang.Integer" >
+		select count(*) from `tom_emp` 
+        LEFT JOIN tom_course_emp_relation as cer ON cer.`CODE`=tom_emp.`CODE`
+        LEFT JOIN tom_courses  ON tom_courses.COURSE_ID=cer.COURSE_ID
+        LEFT JOIN tom_course_comment as cc ON tom_courses.COURSE_ID=cc.COURSE_ID and tom_emp.`CODE`=cc.`CODE`
+        WHERE tom_emp.POSTSTAT='Y'
+		<include refid="condition"></include>
+	</select>
+	<!-- 条件 查询 -->
+	<select id="findList" resultMap="BaseResultMap" parameterType="map">
+		<include refid="sql_view"></include> 
+		<include refid="condition"></include>
+		<if test="endNum!='-1'.toString() and startNum!=null and endNum!=null">
+          limit #{startNum,jdbcType=DECIMAL},#{endNum,jdbcType=DECIMAL}
+        </if>
+	</select>
+	<!-- 页面 共用条件 -->
+	<sql id="condition">
+		<if test="beginTimeq != null" >
+       			and cc.CREATE_TIME <![CDATA[>]]> #{beginTimeq,jdbcType=TIMESTAMP}
+    		</if>
+    		<if test="endTimeq != null" >
+       			and cc.CREATE_TIME <![CDATA[<]]> #{endTimeq,jdbcType=TIMESTAMP}
+    		</if>
+    		<if test="courseNumber != null">
+				and tom_courses.COURSE_NUMBER LIKE "%" #{courseNumber,jdbcType=VARCHAR} "%"
+			</if>
+			<if test="courseName != null">
+				and tom_courses.COURSE_NAME LIKE "%" #{courseName,jdbcType=VARCHAR} "%"
+			</if>
+			<if test="code != null">
+				and tom_emp.CODE LIKE "%" #{code,jdbcType=VARCHAR} "%"
+			</if>
+			<if test="name != null">
+				and tom_emp.NAME LIKE "%" #{name,jdbcType=VARCHAR} "%"
+			</if>
+			<if test="orgName != null and orgName!='' ">
+				and tom_emp.orgcode = #{orgName,jdbcType=VARCHAR}
+			</if>
+			<if test="jobName != null and jobName!='' ">
+				and tom_emp.jobcode = #{jobName,jdbcType=VARCHAR}
+			</if>
+			<if test="oneDeptName != null and oneDeptName!='' ">
+				and tom_emp.onedeptcode = #{oneDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="twoDeptName != null and twoDeptName!='' ">
+				and tom_emp.TWO_DEPT_CODE = #{twoDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="threeDeptName != null and threeDeptName!='' ">
+				and tom_emp.THREE_DEPT_CODE = #{threeDeptName,jdbcType=VARCHAR}
+			</if>
+			<if test="commentNull != null and commentNull !='' ">
+				 <if test="commentNull =='Y'.toString() ">
+				     and cc.COURSE_COMMENT_CONTENT is not NULL
+				 </if>
+				 <if test="commentNull =='N'.toString() ">
+	                 and cc.COURSE_COMMENT_CONTENT is  NULL
+	             </if>
+            </if>
+	</sql>
+	
+	<sql id="sql_view">
+	   select tom_emp.NAME,tom_emp.CODE,tom_emp.orgcode,tom_emp.orgname,tom_emp.deptname,tom_emp.depttopname,tom_emp.jobcode,tom_emp.jobname,tom_emp.onedeptcode,tom_emp.onedeptname,tom_emp.secret_email,
+        tom_emp.TWO_DEPT_NAME,tom_emp.THREE_DEPT_NAME,
+		tom_courses.COURSE_NUMBER,tom_courses.COURSE_NAME,tom_courses.TOT_SCORE, 
+		getGradeId(tom_courses.course_grade_dimensions,",",1,tom_emp.code,tom_courses.course_id) as courseGradeDimensionsC1,
+		getGradeId(tom_courses.course_grade_dimensions,",",2,tom_emp.code,tom_courses.course_id) as courseGradeDimensionsC2,
+		getGradeId(tom_courses.course_grade_dimensions,",",3,tom_emp.code,tom_courses.course_id) as courseGradeDimensionsC3,
+		getGradeId(tom_courses.course_grade_dimensions,",",4,tom_emp.code,tom_courses.course_id) as courseGradeDimensionsC4,
+		getGradeId(tom_courses.course_grade_dimensions,",",5,tom_emp.code,tom_courses.course_id) as courseGradeDimensionsC5,
+		getGradeId(tom_courses.lecturer_grade_dimensions,",",1,tom_emp.code,tom_courses.course_id) as courseGradeDimensionsL1,
+		getGradeId(tom_courses.lecturer_grade_dimensions,",",2,tom_emp.code,tom_courses.course_id) as courseGradeDimensionsL2,
+		getGradeId(tom_courses.lecturer_grade_dimensions,",",3,tom_emp.code,tom_courses.course_id) as courseGradeDimensionsL3,
+		getGradeId(tom_courses.lecturer_grade_dimensions,",",4,tom_emp.code,tom_courses.course_id) as courseGradeDimensionsL4,
+		getGradeId(tom_courses.lecturer_grade_dimensions,",",5,tom_emp.code,tom_courses.course_id) as courseGradeDimensionsL5,
+		cc.CREATE_TIME,cc.COURSE_COMMENT_CONTENT,
+		fc.status as favoriteStatus, 
+		ctu.status as thumbUpStatus
+		from `tom_emp` 
+		LEFT JOIN tom_course_emp_relation as cer ON cer.`CODE`=tom_emp.`CODE`
+		LEFT JOIN tom_courses  ON tom_courses.COURSE_ID=cer.COURSE_ID
+		LEFT JOIN tom_course_comment as cc ON tom_courses.COURSE_ID=cc.COURSE_ID and tom_emp.`CODE`=cc.`CODE`
+		LEFT JOIN tom_favorite_course as fc ON fc.`CODE`=tom_emp.`CODE` and fc.COURSE_ID=tom_courses.COURSE_ID
+		LEFT JOIN tom_course_thumb_up as ctu ON ctu.`CODE`=tom_emp.`CODE` and ctu.COURSE_ID=tom_courses.COURSE_ID
+		WHERE tom_emp.poststat='Y'
+	</sql>
+</mapper>

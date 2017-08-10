@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinamobo.ue.course.dao.TomCourseDetailMapper" >
+  <resultMap id="BaseResultMap" type="com.chinamobo.ue.course.entity.TomCourseDetail" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="course_id" property="courseId" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.chinamobo.ue.course.entity.TomCourseDetail" extends="BaseResultMap" >
+    <result column="course_detail" property="courseDetail" jdbcType="LONGVARCHAR" />
+    <result column="course_detail_en" property="courseDetailEn" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, course_id
+  </sql>
+  <sql id="Blob_Column_List" >
+    course_detail,course_detail_en
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from tom_course_detail
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tom_course_detail
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.chinamobo.ue.course.entity.TomCourseDetail" >
+    insert into tom_course_detail ( course_id, course_detail,course_detail_en
+      )
+    values ( #{courseId,jdbcType=INTEGER}, #{courseDetail,jdbcType=LONGVARCHAR},#{courseDetailEn,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.chinamobo.ue.course.entity.TomCourseDetail" >
+    insert into tom_course_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="courseId != null" >
+        course_id,
+      </if>
+      <if test="courseDetail != null" >
+        course_detail,
+      </if>
+       <if test="courseDetailEn != null" >
+        course_detail_en,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="courseId != null" >
+        #{courseId,jdbcType=INTEGER},
+      </if>
+      <if test="courseDetail != null" >
+        #{courseDetail,jdbcType=LONGVARCHAR},
+      </if>
+       <if test="courseDetailEn != null" >
+        #{courseDetailEn,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.chinamobo.ue.course.entity.TomCourseDetail" >
+    update tom_course_detail
+    <set >
+      <if test="courseId != null" >
+        course_id = #{courseId,jdbcType=INTEGER},
+      </if>
+      <if test="courseDetail != null" >
+        course_detail = #{courseDetail,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="courseDetailEn != null" >
+        course_detail_en = #{courseDetailEn,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.chinamobo.ue.course.entity.TomCourseDetail" >
+    update tom_course_detail
+    set course_id = #{courseId,jdbcType=INTEGER},
+      course_detail = #{courseDetail,jdbcType=LONGVARCHAR},
+      course_detail_en = #{courseDetailEn,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.chinamobo.ue.course.entity.TomCourseDetail" >
+    update tom_course_detail
+    set course_id = #{courseId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+   <select id="selectByCourseId" resultMap="ResultMapWithBLOBs" parameterType="map" >
+  	select * from tom_course_detail where 1=1
+  	<if test="courseId !=null">
+  		and course_id=#{courseId,jdbcType=INTEGER}
+  	</if>
+  </select>
+</mapper>
