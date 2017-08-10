@@ -1,5 +1,11 @@
 /.classpath
+<<<<<<< HEAD
 /.settings
 /target
 /bin/
 
+=======
+
+/target
+/bin/
+>>>>>>> d31c9174f060047e614a542cccc02d6f11ca7493
