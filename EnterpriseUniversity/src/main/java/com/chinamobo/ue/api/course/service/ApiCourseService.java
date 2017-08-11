@@ -1862,8 +1862,7 @@ public class ApiCourseService {
 		if ("N".equals(courses.getGradeStatus())) {
 			return new Result("Y", "", "0", "");
 		}
-		courses.setLecturerName(lecturerMapper
-				.selectByPrimaryKey(Integer.parseInt(courses.getLecturers().split(",")[1])).getLecturerName());
+		courses.setLecturerName(lecturerMapper.selectByPrimaryKey(Integer.parseInt(courses.getLecturers().split(",")[1])).getLecturerName());
 		JSONObject jo = new JSONObject();
 
 		if ("en".equals(lang)) {

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.fastjson.JSONArray;
 import com.chinamobo.ue.activity.dao.TomActivityEmpsRelationMapper;
 import com.chinamobo.ue.activity.dao.TomActivityMapper;
 import com.chinamobo.ue.activity.dao.TomActivityPropertyMapper;
@@ -837,6 +838,7 @@ public class EmpServise {
 			DBContextHolder.setDbType(DBContextHolder.MASTER); 
 			String access_token = WeChatUtil.getToken();
 			List<EmpDto>list = WeChatUtil.getEmp(access_token, pkDept);
+			System.out.println(pkDept+"----------->"+JSONArray.toJSONString(list));
 			List<TomEmp> oldList=new ArrayList<TomEmp>();
 			TomInterfLog tomInterfLog = new TomInterfLog();
 			if("1".equals(pkDept)){

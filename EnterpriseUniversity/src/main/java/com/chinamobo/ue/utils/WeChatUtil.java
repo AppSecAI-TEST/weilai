@@ -59,7 +59,7 @@ public class WeChatUtil {
 			if(map.size()>0){
 				long tokenTime = Long.valueOf(map.get("tokenTime").toString());
 				long time = System.currentTimeMillis();
-				if(time - tokenTime < 7200*1000){
+				if((time - tokenTime) < 7200*1000){
 					result = map.get("access_token").toString();
 				}else{
 					HttpResponse res = client.execute(get);
@@ -134,6 +134,7 @@ public class WeChatUtil {
 		//fetch_child:1/0：是否递归获取子部门下面的成员 
 		//status:0获取全部成员，1获取已关注成员列表，2获取禁用成员列表，4获取未关注成员列表。status可叠加,未填写则默认为4 
 		String url = baseUrl+ "/cgi-bin/user/list?access_token="+access_token+"&department_id="+pkDept+"&fetch_child=1"+"&status=0";
+		System.out.println(url);
 		HttpClient client = new DefaultHttpClient();
 		HttpGet get = new HttpGet(url);
 		JsonMapper jsonMapper=new JsonMapper();
@@ -142,6 +143,7 @@ public class WeChatUtil {
 			HttpResponse res = client.execute(get);
 			String responseContent = null;
 			HttpEntity entity = res.getEntity();
+			System.out.println(res.getStatusLine().getStatusCode()+"===="+res.getStatusLine().toString());;
 			responseContent = EntityUtils.toString(entity, "UTF-8");
 			JSONObject object=JSONObject.fromObject(responseContent);
 			JSONArray jsonArray = object.getJSONArray("userlist");

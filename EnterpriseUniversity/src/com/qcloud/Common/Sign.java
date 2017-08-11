@@ -1,4 +1,4 @@
-﻿package com.qcloud.Common; 
+package com.qcloud.Common;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
